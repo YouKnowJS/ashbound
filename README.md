@@ -50,6 +50,8 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 See [architecture and important scripts](Docs/ARCHITECTURE.md), [verification and test instructions](Docs/VERIFICATION.md), and [balance and next milestone](Docs/NEXT_MILESTONE.md).
 
+For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
+
 **The architecture guide describes the end-of-run reveal. Keep it out of player-facing tutorials.**
 
 ### Debugging
