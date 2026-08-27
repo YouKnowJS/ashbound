@@ -1,0 +1,6 @@
+{
+  "name": "Ashbound.Domain",
+  "rootNamespace": "Ashbound",
+  "noEngineReferences": true,
+  "autoReferenced": true
+}

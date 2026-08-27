@@ -1,0 +1,5 @@
+{
+  "name": "Ashbound.PlayModeTests",
+  "references": ["Ashbound.Domain", "Ashbound.Runtime", "Unity.InputSystem", "Unity.InputSystem.TestFramework"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

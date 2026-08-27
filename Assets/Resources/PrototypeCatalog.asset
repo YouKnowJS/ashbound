@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe2c04377a51ec04596db5e719633f3f, type: 3}
+  m_Name: PrototypeCatalog
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.PrototypeCatalog
+  weapon: {fileID: 11400000, guid: e7ca42227f563b1409f54d0f581785b5, type: 2}
+  boss: {fileID: 11400000, guid: c72dc6e5b611b1e4086c60a77d85bd5d, type: 2}
+  items:
+  - {fileID: 11400000, guid: 7eeb9372c2dff08419228dd7785dceb6, type: 2}
+  - {fileID: 11400000, guid: ff4ecab0dc195f84499be3297003fd0d, type: 2}
+  - {fileID: 11400000, guid: ddfc2ac86fa5903428421805d4f6f593, type: 2}
+  - {fileID: 11400000, guid: 64c4686d62a3a6146b5d349db3856685, type: 2}
+  - {fileID: 11400000, guid: 5d64f7f8fa341284597c270f30749d04, type: 2}
+  - {fileID: 11400000, guid: 543b15eeb5781784e911b3219e81c283, type: 2}
+  - {fileID: 11400000, guid: 26a2e670a5e967b4782671d74a7cc93a, type: 2}
+  - {fileID: 11400000, guid: f07233b1be48656469085fb603e287f6, type: 2}
+  rooms:
+  - {fileID: 11400000, guid: 079177f26658f5a4aa60d9fd022811ba, type: 2}
+  - {fileID: 11400000, guid: 9095d9246b83b854d973ffe967f30693, type: 2}
+  - {fileID: 11400000, guid: 4d868b1dc9838684f97ac9461b347921, type: 2}
+  corruptedAtFourPlayers: 2

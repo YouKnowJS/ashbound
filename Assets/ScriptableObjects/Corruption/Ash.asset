@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c81286f51a2ddd64da5a6eddaae9a8d1, type: 3}
+  m_Name: Ash
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.BossCorruptionProfile
+  id: ash
+  displayName: Ashbound
+  healthMultiplier: 1.25
+  damageMultiplier: 1.1
+  movementMultiplier: 1.13
+  overrideAbilityWithFireBurst: 1
+  attacksBurn: 1
+  dashLeavesFire: 1
+  burnDamagePerSecond: 4
+  burnDuration: 3
+  burstDamage: 34
+  burstRadius: 3.5
+  burstCooldown: 6
+  vfxPrefab: {fileID: 0}
+  corruptionTags: 0300000009000000
+  tint: {r: 0.85, g: 0.28, b: 1, a: 1}

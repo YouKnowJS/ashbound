@@ -1,0 +1,7 @@
+{
+  "name": "Ashbound.Editor",
+  "rootNamespace": "Ashbound.Editor",
+  "references": ["Ashbound.Runtime", "Ashbound.Domain"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

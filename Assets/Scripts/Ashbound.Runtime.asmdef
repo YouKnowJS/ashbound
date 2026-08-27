@@ -1,0 +1,6 @@
+{
+  "name": "Ashbound.Runtime",
+  "rootNamespace": "Ashbound",
+  "references": ["Ashbound.Domain", "Unity.InputSystem"],
+  "autoReferenced": true
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Ashbound.EditModeTests",
+  "references": ["Ashbound.Domain", "Ashbound.Runtime"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
