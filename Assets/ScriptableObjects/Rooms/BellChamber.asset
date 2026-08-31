@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.RoomDefinition
   id: bell-chamber
   displayName: 02 / The Bell Chamber
-  description: Something moves behind the last seal.
+  description: Fast shapes circle the old bell.
   isBoss: 0
   spawnPoints:
   - {x: -7, y: 0, z: 4}
@@ -26,6 +26,7 @@ MonoBehaviour:
   - {x: -4, y: 0, z: 6}
   - {x: 0, y: 0, z: 4}
   waves:
-  - enemies: 00000000020000000100000002000000
-  - enemies: 03000000010000000200000001000000
+  - enemies: 02000000010000000000000002000000
   fragment: {fileID: 11400000, guid: 492bd678ec62fa34f9a2be7efcd254a5, type: 2}
+  enemyHealthMultiplier: 1
+  targetEncounterSeconds: 145

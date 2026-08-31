@@ -16,11 +16,17 @@ namespace Ashbound
         public readonly DamageKind Kind;
         public readonly Vector3 Direction;
         public readonly bool CanCrit, TriggerEffects;
+        public readonly DamageElement Element;
+        public readonly ImpactTier Impact;
+        public readonly float CriticalChanceBonus;
         public DamageInfo(Combatant source, float amount, DamageKind kind, Vector3 direction = default,
-            float stun = 0, float knockback = 0, bool canCrit = false, bool triggerEffects = false)
+            float stun = 0, float knockback = 0, bool canCrit = false, bool triggerEffects = false,
+            DamageElement element = DamageElement.Physical, ImpactTier impact = ImpactTier.Light, float criticalChanceBonus = 0)
         {
             Source = source; Amount = amount; Kind = kind; Direction = direction;
             Stun = stun; Knockback = knockback; CanCrit = canCrit; TriggerEffects = triggerEffects;
+            Element = element; Impact = impact;
+            CriticalChanceBonus = criticalChanceBonus;
         }
     }
 

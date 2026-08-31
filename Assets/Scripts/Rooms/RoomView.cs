@@ -11,7 +11,7 @@ namespace Ashbound
         {
             if (geometry) { geometry.gameObject.SetActive(false); Destroy(geometry.gameObject); }
             geometry = new GameObject("Room geometry").transform; geometry.SetParent(transform);
-            Color floor = index == 2 ? new Color(.19f, .17f, .17f) : new Color(.17f, .20f, .22f);
+            Color floor = index == 6 ? new Color(.19f, .17f, .17f) : new Color(.17f, .20f, .22f);
             PrimitiveFactory.Shape("Floor", PrimitiveType.Cube, geometry, new Vector3(0, -.35f, 0), new Vector3(28, .7f, 22), floor, true);
             Color stone = new Color(.25f, .28f, .31f);
             for (int x = -14; x <= 14; x += 28)
@@ -30,7 +30,7 @@ namespace Ashbound
             var gateObject = PrimitiveFactory.Shape("Exit seal", PrimitiveType.Cube, geometry, ExitPosition + Vector3.up * .04f,
                 new Vector3(3.3f, .08f, 1.3f), Palette.Danger);
             gate = gateObject.GetComponent<Renderer>();
-            CombatVfx.Ring(Vector3.zero, index == 2 ? 6 : 4, new Color(.4f, .36f, .26f), float.MaxValue, .04f).transform.SetParent(geometry);
+            CombatVfx.Ring(Vector3.zero, index == 6 ? 6 : 4, new Color(.4f, .36f, .26f), float.MaxValue, .04f).transform.SetParent(geometry);
         }
         public void SetGate(bool open) { if (gate) gate.sharedMaterial = PrimitiveFactory.Material(open ? Palette.Player : Palette.Danger); }
     }

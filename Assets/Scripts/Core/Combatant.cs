@@ -22,8 +22,8 @@ namespace Ashbound
         public float BaseMaxHealth { get; private set; } = 120;
         public bool Alive => Health && Health.IsAlive;
         public float DamageMultiplier => (1 + Inventory.SumModifiers().damage) * (Corruption ? Corruption.damageMultiplier : 1);
-        public float CriticalChance => Mathf.Clamp01(.08f + Inventory.SumModifiers().criticalChance);
-        public float CriticalMultiplier => 1.7f + Inventory.SumModifiers().criticalMultiplier;
+        public float CriticalChance => Mathf.Clamp01(.08f + (Weapon ? Weapon.criticalChanceModifier : 0) + Inventory.SumModifiers().criticalChance);
+        public float CriticalMultiplier => 1.7f + (Weapon ? Weapon.criticalDamageModifier : 0) + Inventory.SumModifiers().criticalMultiplier;
         public float Speed => BaseSpeed * (1 + Inventory.SumModifiers().movementSpeed) * (Corruption ? Corruption.movementMultiplier : 1) * Statuses.MovementFactor;
         public float AttackInterval => Weapon.attackInterval / Mathf.Max(.25f, 1 + Inventory.SumModifiers().attackSpeed);
         public float MaximumHealth => BaseMaxHealth * (1 + Inventory.SumModifiers().maxHealth) * (Corruption ? Corruption.healthMultiplier : 1);
@@ -50,6 +50,10 @@ namespace Ashbound
             Health.Initialize(MaximumHealth);
             if (healthFraction < 1) Health.Pool.Damage(MaximumHealth * (1 - healthFraction));
             if (View) View.SetDead(false);
+        }
+        public void ScaleHealth(float multiplier)
+        {
+            BaseMaxHealth *= Mathf.Max(.1f, multiplier); Health.Resize(MaximumHealth); Health.Heal(Health.MaxHealth);
         }
         private void OnDestroy() { if (Combat) Combat.Unregister(this); }
     }

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7f28b85c78caa64f98f917eb9a21e2d, type: 3}
+  m_Name: vault-bow
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.WeaponDefinition
+  id: vault-bow
+  displayName: Vault Bow
+  damage: 23
+  attackInterval: 0.4
+  reach: 0
+  arcDegrees: 0
+  knockback: 2
+  family: 5
+  mechanic: 5
+  attackMoveMultiplier: 0.78
+  criticalChanceModifier: 0.02
+  criticalDamageModifier: 0.1
+  projectileSpeed: 22
+  projectileLifetime: 1.5
+  comboThreshold: 3
+  mechanicPower: 0.85
+  tags: 0e000000
+  trailPrefab: {fileID: 0}
+  impactPrefab: {fileID: 0}
+  lightAttackSound: {fileID: 0}
+  heavyAttackSound: {fileID: 0}

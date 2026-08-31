@@ -10,6 +10,8 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
+v0.2 content validation additionally checks all eight weapon families, 35–45 unique relics, six or more relics per elemental family, seven expedition encounters, the Mini-Boss, and reflection mappings for all ten build themes.
+
 ### Edit Mode
 
 - Co-op friendly-fire rejection in every pre-final state, even if a caller requests friendly fire.
@@ -46,6 +48,21 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 8. Finish/reset a run, inspect the local telemetry JSON, and start a second run to check cleanup.
 
 ## Verification status
+
+### v0.2 verification — 2026-08-31
+
+Using Unity **6000.4.11f1** on Windows after the combat/build expansion:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed; no C# compiler warnings found |
+| Edit Mode | **23 passed**, 0 failed, 0 skipped |
+| Play Mode | **8 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process launched and remained responsive; no managed exception found in `Player.log` |
+| Human weapon/build balance and physical controllers | Not completed |
+
+The existing machine-specific D3D12 info-queue warning remains non-fatal. Automated tests validate rules and orchestration; they do not establish the 20–25 minute pacing target or combat feel.
 
 Recorded on **2026-08-27**, using Unity **6000.4.11f1** on Windows:
 

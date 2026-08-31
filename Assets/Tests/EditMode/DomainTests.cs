@@ -121,6 +121,17 @@ namespace Ashbound.Tests
             Assert.That(BuildAnalyzer.Dominant(new[] { new[] { BuildTag.Mobility } }), Is.Empty);
         }
         [Test]
+        public void ExpandedBuildAnalysisIncludesEveryV02Theme()
+        {
+            var themes = new[]{BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void,
+                BuildTag.Critical,BuildTag.Bleed,BuildTag.Heavy,BuildTag.Combo,BuildTag.DashPrecision};
+            foreach(var theme in themes)
+            {
+                Assert.That(BuildAnalyzer.Dominant(new[]{new[]{theme}}),Is.EqualTo(new[]{theme}));
+                Assert.That(BuildAnalyzer.ReflectionItems(new[]{theme}),Is.Not.Empty,theme.ToString());
+            }
+        }
+        [Test]
         public void HealthModifiersPreserveHealthFractionAndDoNotRevive()
         {
             var hp = new HealthPool(100); hp.Damage(50); hp.Resize(200);
@@ -131,11 +142,14 @@ namespace Ashbound.Tests
         public void AuthoredContentIsCompleteAndAllIdsAreUnique()
         {
             var catalog = Resources.Load<PrototypeCatalog>("PrototypeCatalog");
-            Assert.That(catalog, Is.Not.Null); Assert.That(catalog.items.Length, Is.EqualTo(8));
-            Assert.That(catalog.items.Select(x => x.id).Distinct().Count(), Is.EqualTo(8));
-            Assert.That(catalog.rooms.Length, Is.EqualTo(3)); Assert.That(catalog.rooms[2].isBoss, Is.True);
+            Assert.That(catalog, Is.Not.Null); Assert.That(catalog.items.Length, Is.InRange(35,45));
+            Assert.That(catalog.items.Select(x => x.id).Distinct().Count(), Is.EqualTo(catalog.items.Length));
+            Assert.That(catalog.rooms.Length, Is.EqualTo(7)); Assert.That(catalog.rooms.Last().isBoss, Is.True);
             Assert.That(catalog.boss.corruption, Is.Not.Null); Assert.That(catalog.weapon, Is.Not.Null);
-            Assert.That(catalog.rooms.Take(2).SelectMany(x => x.waves).SelectMany(x => x.enemies), Does.Contain(EnemyKind.Elite));
+            Assert.That(catalog.weapons.Select(x => x.family).Distinct().Count(), Is.EqualTo(8));
+            Assert.That(catalog.rooms.SelectMany(x => x.waves).SelectMany(x => x.enemies), Does.Contain(EnemyKind.MiniBoss));
+            foreach (var tag in new[]{BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void})
+                Assert.That(catalog.items.Count(x=>x.tags.Contains(tag)),Is.GreaterThanOrEqualTo(6),tag.ToString());
         }
     }
 }

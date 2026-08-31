@@ -21,8 +21,8 @@ namespace Ashbound
             float distance = offset.magnitude;
             if (kind == EnemyKind.Lantern)
                 actor.Motor.SetMove(distance > 7 ? offset.normalized : distance < 4 ? -offset.normalized : Vector3.zero);
-            else actor.Motor.SetMove(distance > (kind == EnemyKind.Elite ? 2.1f : 1.2f) ? offset.normalized : Vector3.zero);
-            float range = kind == EnemyKind.Lantern || kind == EnemyKind.Hound ? 10 : kind == EnemyKind.Elite ? 3 : 1.7f;
+            else actor.Motor.SetMove(distance > (kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Bulwark ? 2.1f : 1.2f) ? offset.normalized : Vector3.zero);
+            float range = kind == EnemyKind.Lantern || kind == EnemyKind.Hound ? 10 : kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Bulwark ? 3 : 1.7f;
             if (distance < range && Time.time >= nextAttack && !actor.Motor.IsStunned) StartCoroutine(Attack(target));
         }
         private IEnumerator Attack(Combatant target)
@@ -54,11 +54,17 @@ namespace Ashbound
                 yield return new WaitForSeconds(.65f);
                 if (CanFinish()) CombatProjectile.Spawn(actor, direction, 8, 9, Palette.Danger);
             }
+            else if (kind == EnemyKind.MiniBoss && Random.value > .5f)
+            {
+                CombatVfx.Direction(transform.position, direction, 11, Palette.Gold, .8f);
+                yield return new WaitForSeconds(.8f);
+                if (CanFinish()) { CombatProjectile.Spawn(actor, direction, 10, 22, Palette.Gold); CombatProjectile.Spawn(actor, Quaternion.Euler(0,18,0)*direction, 10, 18, Palette.Gold); CombatProjectile.Spawn(actor, Quaternion.Euler(0,-18,0)*direction, 10, 18, Palette.Gold); }
+            }
             else
             {
-                float radius = kind == EnemyKind.Elite ? 2.9f : 1.65f;
-                AreaAttack.Spawn(actor, transform.position + direction * .4f, radius, kind == EnemyKind.Elite ? 21 : 10, kind == EnemyKind.Elite ? .85f : .45f);
-                yield return new WaitForSeconds(kind == EnemyKind.Elite ? .95f : .55f);
+                float radius = kind == EnemyKind.MiniBoss ? 3.5f : kind == EnemyKind.Elite || kind == EnemyKind.Bulwark ? 2.9f : 1.65f;
+                AreaAttack.Spawn(actor, transform.position + direction * .4f, radius, kind == EnemyKind.MiniBoss ? 27 : kind == EnemyKind.Elite || kind == EnemyKind.Bulwark ? 21 : 10, kind == EnemyKind.MiniBoss ? 1f : kind == EnemyKind.Elite || kind == EnemyKind.Bulwark ? .85f : .45f);
+                yield return new WaitForSeconds(kind == EnemyKind.MiniBoss ? 1.1f : kind == EnemyKind.Elite || kind == EnemyKind.Bulwark ? .95f : .55f);
             }
             nextAttack = Time.time + (kind == EnemyKind.Hound ? 1.7f : 1.1f); winding = false;
         }

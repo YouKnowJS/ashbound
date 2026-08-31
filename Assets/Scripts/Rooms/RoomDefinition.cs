@@ -19,5 +19,7 @@ namespace Ashbound
         public Vector3[] spawnPoints;
         public EnemyWave[] waves;
         public LoreEntry fragment;
+        [Range(.5f, 3f)] public float enemyHealthMultiplier = 1;
+        [Min(30)] public float targetEncounterSeconds = 150;
     }
 }

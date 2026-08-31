@@ -13,6 +13,15 @@ MonoBehaviour:
   m_Name: PrototypeCatalog
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.PrototypeCatalog
   weapon: {fileID: 11400000, guid: e7ca42227f563b1409f54d0f581785b5, type: 2}
+  weapons:
+  - {fileID: 11400000, guid: e7ca42227f563b1409f54d0f581785b5, type: 2}
+  - {fileID: 11400000, guid: e41b0939d6abd3e4f9f32f0d16526a9d, type: 2}
+  - {fileID: 11400000, guid: 2d32851086aac1b49a21a14543f2eb41, type: 2}
+  - {fileID: 11400000, guid: ee9baf00fb6d09b40b2eca83b6b38a37, type: 2}
+  - {fileID: 11400000, guid: c79183ac53feadc459f97f31ea964eee, type: 2}
+  - {fileID: 11400000, guid: e34fad108a184c74a81a7e34f3d9f417, type: 2}
+  - {fileID: 11400000, guid: ebfa22629e780344cae8b3a223397284, type: 2}
+  - {fileID: 11400000, guid: 2213e594330cec24c823df7cd2518220, type: 2}
   boss: {fileID: 11400000, guid: c72dc6e5b611b1e4086c60a77d85bd5d, type: 2}
   items:
   - {fileID: 11400000, guid: 7eeb9372c2dff08419228dd7785dceb6, type: 2}
@@ -23,8 +32,49 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 543b15eeb5781784e911b3219e81c283, type: 2}
   - {fileID: 11400000, guid: 26a2e670a5e967b4782671d74a7cc93a, type: 2}
   - {fileID: 11400000, guid: f07233b1be48656469085fb603e287f6, type: 2}
+  - {fileID: 11400000, guid: 620e2fcca05829a4ea26c330e9a3b16a, type: 2}
+  - {fileID: 11400000, guid: 89c8994e90e36654d97eb472ca697ce3, type: 2}
+  - {fileID: 11400000, guid: 4c6179ed38f5ddb42bfaf40051182d4b, type: 2}
+  - {fileID: 11400000, guid: e29ecb27ebb48124c8ef65947a596d4b, type: 2}
+  - {fileID: 11400000, guid: 49866fa4a1af79042a830619817c8273, type: 2}
+  - {fileID: 11400000, guid: e3cdb190951fd394fafa9453786c5ca1, type: 2}
+  - {fileID: 11400000, guid: 630ac5b77a6db5f4a8be6991fb891069, type: 2}
+  - {fileID: 11400000, guid: 088690006c6e5394ca35cda8086d85df, type: 2}
+  - {fileID: 11400000, guid: ef1819b746f759049be007a23b5c29db, type: 2}
+  - {fileID: 11400000, guid: fc3fa5f90774ee948982a59e61c51c75, type: 2}
+  - {fileID: 11400000, guid: f17dbf87014641f4798364e7914c63a3, type: 2}
+  - {fileID: 11400000, guid: c2dad9f70d6caa44c878783820250dc6, type: 2}
+  - {fileID: 11400000, guid: 33e1b43ff0c1ff94c99973e76739d44a, type: 2}
+  - {fileID: 11400000, guid: bc4a5ff0a859be14bb52238a4206b00f, type: 2}
+  - {fileID: 11400000, guid: 5896ac34913d7eb46b27312765438008, type: 2}
+  - {fileID: 11400000, guid: c1b5c63ba7b80204a9343f5bd1755f27, type: 2}
+  - {fileID: 11400000, guid: ea73e4143b8d49244a9d272356d55810, type: 2}
+  - {fileID: 11400000, guid: faba28f7d3891ac46a1172b14de42ac6, type: 2}
+  - {fileID: 11400000, guid: 0f346dffc8c920148ba67657b8d65177, type: 2}
+  - {fileID: 11400000, guid: e029063cfad40ce4582914b0031f47a1, type: 2}
+  - {fileID: 11400000, guid: e72d13386ba20674faf3fe5ebae392db, type: 2}
+  - {fileID: 11400000, guid: cecd2627f4902714980e4872a207d1c1, type: 2}
+  - {fileID: 11400000, guid: 649ad9bd3138aad4597aeac817d3f2ff, type: 2}
+  - {fileID: 11400000, guid: a8cd3d2841ba83544ab797f6bcc8e1ec, type: 2}
+  - {fileID: 11400000, guid: 60a6c3897c297414ca704bcde2fbd378, type: 2}
+  - {fileID: 11400000, guid: 417b0facf1ccdb24895848ef15371ca7, type: 2}
+  - {fileID: 11400000, guid: d6f8274e71b45c448b688549d77cb026, type: 2}
+  - {fileID: 11400000, guid: e237751d7aff368428df1b119c5897a0, type: 2}
+  - {fileID: 11400000, guid: b3833faa55a0e1847b84fe22970e91a2, type: 2}
+  - {fileID: 11400000, guid: a3c9d01417bbb6c4ba7d362cda80349d, type: 2}
+  - {fileID: 11400000, guid: a7fe93a84d2b73c448c76e1213cf3bcf, type: 2}
+  - {fileID: 11400000, guid: 0c6975ca202586a4aaaa72a987ec8c61, type: 2}
+  - {fileID: 11400000, guid: 0428023f76c44b0489c5b89f6609be57, type: 2}
+  - {fileID: 11400000, guid: 44b05d01ae28f8449ac1a26846ec2d9e, type: 2}
+  - {fileID: 11400000, guid: 147b483565512ca428edd3e950514c8c, type: 2}
+  - {fileID: 11400000, guid: 1141a33ccde611d468a0dbcc699ef8a4, type: 2}
+  - {fileID: 11400000, guid: 065e81f9bbdcef540b9546f072a3e62a, type: 2}
   rooms:
   - {fileID: 11400000, guid: 079177f26658f5a4aa60d9fd022811ba, type: 2}
   - {fileID: 11400000, guid: 9095d9246b83b854d973ffe967f30693, type: 2}
+  - {fileID: 11400000, guid: 841524a8cd4d7a44cbe1c89b74f42f08, type: 2}
+  - {fileID: 11400000, guid: c9217f257fb9e474bad17bdcb372b9a1, type: 2}
+  - {fileID: 11400000, guid: db114e3347216ea4b92bc993de134f6d, type: 2}
+  - {fileID: 11400000, guid: 941f8ae389746484ba8ba329b0d93c07, type: 2}
   - {fileID: 11400000, guid: 4d868b1dc9838684f97ac9461b347921, type: 2}
   corruptedAtFourPlayers: 2

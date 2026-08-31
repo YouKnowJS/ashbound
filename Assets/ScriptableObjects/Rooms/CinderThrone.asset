@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CinderThrone
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.RoomDefinition
   id: cinder-throne
-  displayName: 03 / The Cinder Throne
+  displayName: 07 / The Cinder Throne
   description: The last keeper waits.
   isBoss: 1
   spawnPoints:
@@ -27,3 +27,5 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 4}
   waves: []
   fragment: {fileID: 0}
+  enemyHealthMultiplier: 1
+  targetEncounterSeconds: 150

@@ -57,9 +57,9 @@ namespace Ashbound.Tests
             Assert.That(run.Players.Count, Is.EqualTo(1));
             run.Players[0].Health.DebugInvulnerable = true;
             Assert.That(run.TryBeginCorruption(), Is.False);
-            for (int room = 0; room < 2; room++)
+            for (int room = 0; room < 6; room++)
             {
-                for (int wave = 0; wave < 2; wave++)
+                for (int wave = 0; wave < run.Catalog.rooms[room].waves.Length; wave++)
                 {
                     yield return State(RunState.Combat);
                     Assert.That(run.Rooms.RoomIndex, Is.EqualTo(room));
@@ -73,7 +73,7 @@ namespace Ashbound.Tests
                 run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition); run.Interact(run.Players[0]);
             }
             yield return State(RunState.BossFight);
-            Assert.That(run.Players[0].Inventory.Items.Count, Is.EqualTo(4));
+            Assert.That(run.Players[0].Inventory.Items.Count, Is.EqualTo(6));
             Assert.That(run.Corruption.Reflection, Is.Null);
             KillHostiles(); yield return State(RunState.BossDefeated);
             Assert.That(run.Combat.PvPEnabled, Is.False);
@@ -89,7 +89,7 @@ namespace Ashbound.Tests
             yield return State(RunState.RunComplete);
             Assert.That(run.Telemetry.Record.winner, Is.EqualTo("Wanderers"));
             Assert.That(run.Telemetry.Record.players[0].bossDamage, Is.GreaterThan(0));
-            Assert.That(run.Telemetry.Record.players[0].upgradesSelected.Count, Is.EqualTo(4));
+            Assert.That(run.Telemetry.Record.players[0].upgradesSelected.Count, Is.EqualTo(6));
             Assert.That(System.IO.File.Exists(run.Telemetry.LastPath), Is.True);
             var saved = JsonUtility.FromJson<MatchRecord>(System.IO.File.ReadAllText(run.Telemetry.LastPath));
             Assert.That(saved.corruptionType, Is.EqualTo("ash"));

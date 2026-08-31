@@ -97,4 +97,6 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Next milestone: collect repeated human solo and 2–4 player run telemetry, tune boss/reflection fairness and control feel, then prototype an authoritative networking transport without adding more content.
+Ashbound v0.2 adds eight weapon families, 45 relics across five elemental and five physical themes, tiered combat feedback, a six-reward expedition, and a Mini-Boss. See [the v0.2 combat/build guide](Docs/V0.2_COMBAT_BUILD_EXPANSION.md).
+
+Next milestone: collect repeated human solo and 2–4 player run telemetry, tune weapon/build/boss/reflection fairness and control feel, then prototype an authoritative networking transport without adding more content.

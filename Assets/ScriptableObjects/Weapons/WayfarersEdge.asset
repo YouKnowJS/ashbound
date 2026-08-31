@@ -19,3 +19,17 @@ MonoBehaviour:
   reach: 2.7
   arcDegrees: 115
   knockback: 3
+  family: 0
+  mechanic: 0
+  attackMoveMultiplier: 0.9
+  criticalChanceModifier: 0
+  criticalDamageModifier: 0
+  projectileSpeed: 0
+  projectileLifetime: 1.5
+  comboThreshold: 4
+  mechanicPower: 0.15
+  tags: []
+  trailPrefab: {fileID: 0}
+  impactPrefab: {fileID: 0}
+  lightAttackSound: {fileID: 0}
+  heavyAttackSound: {fileID: 0}

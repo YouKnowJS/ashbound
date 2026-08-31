@@ -32,6 +32,18 @@ namespace Ashbound
             Vector3 offset = to - from, side = Vector3.Cross(offset.normalized, Vector3.up) * .25f;
             Setup(obj, new[] { Vector3.zero, offset * .3f + side, offset * .6f - side, offset }, color, .18f, .09f, false);
         }
+        public static void Sparks(Vector3 position, Color color, bool critical = false)
+        {
+            int count = critical ? 9 : 5;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = i * 360f / count + (critical ? 18 : 0);
+                Vector3 direction = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+                var obj = new GameObject(critical ? "Critical spark" : "Hit spark");
+                obj.transform.position = position + Vector3.up * .8f;
+                Setup(obj, new[] { Vector3.zero, direction * (critical ? 1.2f : .65f) }, color, critical ? .2f : .12f, critical ? .11f : .065f, false);
+            }
+        }
         public static GameObject Direction(Vector3 origin, Vector3 direction, float length, Color color, float seconds)
         {
             var obj = new GameObject("Charge warning"); obj.transform.position = origin + Vector3.up * .12f;

@@ -108,7 +108,7 @@ namespace Ashbound
         {
             U.Panel(new Rect(18, 16, 350, 58));
             U.Label(32, 23, 320, 24, run.Rooms.Current.displayName, U.CardTitle);
-            string stage = run.Flow.State == RunState.Combat ? "Wave " + (run.Rooms.WaveIndex + 1) + " / 2  ·  " + run.Rooms.RemainingEnemies + " remaining" :
+            string stage = run.Flow.State == RunState.Combat ? "Wave " + (run.Rooms.WaveIndex + 1) + " / " + run.Rooms.Current.waves.Length + "  ·  " + run.Rooms.RemainingEnemies + " remaining" :
                 run.Flow.State == RunState.FinalPvP ? "THE INHERITANCE" : run.Flow.State == RunState.Reward ? "Choose a relic" : "The Cinder Vault";
             U.Label(32, 48, 320, 20, stage, U.Small);
             U.Panel(new Rect(1030, 16, 232, 58));
@@ -130,7 +130,7 @@ namespace Ashbound
                 Color tint = player.Corruption ? Palette.Corrupted : Palette.Party[i];
                 U.Bar(new Rect(x + 12, 633, 276, 10), player.Health.CurrentHealth / player.Health.MaxHealth, tint);
                 U.Label(x + 12, 649, 279, 23, player.Alive ? Math.Ceiling(player.Health.CurrentHealth) + " / " + Math.Ceiling(player.Health.MaxHealth) + " HP" + (player.Health.Pool.Shield > 0 ? "  +" + Math.Ceiling(player.Health.Pool.Shield) + " shield" : "") : "Down · returns at the next reward", U.Small);
-                U.Label(x + 12, 674, 278, 22, "Dash " + Ready(player.Motor.DashCooldown) + "   " + (player.Corruption ? "Burst " : "Ward ") + Ready(player.Attacks.AbilityCooldown) + "   Relics " + player.Inventory.Items.Count, U.Small);
+                U.Label(x + 12, 674, 278, 22, player.Weapon.family + " · Dash " + Ready(player.Motor.DashCooldown) + " · Relics " + player.Inventory.Items.Count, U.Small);
             }
             if (count == 1) U.Label(345, 639, 720, 44, "LMB strike   ·   Space dash   ·   E ward / burst   ·   F interact\nTab build & fragments   ·   F1 developer tools", U.Small);
         }
@@ -172,6 +172,7 @@ namespace Ashbound
                 U.Label(x + 18, 313, 236, 55, item.displayName, U.CardTitle);
                 U.Label(x + 18, 373, 236, 79, item.description);
                 U.Label(x + 18, 455, 236, 30, string.Join(" · ", item.tags), U.Small);
+                if (!string.IsNullOrEmpty(item.requiredItemId)) U.Label(x + 18, 475, 236, 18, "Requires: " + item.requiredItemId, U.Small);
                 if (U.Click(new Rect(x + 18, 489, 237, 31), "Take relic  [" + (i + 1) + "]")) { run.Draft.Choose(i); break; }
             }
             U.Label(210, 555, 860, 40, "Click or press 1 / 2 / 3. Current player's gamepad: A / B / Y.\nEach player chooses in turn. Health restored at this checkpoint.", U.Small);

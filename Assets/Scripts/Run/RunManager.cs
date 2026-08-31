@@ -37,7 +37,7 @@ namespace Ashbound
             Catalog = catalog; Combat = combat; Rooms = rooms; this.factory = factory; this.view = view;
             Corruption = new CorruptionSystem(catalog, factory);
             Flow.Changed += state => { Combat.State = state; Combat.FriendlyFire = false; StateChanged?.Invoke(state); };
-            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage;
+            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc;
             Rooms.Load(0);
         }
 
@@ -73,6 +73,7 @@ namespace Ashbound
 
         private void OnWaveCleared()
         {
+            if (Rooms.RoomIndex == 4) Telemetry.MiniBossKilled();
             if (!Flow.TryAdvance(RunState.Reward)) return;
             Rooms.ClearTransientCombat();
             foreach (var player in players)
@@ -111,6 +112,7 @@ namespace Ashbound
 
         private void OnBossDied()
         {
+            Telemetry.FinalBossKilled();
             if (!Flow.TryAdvance(RunState.BossDefeated)) return;
             Rooms.ClearTransientCombat(); foreach (var player in players) player.Motor.Stop();
             Message = "The keeper falls.\nFor a moment, the vault is silent.";
@@ -145,7 +147,7 @@ namespace Ashbound
             { if (DebugOpen) DebugOpen = false; else ManualPaused = !ManualPaused; }
             MissingDevice = players.FirstOrDefault(x => x && !x.GetComponent<PlayerController>().InputSource.Connected)?.Id;
             Combat.Paused = ManualPaused || DebugOpen || !string.IsNullOrEmpty(MissingDevice);
-            Time.timeScale = Combat.Paused ? 0 : 1;
+            Time.timeScale = Combat.Paused || (Combat.Feedback && Combat.Feedback.HitStopped) ? 0 : 1;
             if (!Combat.Paused) Telemetry.Tick(Time.unscaledDeltaTime, Flow.State);
         }
         private void LateUpdate()
@@ -170,10 +172,20 @@ namespace Ashbound
             if (Flow.State == RunState.Lobby) StartRun();
             if (Flow.State == RunState.StartingRun) Flow.TryAdvance(RunState.Exploration);
             if (!Flow.DebugSkipToBoss()) return false;
-            StopAllCoroutines(); Draft?.Cancel(); Rooms.Load(2);
+            StopAllCoroutines(); Draft?.Cancel(); Rooms.Load(Catalog.rooms.Length - 1);
             if (fragment) Destroy(fragment.gameObject);
             for (int i = 0; i < players.Count; i++) { players[i].Restore(); players[i].Motor.Teleport(new Vector3(i * 2 - players.Count + 1, 0, -6)); }
             Rooms.SpawnBoss(players.Count); Message = Catalog.boss.displayName; Telemetry.Record.debugUsed = true; return true;
+        }
+        public bool DebugJumpToRoom(int index)
+        {
+            if (Flow.State == RunState.Lobby) StartRun();
+            if (Flow.State == RunState.StartingRun) Flow.TryAdvance(RunState.Exploration);
+            index = Mathf.Clamp(index, 0, Catalog.rooms.Length - 2);
+            if (!Flow.DebugJumpToCombat()) return false;
+            StopAllCoroutines(); Draft?.Cancel(); Rooms.Load(index);
+            for (int i = 0; i < players.Count; i++) { players[i].Restore(); players[i].Motor.Teleport(new Vector3(i * 2 - players.Count + 1, 0, -6)); }
+            Rooms.SpawnNextWave(players.Count); Message = Catalog.rooms[index].displayName; Telemetry.Record.debugUsed = true; return true;
         }
         public void ResetRun()
         {

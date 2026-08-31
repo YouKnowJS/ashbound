@@ -27,5 +27,6 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 4}
   waves:
   - enemies: 000000000000000001000000
-  - enemies: 00000000010000000200000000000000
   fragment: {fileID: 11400000, guid: 37da9da53bb0140499280593b5f25f56, type: 2}
+  enemyHealthMultiplier: 1
+  targetEncounterSeconds: 145

@@ -34,6 +34,11 @@ namespace Ashbound
             SetState(RunState.BossFight);
             return true;
         }
+        public bool DebugJumpToCombat()
+        {
+            if (State == RunState.Lobby || State == RunState.FinalPvP || State == RunState.RunComplete || BossWasDefeated) return false;
+            SetState(RunState.Combat); return true;
+        }
 
         public void Reset()
         {

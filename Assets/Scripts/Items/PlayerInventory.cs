@@ -11,6 +11,7 @@ namespace Ashbound
         public IReadOnlyList<ItemDefinition> Items => items;
         public event Action<ItemDefinition> Added;
         public bool Has(string id) => items.Any(x => x.id == id);
+        public int CountTag(BuildTag tag) => items.Count(x => x.tags.Contains(tag));
         public bool CanAdd(ItemDefinition item) => item && !Has(item.id) && (string.IsNullOrEmpty(item.requiredItemId) || Has(item.requiredItemId));
         public bool TryAdd(ItemDefinition item)
         {
@@ -40,5 +41,6 @@ namespace Ashbound
                 if (effect.kind == kind && effect.threshold > 0) return effect.threshold;
             return fallback;
         }
+        public void Clear() { items.Clear(); }
     }
 }

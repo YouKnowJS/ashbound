@@ -20,13 +20,16 @@ namespace Ashbound
 
         public Combatant Enemy(EnemyKind kind, Vector3 position, int partySize)
         {
-            float health = kind == EnemyKind.Cinderling ? 52 : kind == EnemyKind.Lantern ? 42 : kind == EnemyKind.Hound ? 68 : 180;
-            string name = kind == EnemyKind.Cinderling ? "Cinderling" : kind == EnemyKind.Lantern ? "Lantern acolyte" : kind == EnemyKind.Hound ? "Ash hound" : "Bell Warden";
+            float health = kind == EnemyKind.Cinderling ? 52 : kind == EnemyKind.Lantern ? 42 : kind == EnemyKind.Hound ? 68 :
+                kind == EnemyKind.Bulwark ? 120 : kind == EnemyKind.MiniBoss ? 430 : 180;
+            string name = kind == EnemyKind.Cinderling ? "Cinderling" : kind == EnemyKind.Lantern ? "Lantern acolyte" : kind == EnemyKind.Hound ? "Ash hound" :
+                kind == EnemyKind.Bulwark ? "Cinder Bulwark" : kind == EnemyKind.MiniBoss ? "The Cracked Warden" : "Bell Warden";
             var actor = Create("E" + ++sequence, name, false, Faction.Hostiles, health * (1 + .15f * (partySize - 1)), position,
-                kind == EnemyKind.Lantern ? new Color(.75f, .55f, .35f) : kind == EnemyKind.Elite ? Palette.Gold : Palette.Danger,
-                kind == EnemyKind.Elite ? 1.4f : kind == EnemyKind.Hound ? .8f : 1, kind == EnemyKind.Elite || kind == EnemyKind.Lantern);
-            actor.BaseSpeed = kind == EnemyKind.Hound ? 4.3f : kind == EnemyKind.Lantern ? 2.8f : kind == EnemyKind.Elite ? 2.6f : 3.5f;
-            if (kind == EnemyKind.Elite) actor.Health.Shield(45);
+                kind == EnemyKind.Lantern ? new Color(.75f, .55f, .35f) : kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss ? Palette.Gold : Palette.Danger,
+                kind == EnemyKind.MiniBoss ? 1.7f : kind == EnemyKind.Elite ? 1.4f : kind == EnemyKind.Hound ? .8f : 1, kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Lantern);
+            actor.BaseSpeed = kind == EnemyKind.Hound ? 4.3f : kind == EnemyKind.Lantern ? 2.8f : kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Bulwark ? 2.6f : 3.5f;
+            if (kind == EnemyKind.Elite || kind == EnemyKind.Bulwark) actor.Health.Shield(kind == EnemyKind.Bulwark ? 65 : 45);
+            if (kind == EnemyKind.MiniBoss) actor.IsBoss = true;
             actor.gameObject.AddComponent<EnemyController>().Configure(actor, kind);
             return actor;
         }

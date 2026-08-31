@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Ashbound
@@ -26,6 +27,16 @@ namespace Ashbound
         {
             if (silhouette) silhouette.localRotation = dead ? Quaternion.Euler(0, 0, 80) : Quaternion.identity;
             if (body) body.sharedMaterial = PrimitiveFactory.Material(dead ? new Color(.2f, .2f, .22f) : normal);
+        }
+        public void Flash(Color color, float seconds = .09f)
+        {
+            if (body && isActiveAndEnabled) StartCoroutine(FlashRoutine(color, seconds));
+        }
+        private IEnumerator FlashRoutine(Color color, float seconds)
+        {
+            body.sharedMaterial = PrimitiveFactory.Material(color);
+            yield return new WaitForSecondsRealtime(seconds);
+            if (body) body.sharedMaterial = PrimitiveFactory.Material(normal);
         }
         public void SetCorruption(BossCorruptionProfile profile)
         {

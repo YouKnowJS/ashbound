@@ -42,7 +42,7 @@ namespace Ashbound
         {
             Vector3 position = Current.spawnPoints[index % Current.spawnPoints.Length];
             position += Vector3.right * (index / Current.spawnPoints.Length) * .8f;
-            enemies.Add(factory.Enemy(kind, position, partySize));
+            var enemy = factory.Enemy(kind, position, partySize); enemy.ScaleHealth(Current.enemyHealthMultiplier); enemies.Add(enemy);
         }
         public void SpawnBoss(int partySize)
         {
