@@ -43,7 +43,7 @@ namespace Ashbound
                     {
                         foreach (var other in actor.Combat.Actors)
                             if (actor.Combat.AreEnemies(actor, other) && Vector3.Distance(transform.position, other.transform.position) < 1.4f && hit.Add(other.Id))
-                                actor.Combat.DealDamage(other, new DamageInfo(actor, 16, DamageKind.Ability, direction, .13f, 5));
+                                actor.Combat.DealDamage(other, new DamageInfo(actor, 16, DamageKind.Ability, direction, .13f, 5,element:WeaponSkillExecutor.Element(actor.ElementAffinity)));
                         time -= Time.deltaTime; yield return null;
                     }
                 }
@@ -52,7 +52,7 @@ namespace Ashbound
             {
                 CombatVfx.Ring(transform.position, .9f, Palette.Danger, .65f);
                 yield return new WaitForSeconds(.65f);
-                if (CanFinish()) CombatProjectile.Spawn(actor, direction, 8, 9, Palette.Danger);
+                if (CanFinish()) CombatProjectile.Spawn(actor,direction,8,9,WeaponSkillExecutor.Tint(WeaponSkillExecutor.Element(actor.ElementAffinity)),5,WeaponSkillExecutor.Element(actor.ElementAffinity),ImpactTier.Light,false);
             }
             else if (kind == EnemyKind.MiniBoss && Random.value > .5f)
             {

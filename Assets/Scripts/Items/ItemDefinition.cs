@@ -15,6 +15,7 @@ namespace Ashbound
         public TriggerKind kind;
         public float power;
         public int threshold;
+        public ElementTag[] elements;
     }
 
     [Serializable]
@@ -24,6 +25,7 @@ namespace Ashbound
         public float duration;
         public float power;
         public int maxStacks;
+        public ElementTag[] elements;
     }
 
     [CreateAssetMenu(menuName = "Ashbound/Item")]

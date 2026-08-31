@@ -23,7 +23,7 @@ namespace Ashbound
             {
                 var player = players[0];
                 Reflection = factory.Reflection(player, new Vector3(0, 0, 5));
-                var tags = player.Inventory.DominantTags();
+                var tags = player.DominantBuildTags();
                 foreach (string id in BuildAnalyzer.ReflectionItems(tags)) Reflection.Inventory.TryAdd(catalog.FindItem(id));
                 Reflection.DisplayName = "Your reflection" + (tags.Length > 0 ? " · " + string.Join(" / ", tags) : "");
                 Reflection.BaseSpeed = 5.6f;

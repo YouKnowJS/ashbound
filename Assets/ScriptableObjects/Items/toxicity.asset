@@ -30,4 +30,5 @@ MonoBehaviour:
     duration: 8
     power: 2
     maxStacks: 8
+    elements: 
   requiredItemId: venom-edge

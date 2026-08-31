@@ -37,7 +37,7 @@ namespace Ashbound
             Catalog = catalog; Combat = combat; Rooms = rooms; this.factory = factory; this.view = view;
             Corruption = new CorruptionSystem(catalog, factory);
             Flow.Changed += state => { Combat.State = state; Combat.FriendlyFire = false; StateChanged?.Invoke(state); };
-            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc;
+            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc; Combat.ControlApplied+=Telemetry.Control;
             Rooms.Load(0);
         }
 
@@ -187,6 +187,7 @@ namespace Ashbound
             for (int i = 0; i < players.Count; i++) { players[i].Restore(); players[i].Motor.Teleport(new Vector3(i * 2 - players.Count + 1, 0, -6)); }
             Rooms.SpawnNextWave(players.Count); Message = Catalog.rooms[index].displayName; Telemetry.Record.debugUsed = true; return true;
         }
+        public void DebugSpawnElementalGroup(ElementTag element){if(players.Count>0&&CombatRules.IsCombatState(Flow.State)){Rooms.DebugSpawnElementalGroup(element,players.Count);Telemetry.Record.debugUsed=true;}}
         public void ResetRun()
         {
             StopAllCoroutines();

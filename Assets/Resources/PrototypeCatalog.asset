@@ -22,6 +22,58 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e34fad108a184c74a81a7e34f3d9f417, type: 2}
   - {fileID: 11400000, guid: ebfa22629e780344cae8b3a223397284, type: 2}
   - {fileID: 11400000, guid: 2213e594330cec24c823df7cd2518220, type: 2}
+  - {fileID: 11400000, guid: 8cf1803de16a85146a2fed3463bbaa0b, type: 2}
+  - {fileID: 11400000, guid: 6d742c90ce944d640afde4711d1dd8b5, type: 2}
+  - {fileID: 11400000, guid: 9bedf07d0f11a1f4ca30023b2f2726bf, type: 2}
+  - {fileID: 11400000, guid: e00f693aea4002547a0e45acb3d3dd4f, type: 2}
+  - {fileID: 11400000, guid: a45e75dcdb68bc14da3e542c6ed20fb4, type: 2}
+  - {fileID: 11400000, guid: caf4789593688a04cab2eaa937384515, type: 2}
+  - {fileID: 11400000, guid: 0d8712500f543c748845ab4f9b9e1874, type: 2}
+  - {fileID: 11400000, guid: 78a5520c90fe677479a6d64691a564dd, type: 2}
+  - {fileID: 11400000, guid: 17bc16290ca578c489155034003c6cc2, type: 2}
+  - {fileID: 11400000, guid: 86d028c92dd102849ae769461512d2e1, type: 2}
+  - {fileID: 11400000, guid: 3abc9866451980045a6b25b36bf99d01, type: 2}
+  - {fileID: 11400000, guid: c27e937a6931a7f46ba6602638cc5e4a, type: 2}
+  weaponSkills:
+  - {fileID: 11400000, guid: 82f33c2192d7c294e8cffe24b87e5204, type: 2}
+  - {fileID: 11400000, guid: f907000657bdded4e900bb92407d58b4, type: 2}
+  - {fileID: 11400000, guid: 98b65e229779cb949b80bae3886d689d, type: 2}
+  - {fileID: 11400000, guid: 4d843bc1cc3bdf240bb88bd46387ea23, type: 2}
+  - {fileID: 11400000, guid: a63fe15fad7e8554b9049b476a126279, type: 2}
+  - {fileID: 11400000, guid: 763da9b457965794295c7a0087261a6e, type: 2}
+  - {fileID: 11400000, guid: ff76948391a85f44f88c7d02ad32325f, type: 2}
+  - {fileID: 11400000, guid: 5b07150d8bbbaca4cac51f0665296f64, type: 2}
+  - {fileID: 11400000, guid: 8a6a505a30b143446935b66073e0fb07, type: 2}
+  - {fileID: 11400000, guid: d0f190e13464a7641a78a3ae836b0caf, type: 2}
+  - {fileID: 11400000, guid: 2ed80e32410d327488e6234b0c61196a, type: 2}
+  - {fileID: 11400000, guid: 50cc216ad9353fd488477d86a64da350, type: 2}
+  armor:
+  - {fileID: 11400000, guid: 3b2f0f0ce17e1c9409ca39ea53c8fd5e, type: 2}
+  - {fileID: 11400000, guid: 578ed17da8b52144daa36ceabd20b25f, type: 2}
+  - {fileID: 11400000, guid: 901220b3a5150134190b2732d904b946, type: 2}
+  - {fileID: 11400000, guid: ac0a71a32253a5a4187e2c175414a548, type: 2}
+  - {fileID: 11400000, guid: dfd993921d842ac4ab0bf819328afc9e, type: 2}
+  - {fileID: 11400000, guid: f3bfd81ce6e63fa4cb2061e1b615b578, type: 2}
+  - {fileID: 11400000, guid: 88f0510db80a6bb45b06ccf992ba0dd2, type: 2}
+  - {fileID: 11400000, guid: 42f8af52d06f5e54cb14d985f936e572, type: 2}
+  - {fileID: 11400000, guid: 06a8551c322bf4747a5d28cedbfb22fc, type: 2}
+  - {fileID: 11400000, guid: a53ae6f3c84ed394e88d345e61b1705b, type: 2}
+  - {fileID: 11400000, guid: 74476be6afb0fdc44acd1d039205ad47, type: 2}
+  - {fileID: 11400000, guid: 17b97ecb5e465d14ab813f4d9948d01c, type: 2}
+  - {fileID: 11400000, guid: 5035f667c0440ac4393b58b05e50cb04, type: 2}
+  - {fileID: 11400000, guid: 66b31dc63f96f814da33c4d9c86921c0, type: 2}
+  - {fileID: 11400000, guid: 90864c6f2d835cb4297ccb2bcfa738b4, type: 2}
+  - {fileID: 11400000, guid: 8f900b561db1e2342b1499eae9c765c9, type: 2}
+  - {fileID: 11400000, guid: b49249c8b724fce4598179108ff3b93d, type: 2}
+  - {fileID: 11400000, guid: 9ec5e650eccad2548ac3e93c60ab801b, type: 2}
+  - {fileID: 11400000, guid: e75f5d64e904aa040be325620bf264e1, type: 2}
+  - {fileID: 11400000, guid: 41f77e3312fe127498603d8d51ee9809, type: 2}
+  armorSets:
+  - {fileID: 11400000, guid: fe3cfe08100bd63469b0502f35804867, type: 2}
+  - {fileID: 11400000, guid: 89a88b8a841669c48897baa4db5df231, type: 2}
+  - {fileID: 11400000, guid: b3ef4334d8617da48b76094f90c41df0, type: 2}
+  - {fileID: 11400000, guid: 877d658cf70c78f4f801b86e2e97becf, type: 2}
+  - {fileID: 11400000, guid: 83b3607fc8c9a0c4f908dd0b626c1d9f, type: 2}
   boss: {fileID: 11400000, guid: c72dc6e5b611b1e4086c60a77d85bd5d, type: 2}
   items:
   - {fileID: 11400000, guid: 7eeb9372c2dff08419228dd7785dceb6, type: 2}

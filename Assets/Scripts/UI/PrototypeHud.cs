@@ -130,7 +130,7 @@ namespace Ashbound
                 Color tint = player.Corruption ? Palette.Corrupted : Palette.Party[i];
                 U.Bar(new Rect(x + 12, 633, 276, 10), player.Health.CurrentHealth / player.Health.MaxHealth, tint);
                 U.Label(x + 12, 649, 279, 23, player.Alive ? Math.Ceiling(player.Health.CurrentHealth) + " / " + Math.Ceiling(player.Health.MaxHealth) + " HP" + (player.Health.Pool.Shield > 0 ? "  +" + Math.Ceiling(player.Health.Pool.Shield) + " shield" : "") : "Down · returns at the next reward", U.Small);
-                U.Label(x + 12, 674, 278, 22, player.Weapon.family + " · Dash " + Ready(player.Motor.DashCooldown) + " · Relics " + player.Inventory.Items.Count, U.Small);
+                U.Label(x + 12, 674, 278, 22, player.Weapon.rarity+" "+player.Weapon.family+" · "+player.Weapon.PrimaryElement+" · Relics "+player.Inventory.Items.Count, U.Small);
             }
             if (count == 1) U.Label(345, 639, 720, 44, "LMB strike   ·   Space dash   ·   E ward / burst   ·   F interact\nTab build & fragments   ·   F1 developer tools", U.Small);
         }
@@ -199,7 +199,10 @@ namespace Ashbound
             U.Label(210, 130, 860, 40, "BUILD & FRAGMENTS", U.Heading);
             for (int i = 0; i < run.Players.Count; i++) if (U.Click(new Rect(210 + i * 105, 185, 95, 32), run.Players[i].Id)) buildPlayer = i;
             var player = run.Players[Mathf.Clamp(buildPlayer, 0, run.Players.Count - 1)];
-            U.Label(210, 233, 450, 270, player.Inventory.Items.Count == 0 ? "No relics yet." : string.Join("\n\n", player.Inventory.Items.Select(x => x.displayName + " — " + x.description)), U.Small);
+            string weapon=player.Weapon.displayName+"\n"+player.Weapon.rarity+" "+player.Weapon.family+" · "+player.Weapon.PrimaryElement+"\nSkill: "+(player.Weapon.skill?player.Weapon.skill.displayName:"None")+"\nTags: "+string.Join(" · ",player.Weapon.tags);
+            string equipment=player.Equipment.Equipped.Count==0?"No armor equipped.":string.Join("\n",player.Equipment.Equipped.Select(x=>x.Key+": "+x.Value.displayName));
+            string sets=string.Join(" · ",player.Equipment.ActiveBonuses().Select(x=>x.Set.displayName+" "+x.Tier.pieces));
+            U.Label(210, 225, 450, 310, weapon+"\n\n"+equipment+(string.IsNullOrEmpty(sets)?"":"\nSets: "+sets)+"\n\n"+(player.Inventory.Items.Count==0?"No relics yet.":string.Join("\n",player.Inventory.Items.Select(x=>x.displayName+" · "+string.Join("/",x.tags)))), U.Small);
             U.Label(700, 186, 365, 350, run.Journal.Count == 0 ? "Fragments await in the vault." : string.Join("\n\n", run.Journal.Select(x => x.title + "\n" + x.text)), U.Small);
             if (U.Click(new Rect(210, 519, 850, 36), "Close · Tab")) { journalOpen = false; run.ManualPaused = false; }
         }

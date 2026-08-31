@@ -28,5 +28,6 @@ MonoBehaviour:
   - kind: 4
     power: 12
     threshold: 3
+    elements: 
   statusEffects: []
   requiredItemId: storm-coil

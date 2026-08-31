@@ -151,5 +151,65 @@ namespace Ashbound.Tests
             foreach (var tag in new[]{BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void})
                 Assert.That(catalog.items.Count(x=>x.tags.Contains(tag)),Is.GreaterThanOrEqualTo(6),tag.ToString());
         }
+
+        [Test]
+        public void V03ElementalWeaponsCoverIdentityRarityAndSkills()
+        {
+            var catalog = Resources.Load<PrototypeCatalog>("PrototypeCatalog");
+            var elemental = catalog.weapons.Where(x => x.PrimaryElement != ElementTag.None).ToArray();
+            Assert.That(catalog.weapons.Length, Is.EqualTo(20));
+            Assert.That(elemental.Length, Is.EqualTo(12));
+            Assert.That(catalog.weapons.Select(x => x.rarity).Distinct(), Is.EquivalentTo(Enum.GetValues(typeof(WeaponRarity)).Cast<WeaponRarity>()));
+            Assert.That(elemental.Count(x => x.rarity == WeaponRarity.Legendary), Is.EqualTo(2));
+            Assert.That(elemental.Where(x => x.rarity >= WeaponRarity.Rare).All(x => x.skill), Is.True);
+            Assert.That(catalog.weapons.Where(x => x.rarity < WeaponRarity.Rare).All(x => !x.skill), Is.True);
+            Assert.That(catalog.weaponSkills.Length, Is.EqualTo(12));
+            Assert.That(catalog.weaponSkills.All(x => x.minimumRarity == WeaponRarity.Rare), Is.True);
+            foreach (ElementTag element in Enum.GetValues(typeof(ElementTag)).Cast<ElementTag>().Where(x => x != ElementTag.None))
+                Assert.That(elemental.Count(x => x.elements.Contains(element)), Is.GreaterThanOrEqualTo(2), element.ToString());
+            Assert.That(elemental.Any(x => x.family == WeaponFamily.Staff && x.PrimaryElement == ElementTag.Fire), Is.True);
+            Assert.That(elemental.Any(x => x.family == WeaponFamily.Staff && x.PrimaryElement == ElementTag.Void), Is.True);
+        }
+
+        [Test]
+        public void V03ArmorCoversSlotsAndEvaluatesTwoAndFourPieceBonuses()
+        {
+            var catalog = Resources.Load<PrototypeCatalog>("PrototypeCatalog");
+            Assert.That(catalog.armorSets.Length, Is.EqualTo(5));
+            Assert.That(catalog.armor.Length, Is.EqualTo(20));
+            foreach (var set in catalog.armorSets)
+            {
+                var pieces = catalog.armor.Where(x => x.set == set).ToArray();
+                Assert.That(pieces.Select(x => x.slot), Is.EquivalentTo(Enum.GetValues(typeof(ArmorSlot)).Cast<ArmorSlot>()), set.displayName);
+                Assert.That(set.twoPiece.pieces, Is.EqualTo(2));
+                Assert.That(set.fourPiece.pieces, Is.EqualTo(4));
+            }
+
+            var holder = new GameObject("equipment-test");
+            try
+            {
+                var equipment = holder.AddComponent<PlayerEquipment>();
+                var ashwalker = catalog.armor.Where(x => x.set.id == "ashwalker").ToArray();
+                equipment.Equip(ashwalker[0]); equipment.Equip(ashwalker[1]);
+                Assert.That(equipment.ActiveBonuses().Select(x => x.Tier.pieces), Is.EqualTo(new[] { 2 }));
+                equipment.Equip(ashwalker[2]); equipment.Equip(ashwalker[3]);
+                Assert.That(equipment.ActiveBonuses().Select(x => x.Tier.pieces), Is.EqualTo(new[] { 2, 4 }));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(holder); }
+        }
+
+        [Test]
+        public void V03BuildAnalysisReadsEveryEquipmentLayer()
+        {
+            var dominant = BuildAnalyzer.Analyze(
+                new[] { BuildTag.Fire, BuildTag.Critical },
+                new[] { BuildTag.Fire, BuildTag.Heavy },
+                new[] { BuildTag.Fire, BuildTag.Area },
+                new[] { BuildTag.Fire, BuildTag.Sustain },
+                new[] { BuildTag.Fire, BuildTag.DamageOverTime }, 10);
+            Assert.That(dominant.First(), Is.EqualTo(BuildTag.Fire));
+            Assert.That(dominant, Does.Contain(BuildTag.Critical));
+            Assert.That(dominant, Does.Contain(BuildTag.Heavy));
+        }
     }
 }

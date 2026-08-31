@@ -30,4 +30,5 @@ MonoBehaviour:
     duration: 5
     power: 4
     maxStacks: 6
-  requiredItemId:
+    elements: 
+  requiredItemId: 

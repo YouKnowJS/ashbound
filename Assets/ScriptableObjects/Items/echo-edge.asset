@@ -29,5 +29,6 @@ MonoBehaviour:
   - kind: 0
     power: 0.35
     threshold: 0
+    elements: 
   statusEffects: []
   requiredItemId: 

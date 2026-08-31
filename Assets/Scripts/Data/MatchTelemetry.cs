@@ -11,11 +11,15 @@ namespace Ashbound
     {
         public string playerId;
         public string weaponFamily;
+        public string weaponRarity, weaponElement, weaponSkillId;
+        public List<string> equippedArmorIds = new List<string>();
+        public List<string> activeSetBonuses = new List<string>();
         public List<string> itemsSelected = new List<string>();
         public List<string> upgradesSelected = new List<string>();
         public List<string> dominantBuildTags = new List<string>();
         public float damageDealt, damageTaken, bossDamage;
         public float criticalDamage, statusDamage;
+        public float areaDamage, healingRecovery, crowdControlSeconds;
         public List<string> relicTagCounts = new List<string>();
         public List<string> damageBySource = new List<string>();
         public List<string> damageByElement = new List<string>();
@@ -49,7 +53,8 @@ namespace Ashbound
             Record = new MatchRecord { runId = Guid.NewGuid().ToString("N"), startedUtc = DateTime.UtcNow.ToString("O"), seed = seed, debugUsed = Application.isBatchMode };
             foreach (var player in players)
             {
-                Record.players.Add(new PlayerTelemetry { playerId = player.Id, weaponFamily = player.Weapon ? player.Weapon.family.ToString() : "None" });
+                Record.players.Add(new PlayerTelemetry { playerId = player.Id, weaponFamily = player.Weapon ? player.Weapon.family.ToString() : "None",
+                    weaponRarity=player.Weapon?player.Weapon.rarity.ToString():"None",weaponElement=player.Weapon?player.Weapon.PrimaryElement.ToString():"None",weaponSkillId=player.Weapon&&player.Weapon.skill?player.Weapon.skill.id:"" });
                 sources[player.Id] = new Dictionary<string, float>(); elements[player.Id] = new Dictionary<string, float>(); procs[player.Id] = new Dictionary<string, int>();
             }
             LastPath = LastError = null; Recording = true;
@@ -70,6 +75,7 @@ namespace Ashbound
                 attacker.damageDealt += damage.Loss.Total; if (damage.Target.IsBoss) attacker.bossDamage += damage.Loss.Total;
                 if (damage.Critical) attacker.criticalDamage += damage.Loss.Total;
                 if (damage.Info.Kind == DamageKind.Bleed || damage.Info.Kind == DamageKind.Burning || damage.Info.Kind == DamageKind.Poison) attacker.statusDamage += damage.Loss.Total;
+                if(damage.Info.Impact>=ImpactTier.Ability||damage.Info.Kind==DamageKind.Rupture||damage.Info.Kind==DamageKind.Shockwave)attacker.areaDamage+=damage.Loss.Total;
                 Add(sources[attacker.playerId], damage.Info.Kind.ToString(), damage.Loss.Total); Add(elements[attacker.playerId], damage.Info.Element.ToString(), damage.Loss.Total);
             }
             if (target != null) target.damageTaken += damage.Loss.Total;
@@ -79,6 +85,8 @@ namespace Ashbound
             if (!Recording || !procs.TryGetValue(actor.Id, out var values)) return;
             values[id] = values.TryGetValue(id, out int count) ? count + 1 : 1;
         }
+        public void Recovery(Combatant actor,float amount){if(!Recording)return;var record=Record.players.Find(x=>x.playerId==actor.Id);if(record!=null)record.healingRecovery+=Mathf.Max(0,amount);}
+        public void Control(Combatant actor,float seconds){if(!Recording)return;var record=Record.players.Find(x=>x.playerId==actor.Id);if(record!=null)record.crowdControlSeconds+=Mathf.Max(0,seconds);}
         public void MiniBossKilled() { if (Recording && Record.miniBossKillTime <= 0) Record.miniBossKillTime = Record.runDuration; }
         public void FinalBossKilled() { if (Recording && Record.finalBossKillTime <= 0) Record.finalBossKillTime = Record.runDuration; }
         public void Item(Combatant player, ItemDefinition item, bool upgrade)
@@ -96,8 +104,10 @@ namespace Ashbound
             {
                 var record = Record.players.Find(x => x.playerId == actor.Id);
                 if (record == null) continue;
-                record.dominantBuildTags = actor.Inventory.DominantTags().Select(x => x.ToString()).ToList();
+                record.dominantBuildTags = actor.DominantBuildTags().Select(x => x.ToString()).ToList();
                 record.weaponFamily = actor.Weapon ? actor.Weapon.family.ToString() : "None";
+                record.weaponRarity=actor.Weapon?actor.Weapon.rarity.ToString():"None";record.weaponElement=actor.Weapon?actor.Weapon.PrimaryElement.ToString():"None";record.weaponSkillId=actor.Weapon&&actor.Weapon.skill?actor.Weapon.skill.id:"";
+                record.equippedArmorIds=actor.Equipment.Equipped.Values.Where(x=>x).Select(x=>x.id).ToList();record.activeSetBonuses=actor.Equipment.ActiveBonuses().Select(x=>x.Key).ToList();
                 record.relicTagCounts = BuildAnalyzer.CountTags(actor.Inventory.Items.Select(x => x.tags)).Select(x => x.Tag + ":" + x.Count).ToList();
                 record.damageBySource = sources.TryGetValue(actor.Id, out var bySource) ? bySource.Select(x => x.Key + ":" + x.Value.ToString("0.##")).ToList() : new List<string>();
                 record.damageByElement = elements.TryGetValue(actor.Id, out var byElement) ? byElement.Select(x => x.Key + ":" + x.Value.ToString("0.##")).ToList() : new List<string>();

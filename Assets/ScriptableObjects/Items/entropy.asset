@@ -26,4 +26,4 @@ MonoBehaviour:
     maxHealth: -0.08
   triggeredEffects: []
   statusEffects: []
-  requiredItemId:
+  requiredItemId: 

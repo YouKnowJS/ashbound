@@ -19,7 +19,9 @@ namespace Ashbound
         public CombatFeedback Feedback { get; private set; }
         public event Action<DamageEvent> DamageResolved;
         public event Action<Combatant, string> BuildProc;
+        public event Action<Combatant, float> ControlApplied;
         public void RecordProc(Combatant actor, string id) { BuildProc?.Invoke(actor, id); }
+        public void RecordControl(Combatant actor,float duration){ControlApplied?.Invoke(actor,duration);}
         private void Awake() { Feedback = gameObject.AddComponent<CombatFeedback>(); Feedback.Configure(this); }
         public void Seed(int seed) { random = new System.Random(seed); }
         public void Register(Combatant actor) { if (!actors.Contains(actor)) actors.Add(actor); }
@@ -34,6 +36,8 @@ namespace Ashbound
             if (!Active || !AreEnemies(info.Source, target)) return false;
             bool critical = info.CanCrit && random.NextDouble() < Mathf.Clamp01(info.Source.CriticalChance + info.CriticalChanceBonus);
             float amount = info.Amount * info.Source.DamageMultiplier * (critical ? info.Source.CriticalMultiplier : 1);
+            if (info.Element != DamageElement.Physical)
+                amount *= 1 + info.Source.Equipment.PassivePower(ArmorPassiveKind.ElementAmplify, (ElementTag)info.Element);
             if (info.Source.Statuses.Corroded) amount *= .9f;
             if (target.Statuses.FrostVulnerable && (critical || info.Impact >= ImpactTier.Heavy)) amount *= 1.25f;
             if (info.Source.Inventory.HasEffect(TriggerKind.LowHealthDamage) && info.Source.Health.CurrentHealth / info.Source.Health.MaxHealth <= .35f)

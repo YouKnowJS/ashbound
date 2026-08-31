@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bda964ea243dd84bb99c4bf3808d251, type: 3}
+  m_Name: winterglass-boots
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ArmorDefinition
+  id: winterglass-boots
+  displayName: Winterglass Treads
+  description: A Boots piece that carries the Frost set mechanic.
+  rarity: 2
+  slot: 3
+  tags: 040000000000000010000000
+  elements: 02000000
+  statModifiers:
+    damage: 0
+    criticalChance: 0
+    criticalMultiplier: 0
+    attackSpeed: 0
+    movementSpeed: 0.04
+    maxHealth: 0
+  passive:
+    kind: 5
+    power: 0.08
+    element: 2
+  set: {fileID: 11400000, guid: 89a88b8a841669c48897baa4db5df231, type: 2}
+  vfxPrefab: {fileID: 0}

@@ -28,5 +28,6 @@ MonoBehaviour:
   - kind: 7
     power: 42
     threshold: 5
+    elements: 
   statusEffects: []
   requiredItemId: void-mark

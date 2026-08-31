@@ -33,3 +33,10 @@ MonoBehaviour:
   impactPrefab: {fileID: 0}
   lightAttackSound: {fileID: 0}
   heavyAttackSound: {fileID: 0}
+  rarity: 1
+  elements: 
+  skill: {fileID: 0}
+  basicAttackDescription: 
+  passiveDescription: Focused thrusts reward exact spacing.
+  lore: 
+  onHitStatuses: []

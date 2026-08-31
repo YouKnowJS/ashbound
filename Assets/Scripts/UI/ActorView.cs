@@ -48,5 +48,9 @@ namespace Ashbound
             CombatVfx.Ring(transform.position, .95f, normal, float.MaxValue, .13f).transform.SetParent(transform, true);
             if (profile.vfxPrefab) Instantiate(profile.vfxPrefab, transform);
         }
+        public void SetElement(ElementTag element)
+        {
+            normal=WeaponSkillExecutor.Tint(WeaponSkillExecutor.Element(element));if(body)body.sharedMaterial=PrimitiveFactory.Material(normal);
+        }
     }
 }

@@ -26,6 +26,14 @@ namespace Ashbound
         public GameObject impactPrefab;
         public AudioClip lightAttackSound;
         public AudioClip heavyAttackSound;
+        public WeaponRarity rarity = WeaponRarity.Common;
+        public ElementTag[] elements = System.Array.Empty<ElementTag>();
+        public WeaponSkillDefinition skill;
+        [TextArea] public string basicAttackDescription;
+        [TextArea] public string passiveDescription;
+        [TextArea] public string lore;
+        public StatusPayload[] onHitStatuses = System.Array.Empty<StatusPayload>();
+        public ElementTag PrimaryElement => elements != null && elements.Length > 0 ? elements[0] : ElementTag.None;
         public bool IsRanged => family == WeaponFamily.Bow || family == WeaponFamily.Staff;
         public bool IsHeavy => family == WeaponFamily.Greatsword;
     }

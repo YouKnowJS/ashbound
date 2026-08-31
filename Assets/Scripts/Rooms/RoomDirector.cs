@@ -44,6 +44,11 @@ namespace Ashbound
             position += Vector3.right * (index / Current.spawnPoints.Length) * .8f;
             var enemy = factory.Enemy(kind, position, partySize); enemy.ScaleHealth(Current.enemyHealthMultiplier); enemies.Add(enemy);
         }
+        public void DebugSpawnElementalGroup(ElementTag element,int partySize)
+        {
+            EnemyKind[] kinds={EnemyKind.Cinderling,EnemyKind.Lantern,EnemyKind.Bulwark};int start=enemies.Count;
+            for(int i=0;i<kinds.Length;i++){Vector3 position=Current.spawnPoints[(start+i)%Current.spawnPoints.Length];var enemy=factory.Enemy(kinds[i],position,partySize);enemy.ElementAffinity=element;if(enemy.View)enemy.View.SetElement(element);enemies.Add(enemy);}watching=true;
+        }
         public void SpawnBoss(int partySize)
         {
             ClearEnemies();

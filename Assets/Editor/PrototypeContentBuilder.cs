@@ -34,11 +34,13 @@ namespace Ashbound.Editor
             bool missingScene = new[] { "MainMenu", "PrototypeRun", "TestArena" }.Any(name => !File.Exists("Assets/Scenes/" + name + ".unity"));
             if (missingScene && !Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             string[] folders = { "Assets/Resources", "Assets/ScriptableObjects/Items", "Assets/ScriptableObjects/Bosses",
-                "Assets/ScriptableObjects/Corruption", "Assets/ScriptableObjects/Rooms", "Assets/ScriptableObjects/Lore", "Assets/ScriptableObjects/Weapons", "Assets/Scenes" };
+                "Assets/ScriptableObjects/Corruption", "Assets/ScriptableObjects/Rooms", "Assets/ScriptableObjects/Lore", "Assets/ScriptableObjects/Weapons",
+                "Assets/ScriptableObjects/WeaponSkills", "Assets/ScriptableObjects/Armor", "Assets/ScriptableObjects/ArmorSets", "Assets/Scenes" };
             foreach (string folder in folders) Directory.CreateDirectory(folder);
             AssetDatabase.Refresh();
-            var items = CreateItems();
-            var weapons = CreateWeapons(); var weapon = weapons[0];
+            var items = CreateItems(); var weaponSkills=CreateWeaponSkills();
+            var weapons = CreateWeapons(weaponSkills); var weapon = weapons[0];
+            var armorSets=CreateArmorSets(); var armor=CreateArmor(armorSets);
             var corruption = Asset<BossCorruptionProfile>("Assets/ScriptableObjects/Corruption/Ash.asset", x => { });
             var boss = Asset<BossDefinition>("Assets/ScriptableObjects/Bosses/CinderRegent.asset", x => x.corruption = corruption);
             var firstLore = Asset<LoreEntry>("Assets/ScriptableObjects/Lore/WatchkeepersNote.asset", x =>
@@ -63,7 +65,7 @@ namespace Ashbound.Editor
                 x.id = "cinder-throne"; x.displayName = "07 / The Cinder Throne"; x.description = "The last keeper waits."; x.isBoss = true; x.spawnPoints = points; x.waves = Array.Empty<EnemyWave>();
             });
             var catalog = Asset<PrototypeCatalog>("Assets/Resources/PrototypeCatalog.asset", x =>
-            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom }; });
+            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.weaponSkills=weaponSkills; x.armorSets=armorSets; x.armor=armor; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom }; });
             if (!File.Exists("Assets/Resources/PrototypeLit.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")), "Assets/Resources/PrototypeLit.mat");
             if (!File.Exists("Assets/Resources/PrototypeLine.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Sprites/Default")), "Assets/Resources/PrototypeLine.mat");
             ConfigureProject(); AssetDatabase.SaveAssets();
@@ -79,7 +81,7 @@ namespace Ashbound.Editor
                 else EditorSceneManager.OpenScene("Assets/Scenes/MainMenu.unity");
             }
             AssetDatabase.SaveAssets();
-            Debug.Log("Ashbound v0.2 content ready: 45 relics, 8 weapons, 7 encounters, mini-boss, final boss, and 3 scenes.");
+            Debug.Log("Ashbound v0.3 content ready: 45 relics, 20 weapons, 12 skills, 20 armor pieces, 5 sets, and 7 encounters.");
         }
 
         private static RoomDefinition Room(string assetName, string id, string name, string description, Vector3[] points, LoreEntry lore, params EnemyKind[] enemies) =>
@@ -87,14 +89,62 @@ namespace Ashbound.Editor
             { x.id = id; x.displayName = name; x.description = description; x.isBoss = false; x.spawnPoints = points; x.fragment = lore; x.waves = new[] { new EnemyWave { enemies = enemies } };
               x.enemyHealthMultiplier = id == "cracked-sanctum" ? 1.35f : id == "last-procession" ? 1.2f : 1; x.targetEncounterSeconds = id == "cracked-sanctum" ? 180 : 145; });
 
-        private static WeaponDefinition[] CreateWeapons()
+        private static WeaponSkillDefinition[] CreateWeaponSkills()
+        {
+            WeaponSkillDefinition S(string id,string name,string description,ElementTag element,SkillDelivery delivery,float damage,float radius,float cooldown,StatusPayload status,params BuildTag[] tags)=>
+                Asset<WeaponSkillDefinition>("Assets/ScriptableObjects/WeaponSkills/"+id+".asset",x=>{x.id=id;x.displayName=name;x.description=description;x.elements=new[]{element};x.tags=tags;x.delivery=delivery;x.damage=damage;x.radius=radius;x.cooldown=cooldown;x.duration=2.5f;x.movementDistance=4;x.projectileCount=5;x.projectileSpeed=17;x.minimumRarity=WeaponRarity.Rare;x.statuses=status.maxStacks>0?new[]{status}:Array.Empty<StatusPayload>();x.damageKind=element==ElementTag.Fire?DamageKind.Burning:element==ElementTag.Frost?DamageKind.Frost:element==ElementTag.Lightning?DamageKind.Lightning:element==ElementTag.Poison?DamageKind.Poison:DamageKind.Void;});
+            StatusPayload P(StatusKind kind,float duration,float power,int stacks)=>new StatusPayload{kind=kind,duration=duration,power=power,maxStacks=stacks};
+            return new[]{
+                S("flamebreaker","Flamebreaker","An overhead impact releases a burning shockwave.",ElementTag.Fire,SkillDelivery.AreaBurst,48,3.8f,8,P(StatusKind.Burning,5,3,4),BuildTag.Fire,BuildTag.Heavy,BuildTag.Area),
+                S("moonfrost-draw","Moonfrost Draw","Dash-slash through chilled prey and leave them brittle.",ElementTag.Frost,SkillDelivery.MeleeDash,38,2.2f,6,P(StatusKind.Chill,5,.13f,5),BuildTag.Frost,BuildTag.Critical,BuildTag.DashPrecision),
+                S("storm-rush","Storm Rush","A rapid lightning volley builds charge across a group.",ElementTag.Lightning,SkillDelivery.ProjectileVolley,12,2,7,default,BuildTag.Lightning,BuildTag.Combo,BuildTag.Area),
+                S("venom-rain","Venom Rain","Create a toxic cloud that applies long Poison pressure.",ElementTag.Poison,SkillDelivery.PersistentZone,32,3.5f,9,P(StatusKind.Poison,8,2.5f,8),BuildTag.Poison,BuildTag.DamageOverTime,BuildTag.Area),
+                S("gravity-well","Gravity Well","Create a Void field that pulls normal enemies inward.",ElementTag.Void,SkillDelivery.GravityWell,30,4,10,P(StatusKind.VoidMark,6,0,5),BuildTag.Void,BuildTag.Control,BuildTag.Area),
+                S("cinder-volley","Cinder Volley","Fan burning spell projectiles through a group.",ElementTag.Fire,SkillDelivery.ProjectileVolley,15,2,7,P(StatusKind.Burning,4,2.5f,4),BuildTag.Fire,BuildTag.Area),
+                S("frost-lance","Frost Lance","A precise lunge sharply builds Chill on one target.",ElementTag.Frost,SkillDelivery.MeleeDash,44,1.8f,7,P(StatusKind.Chill,6,.14f,5),BuildTag.Frost,BuildTag.Control,BuildTag.Critical),
+                S("storm-volley","Storm Volley","Fire a wide reactive volley of lightning arrows.",ElementTag.Lightning,SkillDelivery.ProjectileVolley,14,2,7,default,BuildTag.Lightning,BuildTag.Critical,BuildTag.Area),
+                S("toxic-wave","Toxic Wave","Release a close Poison wave that sustains attrition.",ElementTag.Poison,SkillDelivery.AreaBurst,34,3,8,P(StatusKind.Poison,8,2.2f,8),BuildTag.Poison,BuildTag.Sustain,BuildTag.Area),
+                S("rift-cleave","Rift Cleave","Cut open a short control rift ahead.",ElementTag.Void,SkillDelivery.PersistentZone,28,3,8,P(StatusKind.VoidMark,6,0,5),BuildTag.Void,BuildTag.Control),
+                S("moon-eater-cut","The Empty Meridian","Dash through marked enemies and collapse space behind you.",ElementTag.Void,SkillDelivery.MeleeDash,58,3,7,P(StatusKind.VoidMark,8,0,5),BuildTag.Void,BuildTag.Critical,BuildTag.DashPrecision),
+                S("hearth-collapse","Keeper's Last Ember","Sunder the floor with a major burning blast.",ElementTag.Fire,SkillDelivery.AreaBurst,68,4.5f,9,P(StatusKind.Burning,6,4,5),BuildTag.Fire,BuildTag.Heavy,BuildTag.Area)
+            };
+        }
+
+        private static ArmorSetDefinition[] CreateArmorSets()
+        {
+            TriggeredEffect E(TriggerKind kind,float power)=>new TriggeredEffect{kind=kind,power=power};
+            ArmorSetDefinition S(string id,string name,ElementTag element,string two,string four,TriggeredEffect twoEffect,TriggeredEffect fourEffect,params BuildTag[] tags)=>
+                Asset<ArmorSetDefinition>("Assets/ScriptableObjects/ArmorSets/"+id+".asset",x=>{x.id=id;x.displayName=name;x.element=element;x.twoPiece=new SetBonusTier{pieces=2,description=two,effects=new[]{twoEffect},tags=tags};x.fourPiece=new SetBonusTier{pieces=4,description=four,effects=new[]{fourEffect},tags=tags};});
+            return new[]{
+                S("ashwalker","Ashwalker",ElementTag.Fire,"Dashing leaves a small Fire wake.","Overlapping wakes gain explosive force.",E(TriggerKind.SetDashZone,14),E(TriggerKind.SetDashZone,28),BuildTag.Fire,BuildTag.DashPrecision,BuildTag.Area),
+                S("winterglass","Winterglass",ElementTag.Frost,"Chill control gains a longer precision window.","Heavy or critical Frost hits release a Shatter wave.",E(TriggerKind.StatusVulnerability,.12f),E(TriggerKind.SetShatterWave,26),BuildTag.Frost,BuildTag.Critical,BuildTag.Control),
+                S("stormcaller","Stormcaller",ElementTag.Lightning,"Critical pressure improves charge generation.","Overload sends a smaller additional chain.",E(TriggerKind.LightningConductor,1),E(TriggerKind.SetOverloadChain,12),BuildTag.Lightning,BuildTag.Critical,BuildTag.Area),
+                S("venomblood","Venomblood",ElementTag.Poison,"Poison kills restore a throttled amount of health.","Toxic death clouds gain damage and infection pressure.",E(TriggerKind.PoisonRecovery,5),E(TriggerKind.SetCloudPoison,18),BuildTag.Poison,BuildTag.Sustain,BuildTag.DamageOverTime),
+                S("riftwalker","Riftwalker",ElementTag.Void,"Dash-created rifts gain force.","Rift effects briefly pull normal enemies.",E(TriggerKind.SetRiftPull,12),E(TriggerKind.SetRiftPull,24),BuildTag.Void,BuildTag.Control,BuildTag.DashPrecision)
+            };
+        }
+
+        private static ArmorDefinition[] CreateArmor(ArmorSetDefinition[] sets)
+        {
+            var list=new System.Collections.Generic.List<ArmorDefinition>();
+            string[] nouns={"Crown","Mantle","Grasp","Treads"};
+            foreach(var set in sets)for(int i=0;i<4;i++)
+            {
+                ArmorSlot slot=(ArmorSlot)i;string id=set.id+"-"+slot.ToString().ToLowerInvariant();
+                list.Add(Asset<ArmorDefinition>("Assets/ScriptableObjects/Armor/"+id+".asset",x=>{x.id=id;x.displayName=set.displayName+" "+nouns[i];x.description="A "+slot+" piece that carries the "+set.element+" set mechanic.";x.rarity=i>=2?WeaponRarity.Rare:WeaponRarity.Advanced;x.slot=slot;x.set=set;x.elements=new[]{set.element};x.tags=set.twoPiece.tags;x.statModifiers=i==3?new StatModifiers{movementSpeed=.04f}:i==1?new StatModifiers{maxHealth=.06f}:default;x.passive=new ArmorPassive{kind=set.element==ElementTag.Poison?ArmorPassiveKind.Recovery:set.element==ElementTag.Frost?ArmorPassiveKind.ControlDuration:set.element==ElementTag.Lightning?ArmorPassiveKind.ProcCharge:set.element==ElementTag.Fire?ArmorPassiveKind.ElementAmplify:ArmorPassiveKind.Cooldown,power=.08f,element=set.element};}));
+            }
+            return list.ToArray();
+        }
+
+        private static WeaponDefinition[] CreateWeapons(WeaponSkillDefinition[] skills)
         {
             WeaponDefinition W(string id, string name, WeaponFamily family, WeaponMechanic mechanic, float damage, float rate, float reach, float arc, float knockback,
                 float move, float crit, float critDamage, float projectile, int threshold, float power, params BuildTag[] tags) =>
                 Asset<WeaponDefinition>(id == "wayfarer-edge" ? "Assets/ScriptableObjects/Weapons/WayfarersEdge.asset" : "Assets/ScriptableObjects/Weapons/" + id + ".asset", x =>
                 { x.id=id; x.displayName=name; x.family=family; x.mechanic=mechanic; x.damage=damage; x.attackInterval=rate; x.reach=reach; x.arcDegrees=arc; x.knockback=knockback;
-                  x.attackMoveMultiplier=move; x.criticalChanceModifier=crit; x.criticalDamageModifier=critDamage; x.projectileSpeed=projectile; x.projectileLifetime=1.5f; x.comboThreshold=threshold; x.mechanicPower=power; x.tags=tags; });
-            return new[]
+                  x.attackMoveMultiplier=move; x.criticalChanceModifier=crit; x.criticalDamageModifier=critDamage; x.projectileSpeed=projectile; x.projectileLifetime=1.5f; x.comboThreshold=threshold; x.mechanicPower=power; x.tags=tags;
+                  x.rarity=WeaponRarity.Common;x.elements=Array.Empty<ElementTag>();x.skill=null;x.basicAttackDescription="";x.passiveDescription="";x.lore="";x.onHitStatuses=Array.Empty<StatusPayload>(); });
+            var result = new[]
             {
                 W("wayfarer-edge","Wayfarer's Edge",WeaponFamily.Sword,WeaponMechanic.None,24,.34f,2.7f,115,3,.9f,0,0,0,4,.15f),
                 W("long-reach","Long Reach",WeaponFamily.Spear,WeaponMechanic.FocusedThrust,26,.43f,4.2f,42,4,.82f,0,0,0,3,.08f,BuildTag.Heavy),
@@ -103,8 +153,30 @@ namespace Ashbound.Editor
                 W("twin-embers","Twin Embers",WeaponFamily.DualBlades,WeaponMechanic.Momentum,13,.16f,1.85f,92,1.8f,1.05f,0,0,0,6,.03f,BuildTag.Combo),
                 W("vault-bow","Vault Bow",WeaponFamily.Bow,WeaponMechanic.ChargedShot,23,.4f,0,0,2,.78f,.02f,.1f,22,3,.85f,BuildTag.DashPrecision),
                 W("ashen-staff","Ashen Staff",WeaponFamily.Staff,WeaponMechanic.ArcaneCharge,19,.32f,0,0,2,.88f,0,0,16,4,.6f,BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void),
-                W("rift-brand","Rift Brand",WeaponFamily.Spellblade,WeaponMechanic.SpellWave,22,.29f,2.45f,105,2.5f,.9f,0,0,0,4,.7f,BuildTag.Void)
+                W("rift-brand","Rift Brand",WeaponFamily.Spellblade,WeaponMechanic.SpellWave,22,.29f,2.45f,105,2.5f,.9f,0,0,0,4,.7f,BuildTag.Void),
+                EW("flamebreaker","Flamebreaker",WeaponFamily.Greatsword,WeaponMechanic.HeavyCommitment,44,.72f,3.3f,145,8,WeaponRarity.Rare,ElementTag.Fire,"flamebreaker",StatusKind.Burning,4,3,4,BuildTag.Fire,BuildTag.Heavy,BuildTag.Area),
+                EW("moonfrost","Moonfrost",WeaponFamily.Katana,WeaponMechanic.DashPrecision,26,.29f,2.9f,88,3.5f,WeaponRarity.Epic,ElementTag.Frost,"moonfrost-draw",StatusKind.Chill,4,.1f,5,BuildTag.Frost,BuildTag.Critical,BuildTag.DashPrecision),
+                EW("storm-twins","Storm Twins",WeaponFamily.DualBlades,WeaponMechanic.Momentum,13,.16f,1.9f,92,2,WeaponRarity.Rare,ElementTag.Lightning,"storm-rush",StatusKind.Stun,.12f,0,1,BuildTag.Lightning,BuildTag.Combo,BuildTag.Area),
+                EW("venom-rain","Venom Rain",WeaponFamily.Bow,WeaponMechanic.ChargedShot,21,.39f,0,0,2,WeaponRarity.Epic,ElementTag.Poison,"venom-rain",StatusKind.Poison,7,2.4f,7,BuildTag.Poison,BuildTag.DamageOverTime,BuildTag.Sustain),
+                EW("gravity-ash","Gravity Ash",WeaponFamily.Staff,WeaponMechanic.ArcaneCharge,18,.34f,0,0,2,WeaponRarity.Epic,ElementTag.Void,"gravity-well",StatusKind.VoidMark,5,0,5,BuildTag.Void,BuildTag.Control,BuildTag.Area),
+                EW("cinder-crook","Cinder Crook",WeaponFamily.Staff,WeaponMechanic.ArcaneCharge,19,.31f,0,0,2,WeaponRarity.Rare,ElementTag.Fire,"cinder-volley",StatusKind.Burning,4,2.5f,4,BuildTag.Fire,BuildTag.Area),
+                EW("winter-pike","Winter Pike",WeaponFamily.Spear,WeaponMechanic.FocusedThrust,25,.42f,4.2f,42,4,WeaponRarity.Rare,ElementTag.Frost,"frost-lance",StatusKind.Chill,5,.09f,5,BuildTag.Frost,BuildTag.Control,BuildTag.Heavy),
+                EW("thunder-string","Thunder String",WeaponFamily.Bow,WeaponMechanic.ChargedShot,22,.38f,0,0,2,WeaponRarity.Rare,ElementTag.Lightning,"storm-volley",StatusKind.Stun,.1f,0,1,BuildTag.Lightning,BuildTag.Critical,BuildTag.Area),
+                EW("decay-brand","Decay Brand",WeaponFamily.Spellblade,WeaponMechanic.SpellWave,21,.3f,2.5f,105,2.5f,WeaponRarity.Rare,ElementTag.Poison,"toxic-wave",StatusKind.Poison,7,2.2f,7,BuildTag.Poison,BuildTag.Sustain,BuildTag.Combo),
+                EW("rift-edge","Rift Edge",WeaponFamily.Sword,WeaponMechanic.None,23,.34f,2.7f,115,3,WeaponRarity.Rare,ElementTag.Void,"rift-cleave",StatusKind.VoidMark,6,0,5,BuildTag.Void,BuildTag.Control,BuildTag.DashPrecision),
+                EW("moon-eater","Moon-Eater",WeaponFamily.Katana,WeaponMechanic.DashPrecision,29,.27f,3f,92,4,WeaponRarity.Legendary,ElementTag.Void,"moon-eater-cut",StatusKind.VoidMark,7,0,5,BuildTag.Void,BuildTag.Critical,BuildTag.DashPrecision),
+                EW("hearth-sunder","Hearth-Sunder",WeaponFamily.Greatsword,WeaponMechanic.HeavyCommitment,51,.76f,3.4f,150,9,WeaponRarity.Legendary,ElementTag.Fire,"hearth-collapse",StatusKind.Burning,5,3.5f,5,BuildTag.Fire,BuildTag.Heavy,BuildTag.Area)
             };
+            result[1].rarity=WeaponRarity.Advanced;result[1].passiveDescription="Focused thrusts reward exact spacing.";EditorUtility.SetDirty(result[1]);
+            result[3].rarity=WeaponRarity.Advanced;result[3].passiveDescription="Dash timing improves precision pressure.";EditorUtility.SetDirty(result[3]);
+            return result;
+            WeaponDefinition EW(string id,string name,WeaponFamily family,WeaponMechanic mechanic,float damage,float rate,float reach,float arc,float knockback,WeaponRarity rarity,ElementTag element,string skillId,StatusKind status,float duration,float statusPower,int stacks,params BuildTag[] tags)
+            {
+                var value=W(id,name,family,mechanic,damage,rate,reach,arc,knockback,.82f,0,0,family==WeaponFamily.Bow?22:family==WeaponFamily.Staff?16:0,4,.25f,tags);
+                value.rarity=rarity;value.elements=new[]{element};value.skill=skills.First(x=>x.id==skillId);value.onHitStatuses=new[]{new StatusPayload{kind=status,duration=duration,power=statusPower,maxStacks=stacks}};
+                value.basicAttackDescription=family+" attacks carrying "+element+" identity.";value.passiveDescription=rarity>=WeaponRarity.Epic?"Its element alters both basic pressure and its weapon skill.":"A focused elemental variant.";
+                value.lore=rarity==WeaponRarity.Legendary?"A named weapon recovered from a keeper whose title was carved away.":"";EditorUtility.SetDirty(value);return value;
+            }
         }
 
         private static ItemDefinition[] CreateItems()

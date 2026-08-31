@@ -36,9 +36,13 @@ namespace Ashbound
                 entry = new Entry { Kind = effect.kind, Source = source, Tick = 1 };
                 entries.Add(entry);
             }
-            entry.Remaining = Mathf.Max(.1f, effect.duration);
+            float controlBonus = effect.kind == StatusKind.Chill || effect.kind == StatusKind.Freeze || effect.kind == StatusKind.Slow || effect.kind == StatusKind.Stun || effect.kind == StatusKind.VoidMark
+                ? source.Equipment.PassivePower(ArmorPassiveKind.ControlDuration, effect.kind == StatusKind.Chill || effect.kind == StatusKind.Freeze ? ElementTag.Frost : ElementTag.None) : 0;
+            entry.Remaining = Mathf.Max(.1f, effect.duration * (1 + controlBonus));
             entry.Power = effect.power;
             entry.Stacks = Mathf.Min(entry.Stacks + 1, Mathf.Max(1, effect.maxStacks));
+            if(effect.kind==StatusKind.Chill||effect.kind==StatusKind.Freeze||effect.kind==StatusKind.Slow||effect.kind==StatusKind.Stun||effect.kind==StatusKind.VoidMark)
+                actor.Combat.RecordControl(source,Mathf.Min(entry.Remaining,2));
             if (effect.kind == StatusKind.Chill && entry.Stacks >= Mathf.Max(1, effect.maxStacks))
             {
                 if (actor.IsBoss) frostVulnerableUntil = Mathf.Max(frostVulnerableUntil, Time.time + 1.5f);

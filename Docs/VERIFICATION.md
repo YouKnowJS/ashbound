@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.2 content validation additionally checks all eight weapon families, 35–45 unique relics, six or more relics per elemental family, seven expedition encounters, the Mini-Boss, and reflection mappings for all ten build themes.
+v0.3 content validation additionally checks all eight weapon families, 45 unique relics, seven expedition encounters, 12 elemental sample weapons, all five weapon rarities/elements, 12 Weapon Skills, two Legendary weapons, 20 armor pieces, every armor slot, five sets, and both set thresholds.
 
 ### Edit Mode
 
@@ -22,6 +22,8 @@ v0.2 content validation additionally checks all eight weapon families, 35–45 u
 - Shields, invulnerability, healing/death, invalid damage, and maximum-health modifiers.
 - Dominant tag analysis, stable ties, and simplified reflection relic mapping.
 - Authored content references, IDs, room counts, and elite presence.
+- Elemental weapon combinations, family/element separation, rarity coverage, and Rare-or-higher skill eligibility.
+- Armor slot coverage, two/four-piece activation, and BuildAnalyzer input from relic, weapon, skill, armor, and set layers.
 
 ### Play Mode
 
@@ -33,6 +35,7 @@ v0.2 content validation additionally checks all eight weapon families, 35–45 u
 - Boss second phase, transition cancellation of live hazards/projectiles, and clean roster reset.
 - Bound gamepad input reading and disconnect pause, using the Input System's isolated `InputTestFixture`.
 - Source-attributed damage over time, pause behavior, slow, and stun expiry.
+- An elemental Weapon Skill damaging/applying status in combat, four-piece equipment activation, solo reflection weapon/skill identity, and corruption layering.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -48,6 +51,21 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 8. Finish/reset a run, inspect the local telemetry JSON, and start a second run to check cleanup.
 
 ## Verification status
+
+### v0.3 verification — 2026-08-31
+
+Using Unity **6000.4.11f1** on Windows after the element/equipment expansion:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **26 passed**, 0 failed, 0 skipped |
+| Play Mode | **9 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for six seconds; no managed exception signature found in `Player.log` |
+| Human equipment/element balance and physical controllers | Not completed |
+
+Automated checks prove the data paths and playable runtime flow; they do not establish final balance, feel, visual clarity, or controller ergonomics.
 
 ### v0.2 verification — 2026-08-31
 

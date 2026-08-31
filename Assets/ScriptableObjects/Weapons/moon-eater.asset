@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7f28b85c78caa64f98f917eb9a21e2d, type: 3}
+  m_Name: moon-eater
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.WeaponDefinition
+  id: moon-eater
+  displayName: Moon-Eater
+  damage: 29
+  attackInterval: 0.27
+  reach: 3
+  arcDegrees: 92
+  knockback: 4
+  family: 3
+  mechanic: 3
+  attackMoveMultiplier: 0.82
+  criticalChanceModifier: 0
+  criticalDamageModifier: 0
+  projectileSpeed: 0
+  projectileLifetime: 1.5
+  comboThreshold: 4
+  mechanicPower: 0.25
+  tags: 0b000000000000000e000000
+  trailPrefab: {fileID: 0}
+  impactPrefab: {fileID: 0}
+  lightAttackSound: {fileID: 0}
+  heavyAttackSound: {fileID: 0}
+  rarity: 4
+  elements: 05000000
+  skill: {fileID: 11400000, guid: 2ed80e32410d327488e6234b0c61196a, type: 2}
+  basicAttackDescription: Katana attacks carrying Void identity.
+  passiveDescription: Its element alters both basic pressure and its weapon skill.
+  lore: A named weapon recovered from a keeper whose title was carved away.
+  onHitStatuses:
+  - kind: 7
+    duration: 7
+    power: 0
+    maxStacks: 5
+    elements: 

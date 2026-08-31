@@ -240,5 +240,36 @@ namespace Ashbound.Tests
             Assert.That(player.Motor.IsStunned, Is.False);
             Assert.That(run.Telemetry.Record.players[0].damageDealt, Is.GreaterThan(1));
         }
+
+        [UnityTest]
+        public IEnumerator ElementalWeaponSkillEquipmentAndReflectionRemainLayered()
+        {
+            run.StartRun(103);
+            var player = run.Players[0];
+            player.Attacks.SetWeapon(run.Catalog.FindWeapon("moonfrost"));
+            foreach (var piece in run.Catalog.armor.Where(x => x.set.id == "winterglass"))
+                Assert.That(player.Equipment.Equip(piece), Is.True);
+            Assert.That(player.Equipment.ActiveBonuses().Select(x => x.Tier.pieces), Is.EqualTo(new[] { 2, 4 }));
+            Assert.That(player.DominantBuildTags(), Does.Contain(BuildTag.Frost));
+
+            run.DebugSkipToBoss(); yield return null;
+            var boss = run.Rooms.Boss;
+            boss.GetComponent<CinderRegentController>().enabled = false;
+            player.Motor.Teleport(boss.transform.position - Vector3.forward);
+            player.Motor.SetFacing(Vector3.forward);
+            float before = boss.Health.CurrentHealth;
+            Assert.That(player.Attacks.TryAbility(), Is.True);
+            yield return new WaitForSeconds(.25f);
+            Assert.That(boss.Health.CurrentHealth, Is.LessThan(before));
+            Assert.That(boss.Statuses.StackCount(StatusKind.Chill), Is.GreaterThan(0));
+
+            boss.Health.DebugKill(); yield return State(RunState.FinalPvP);
+            var reflection = run.Corruption.Reflection;
+            Assert.That(reflection, Is.Not.Null);
+            Assert.That(reflection.Weapon.id, Is.EqualTo("moonfrost"));
+            Assert.That(reflection.Weapon.skill.id, Is.EqualTo("moonfrost-draw"));
+            Assert.That(reflection.DisplayName, Does.Contain("Frost"));
+            Assert.That(reflection.Corruption, Is.EqualTo(run.Catalog.boss.corruption));
+        }
     }
 }

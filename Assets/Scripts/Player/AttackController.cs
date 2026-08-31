@@ -12,7 +12,8 @@ namespace Ashbound
         private Combatant focusedTarget;
         private int focusedHits;
         public float AbilityCooldown => Mathf.Max(0, nextAbility - Time.time);
-        public float AbilityDuration => actor.Corruption && actor.Corruption.overrideAbilityWithFireBurst ? actor.Corruption.burstCooldown : 7;
+        public float AbilityDuration => Mathf.Max(1, (actor.Corruption && actor.Corruption.overrideAbilityWithFireBurst ? actor.Corruption.burstCooldown : actor.Weapon&&actor.Weapon.skill ? actor.Weapon.skill.cooldown : 7)
+            * (1 - Mathf.Clamp(actor.Equipment.PassivePower(ArmorPassiveKind.Cooldown), 0, .75f)));
         public int Combo => combo;
         public event Action BasicAttack;
         public void Configure(Combatant owner) { actor = owner; }
@@ -37,7 +38,7 @@ namespace Ashbound
         {
             bool empowered = combo % Mathf.Max(2, actor.Weapon.comboThreshold) == 0;
             float multiplier = empowered ? 1 + actor.Weapon.mechanicPower : 1;
-            DamageElement element = actor.Weapon.family == WeaponFamily.Staff ? DominantElement() : DamageElement.Physical;
+            DamageElement element = actor.Weapon.PrimaryElement!=ElementTag.None ? WeaponSkillExecutor.Element(actor.Weapon.PrimaryElement) : actor.Weapon.family == WeaponFamily.Staff ? DominantElement() : DamageElement.Physical;
             Color color = element == DamageElement.Frost ? new Color(.3f, .85f, 1) : element == DamageElement.Fire ? new Color(1, .3f, .05f) :
                 element == DamageElement.Poison ? Color.green : element == DamageElement.Void ? new Color(.7f, .2f, 1) : Palette.Player;
             CombatProjectile.Spawn(actor, actor.Motor.Facing, actor.Weapon.projectileSpeed, actor.Weapon.damage * multiplier,
@@ -65,8 +66,9 @@ namespace Ashbound
                 }
                 bool afterDash = Time.time - actor.Motor.LastDashTime <= .65f;
                 float critBonus = actor.Weapon.mechanic == WeaponMechanic.DashPrecision && afterDash ? actor.Weapon.mechanicPower : 0;
+                DamageElement element=WeaponSkillExecutor.Element(actor.Weapon.PrimaryElement);
                 actor.Combat.DealDamage(target, new DamageInfo(actor, damage, DamageKind.Weapon, offset.normalized,
-                    heavy ? .2f : .12f, actor.Weapon.knockback, true, true, DamageElement.Physical,
+                    heavy ? .2f : .12f, actor.Weapon.knockback, true, true, element,
                     heavy ? ImpactTier.Heavy : ImpactTier.Light, critBonus));
             }
             if (actor.Weapon.mechanic == WeaponMechanic.SpellWave && combo % Mathf.Max(2, actor.Weapon.comboThreshold) == 0)
@@ -97,6 +99,7 @@ namespace Ashbound
                 CombatVfx.Pulse(transform.position, actor.Corruption.burstRadius, Palette.Corrupted);
                 actor.Combat.DamageArea(actor, transform.position, actor.Corruption.burstRadius, actor.Corruption.burstDamage, DamageKind.Ability, .3f, 7);
             }
+            else if(actor.Weapon&&actor.Weapon.skill&&actor.Skills.Execute(actor.Weapon.skill)) { }
             else
             {
                 actor.Health.Shield(20); CombatVfx.Pulse(transform.position, 3.5f, Palette.Player);

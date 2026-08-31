@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b56f148a9784aca458e0893763226c06, type: 3}
+  m_Name: hearth-collapse
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.WeaponSkillDefinition
+  id: hearth-collapse
+  displayName: Keeper's Last Ember
+  description: Sunder the floor with a major burning blast.
+  cooldown: 9
+  minimumRarity: 2
+  elements: 01000000
+  tags: 030000000c00000011000000
+  delivery: 1
+  damage: 68
+  damageKind: 4
+  radius: 4.5
+  duration: 2.5
+  movementDistance: 4
+  projectileCount: 5
+  projectileSpeed: 17
+  statuses:
+  - kind: 1
+    duration: 6
+    power: 4
+    maxStacks: 5
+    elements: 
+  followUpEffects: []
+  vfxPrefab: {fileID: 0}
+  audioClip: {fileID: 0}

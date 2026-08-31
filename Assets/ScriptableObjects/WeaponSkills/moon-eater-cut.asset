@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b56f148a9784aca458e0893763226c06, type: 3}
+  m_Name: moon-eater-cut
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.WeaponSkillDefinition
+  id: moon-eater-cut
+  displayName: The Empty Meridian
+  description: Dash through marked enemies and collapse space behind you.
+  cooldown: 7
+  minimumRarity: 2
+  elements: 05000000
+  tags: 0b000000000000000e000000
+  delivery: 0
+  damage: 58
+  damageKind: 11
+  radius: 3
+  duration: 2.5
+  movementDistance: 4
+  projectileCount: 5
+  projectileSpeed: 17
+  statuses:
+  - kind: 7
+    duration: 8
+    power: 0
+    maxStacks: 5
+    elements: 
+  followUpEffects: []
+  vfxPrefab: {fileID: 0}
+  audioClip: {fileID: 0}

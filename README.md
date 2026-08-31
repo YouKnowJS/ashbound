@@ -1,6 +1,6 @@
 # Ashbound — Unity 6 prototype
 
-A modular, primitive-mesh action roguelike. One wanderer, one blade, two combat rooms with two waves each, eight relics, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
+A modular, primitive-mesh action roguelike with a seven-encounter expedition, eight weapon families, 45 relics, five elemental identities, weapon skills, armor sets, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
 
 ## Play
 
@@ -30,7 +30,7 @@ The project uses the built-in renderer, Input System 1.19.0, and Test Framework 
 | Build and fragments | Tab | Shared | Keyboard Tab |
 | Debug menu | F1 | Shared | Keyboard F1 |
 
-The active ability grants a shield and pushes nearby enemies away. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Defeat each wave, choose a relic, then approach the cyan northern exit and interact after the second wave. Pick up gold text fragments by interacting nearby.
+Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Defeat each wave, choose a relic, then approach the cyan northern exit and interact after each encounter. Pick up gold text fragments by interacting nearby.
 
 Local rewards are selected sequentially for each player. The mouse/number keys can choose for any player. Downed allies return with 45% health at the next reward; surviving players heal 25%. The party loses if everyone falls during combat. Gamepad disconnection pauses the whole run; reconnect the same device or return to the lobby. There is no join-in-progress.
 
@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [verification and test instructions](Docs/VERIFICATION.md), and [balance and next milestone](Docs/NEXT_MILESTONE.md).
+See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), [verification and test instructions](Docs/VERIFICATION.md), and [balance and next milestone](Docs/NEXT_MILESTONE.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -62,6 +62,8 @@ F1 pauses simulation and exposes:
 - Start the corruption transition **only after** that death event.
 - Force specific player IDs for the next selection, and choose one or two corrupted players in a four-player party.
 - Select a player, add a relic, spawn an owned pickup, or toggle invulnerability.
+- Force weapon family, rarity, element, and Weapon Skill; equip two or four pieces of any authored set; clear equipment.
+- Display dominant BuildAnalyzer themes, force relic themes, spawn elemental test enemies, and toggle status/VFX feedback.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -91,12 +93,12 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Multiplayer is local and shares one fixed camera. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
 - Enemies steer directly toward targets; there is no navigation mesh or sophisticated avoidance.
 - UI uses immediate-mode GUI. No animation, soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
-- The basic weapon and three build families are implemented; additional weapon types, inventory equipment slots, a permanent progression UI, and save/load of active runs are deferred.
+- Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the equipment architecture. Loot acquisition, equipment selection UI, inventory persistence, final models, and save/load of active runs are deferred.
 - `UnlockData` is a data structure only, with no permanent stat bonuses or unlock-grind implementation.
 - Damage, mutation, item grants, and state changes run on one local authority. The architecture exposes seams for networking; it is not network-ready synchronization code.
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.2 adds eight weapon families, 45 relics across five elemental and five physical themes, tiered combat feedback, a six-reward expedition, and a Mini-Boss. See [the v0.2 combat/build guide](Docs/V0.2_COMBAT_BUILD_EXPANSION.md).
+Ashbound v0.2 added eight weapon families, 45 relics across five elemental and five physical themes, tiered combat feedback, a six-reward expedition, and a Mini-Boss. v0.3 adds five readable elemental weapon identities, five weapon rarities, 12 Weapon Skills, 20 armor pieces, and five 2/4-piece sets. See [the v0.3 guide](Docs/V0.3_ELEMENT_EQUIPMENT.md).
 
 Next milestone: collect repeated human solo and 2–4 player run telemetry, tune weapon/build/boss/reflection fairness and control feel, then prototype an authoritative networking transport without adding more content.

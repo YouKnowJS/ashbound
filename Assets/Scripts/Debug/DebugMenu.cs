@@ -1,49 +1,57 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using U = Ashbound.PrototypeGui;
+using U=Ashbound.PrototypeGui;
 
 namespace Ashbound
 {
-    public sealed class DebugMenu : MonoBehaviour
+    public sealed class DebugMenu:MonoBehaviour
     {
-        private RunManager run; private int selectedPlayer, relicPage;
-        private string result = "Select a weapon, force a build, or jump to an encounter. Close F1 to resume.";
-        public void Configure(RunManager manager) { run = manager; }
-        private void Update() { if (run && Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame) run.DebugOpen = !run.DebugOpen; }
-        private void Mark() { if (run.Telemetry.Record != null) run.Telemetry.Record.debugUsed = true; }
+        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage;
+        private string result="Configure equipment, then close F1 to resume.";
+        public void Configure(RunManager manager){run=manager;}
+        private void Update(){if(run&&Keyboard.current!=null&&Keyboard.current.f1Key.wasPressedThisFrame)run.DebugOpen=!run.DebugOpen;}
+        private void Mark(){if(run.Telemetry.Record!=null)run.Telemetry.Record.debugUsed=true;}
         private void OnGUI()
         {
-            if (!run || !run.DebugOpen) return;
-            GUI.depth=-20; var old=U.Scale(); U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.68f)); U.Panel(new Rect(70,35,1140,650));
-            U.Label(95,52,880,35,"ASHBOUND v0.2 · DEVELOPER TOOLS",U.Heading);
-            if(U.Click(new Rect(1060,50,120,34),"Close F1"))run.DebugOpen=false;
-            U.Label(95,91,1050,24,"State "+run.Flow.State+" · Room "+run.Rooms.RoomIndex+" · PvP "+run.Combat.PvPEnabled,U.Small);
-            if(U.Click(new Rect(95,125,170,35),"Jump Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready.":"Reset before jumping.";Mark();}
-            if(U.Click(new Rect(275,125,170,35),"Jump Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready.":"Reset before jumping.";Mark();}
-            GUI.enabled=run.Rooms.Boss&&run.Rooms.Boss.Alive;if(U.Click(new Rect(455,125,150,35),"Kill boss")){run.Rooms.Boss.Health.DebugKill();Mark();}GUI.enabled=true;
-            if(U.Click(new Rect(615,125,140,35),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset.";}
-            if(run.Combat.Feedback!=null)
-            {
-                run.Combat.Feedback.HitStopEnabled=GUI.Toggle(new Rect(775,132,110,25),run.Combat.Feedback.HitStopEnabled," Hit stop");
-                run.Combat.Feedback.CameraShakeEnabled=GUI.Toggle(new Rect(885,132,125,25),run.Combat.Feedback.CameraShakeEnabled," Shake");
-                run.Combat.Feedback.VfxEnabled=GUI.Toggle(new Rect(1010,132,110,25),run.Combat.Feedback.VfxEnabled," VFX");
-            }
-            if(run.Players.Count==0){U.Label(95,190,900,60,"Start a run or jump to an encounter to expose player build controls.");GUI.matrix=old;return;}
-            for(int i=0;i<run.Players.Count;i++)if(U.Click(new Rect(95+i*105,180,95,30),run.Players[i].Id+(i==selectedPlayer?" *":"")))selectedPlayer=i;
+            if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
+            U.Label(60,34,900,32,"ASHBOUND v0.3 · EQUIPMENT LAB",U.Heading);if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
+            if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
+            if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
+            if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
+            if(run.Combat.Feedback){run.Combat.Feedback.HitStopEnabled=GUI.Toggle(new Rect(520,83,100,22),run.Combat.Feedback.HitStopEnabled,"Hit stop");run.Combat.Feedback.CameraShakeEnabled=GUI.Toggle(new Rect(625,83,90,22),run.Combat.Feedback.CameraShakeEnabled,"Shake");run.Combat.Feedback.VfxEnabled=GUI.Toggle(new Rect(720,83,150,22),run.Combat.Feedback.VfxEnabled,"Status/VFX");}
+            if(run.Players.Count==0){U.Label(60,140,850,40,"Start a run or jump to an encounter first.");GUI.matrix=old;return;}
+            for(int i=0;i<run.Players.Count;i++)if(U.Click(new Rect(900+i*72,78,66,30),run.Players[i].Id+(i==selectedPlayer?"*":"")))selectedPlayer=i;
             selectedPlayer=Mathf.Clamp(selectedPlayer,0,run.Players.Count-1);var player=run.Players[selectedPlayer];
-            U.Label(95,220,160,25,"WEAPONS",U.CardTitle);
-            for(int i=0;i<run.Catalog.weapons.Length;i++){var w=run.Catalog.weapons[i];if(U.Click(new Rect(95+(i%4)*180,250+(i/4)*38,170,32),w.family.ToString())){player.Attacks.SetWeapon(w);result="Equipped "+w.displayName;Mark();}}
-            if(U.Click(new Rect(835,250,145,32),"Reset build")){player.Inventory.Clear();result="Build cleared.";Mark();}
-            if(U.Click(new Rect(990,250,155,32),"Invulnerability")){player.Health.DebugInvulnerable=!player.Health.DebugInvulnerable;Mark();}
-            U.Label(95,337,190,25,"GRANT BY TAG",U.CardTitle);
-            BuildTag[] tags={BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void,BuildTag.Critical,BuildTag.Bleed,BuildTag.Heavy,BuildTag.Combo,BuildTag.DashPrecision};
-            for(int i=0;i<tags.Length;i++){var tag=tags[i];if(U.Click(new Rect(95+(i%5)*150,368+(i/5)*36,140,30),tag.ToString())){var item=run.Catalog.items.FirstOrDefault(x=>x.tags.Contains(tag)&&player.Inventory.CanAdd(x));result=item&&player.Inventory.TryAdd(item)?"Granted "+item.displayName:"No eligible "+tag+" relic.";Mark();}}
-            U.Label(95,450,190,25,"SPECIFIC RELICS",U.CardTitle);int pageSize=10,pages=Mathf.CeilToInt(run.Catalog.items.Length/(float)pageSize);relicPage=Mathf.Clamp(relicPage,0,pages-1);
-            if(U.Click(new Rect(250,446,40,28),"<"))relicPage=Mathf.Max(0,relicPage-1);if(U.Click(new Rect(300,446,40,28),">"))relicPage=Mathf.Min(pages-1,relicPage+1);U.Label(350,450,140,22,"Page "+(relicPage+1)+" / "+pages,U.Small);
-            for(int n=0;n<pageSize;n++){int index=relicPage*pageSize+n;if(index>=run.Catalog.items.Length)break;var item=run.Catalog.items[index];float x=95+(n%2)*520,y=487+(n/2)*31;U.Label(x,y,325,25,item.displayName+" · "+string.Join("/",item.tags),U.Small);GUI.enabled=player.Inventory.CanAdd(item);if(U.Click(new Rect(x+335,y-2,75,27),"Grant")){player.Inventory.TryAdd(item);Mark();}GUI.enabled=true;}
-            U.Label(95,650,1040,24,result+" · Relics "+player.Inventory.Items.Count+" · Dominant "+string.Join(" / ",player.Inventory.DominantTags()),U.Small);
+
+            U.Label(60,125,550,24,"WEAPON CONFIGURATION",U.CardTitle);
+            WeaponFamily[] families=(WeaponFamily[])System.Enum.GetValues(typeof(WeaponFamily));for(int i=0;i<families.Length;i++)if(U.Click(new Rect(60+i*70,155,65,27),families[i].ToString().Substring(0,Mathf.Min(8,families[i].ToString().Length))))weaponFamily=i;
+            WeaponRarity[] rarities=(WeaponRarity[])System.Enum.GetValues(typeof(WeaponRarity));for(int i=0;i<rarities.Length;i++)if(U.Click(new Rect(60+i*100,190,94,27),rarities[i].ToString()))weaponRarity=i;
+            ElementTag[] elements=(ElementTag[])System.Enum.GetValues(typeof(ElementTag));for(int i=0;i<elements.Length;i++)if(U.Click(new Rect(60+i*88,225,82,27),elements[i].ToString()))weaponElement=i;
+            if(run.Catalog.weaponSkills.Length>0){skillIndex=Mathf.Clamp(skillIndex,0,run.Catalog.weaponSkills.Length-1);if(U.Click(new Rect(60,260,35,28),"<"))skillIndex=(skillIndex+run.Catalog.weaponSkills.Length-1)%run.Catalog.weaponSkills.Length;if(U.Click(new Rect(100,260,35,28),">"))skillIndex=(skillIndex+1)%run.Catalog.weaponSkills.Length;U.Label(145,263,270,24,"Skill: "+run.Catalog.weaponSkills[skillIndex].displayName,U.Small);}
+            if(U.Click(new Rect(420,260,180,30),"Apply weapon profile"))
+            {
+                var baseWeapon=run.Catalog.FindWeapon(families[weaponFamily]);var weapon=Instantiate(baseWeapon);weapon.name="Debug weapon";weapon.rarity=rarities[weaponRarity];weapon.elements=elements[weaponElement]==ElementTag.None?System.Array.Empty<ElementTag>():new[]{elements[weaponElement]};weapon.skill=weapon.rarity>=WeaponRarity.Rare?run.Catalog.weaponSkills[skillIndex]:null;player.Attacks.SetWeapon(weapon);result="Applied "+weapon.rarity+" "+weapon.PrimaryElement+" "+weapon.family;Mark();
+            }
+            U.Label(60,300,550,42,player.Weapon.displayName+" · "+player.Weapon.rarity+" "+player.Weapon.family+" · "+player.Weapon.PrimaryElement+"\nSkill: "+(player.Weapon.skill?player.Weapon.skill.displayName:"None"),U.Small);
+
+            U.Label(650,125,520,24,"ARMOR & SETS",U.CardTitle);setIndex=Mathf.Clamp(setIndex,0,run.Catalog.armorSets.Length-1);
+            for(int i=0;i<run.Catalog.armorSets.Length;i++)if(U.Click(new Rect(650+i*105,155,98,28),run.Catalog.armorSets[i].displayName))setIndex=i;
+            var set=run.Catalog.armorSets[setIndex];if(U.Click(new Rect(650,193,160,30),"Equip 2-piece")){EquipSet(player,set,2);result=set.displayName+" 2-piece active";Mark();}if(U.Click(new Rect(820,193,160,30),"Equip 4-piece")){EquipSet(player,set,4);result=set.displayName+" 4-piece active";Mark();}
+            if(U.Click(new Rect(990,193,170,30),"Clear equipment")){player.Equipment.Clear();result="Armor cleared";Mark();}
+            int armorRow=0;foreach(var pair in player.Equipment.Equipped){U.Label(650,232+armorRow*23,500,21,pair.Key+": "+pair.Value.displayName,U.Small);armorRow++;}
+            U.Label(650,332,520,42,"Active: "+string.Join(" · ",player.Equipment.ActiveBonuses().Select(x=>x.Set.displayName+" "+x.Tier.pieces))+"\nAnalysis: "+string.Join(" / ",player.DominantBuildTags()),U.Small);
+
+            U.Label(60,365,540,24,"FORCE BUILD / RELICS",U.CardTitle);BuildTag[] tags={BuildTag.Fire,BuildTag.Frost,BuildTag.Lightning,BuildTag.Poison,BuildTag.Void,BuildTag.Critical,BuildTag.Bleed,BuildTag.Heavy,BuildTag.Combo,BuildTag.DashPrecision};
+            for(int i=0;i<tags.Length;i++){var tag=tags[i];if(U.Click(new Rect(60+(i%5)*105,397+(i/5)*33,98,27),tag.ToString())){var item=run.Catalog.items.FirstOrDefault(x=>x.tags.Contains(tag)&&player.Inventory.CanAdd(x));result=item&&player.Inventory.TryAdd(item)?"Granted "+item.displayName:"No eligible relic";Mark();}}
+            if(U.Click(new Rect(60,470,150,29),"Clear relics")){player.Inventory.Clear();Mark();}
+            if(U.Click(new Rect(220,470,185,29),"Spawn elemental group")){run.DebugSpawnElementalGroup(elements[weaponElement]);result="Spawned "+elements[weaponElement]+" test group";Mark();}
+            U.Label(60,515,540,24,"SPECIFIC RELICS",U.CardTitle);int pageSize=8,pages=Mathf.CeilToInt(run.Catalog.items.Length/(float)pageSize);relicPage=Mathf.Clamp(relicPage,0,pages-1);if(U.Click(new Rect(225,511,35,28),"<"))relicPage=Mathf.Max(0,relicPage-1);if(U.Click(new Rect(265,511,35,28),">"))relicPage=Mathf.Min(pages-1,relicPage+1);
+            for(int n=0;n<pageSize;n++){int index=relicPage*pageSize+n;if(index>=run.Catalog.items.Length)break;var item=run.Catalog.items[index];float x=60+(n%2)*275,y=550+(n/2)*30;U.Label(x,y,190,24,item.displayName,U.Small);GUI.enabled=player.Inventory.CanAdd(item);if(U.Click(new Rect(x+195,y,65,25),"Grant")){player.Inventory.TryAdd(item);Mark();}GUI.enabled=true;}
+            U.Label(650,400,520,110,"ELEMENT IDENTITY\nFire: AOE / Burn / burst\nFrost: control / single target / critical\nLightning: chain AOE / critical\nPoison: DoT / spread / throttled recovery\nVoid: rifts / pull / delayed control",U.Small);
+            U.Label(650,535,520,85,result+"\nDominant: "+string.Join(" / ",player.DominantBuildTags())+"\nDebug runs are marked in local telemetry.",U.Small);
             GUI.matrix=old;
         }
+        private void EquipSet(Combatant player,ArmorSetDefinition set,int count){player.Equipment.Clear();foreach(var armor in run.Catalog.armor.Where(x=>x.set==set).Take(count))player.Equipment.Equip(armor);}
     }
 }

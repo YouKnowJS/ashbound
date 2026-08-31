@@ -77,7 +77,11 @@ Dash is 0.22 seconds at speed 22, with 0.15 seconds of invulnerability and a 1.1
 
 ## Data and upgrades
 
-`ItemDefinition` includes ID, display name, description, rarity, tags, stat modifiers, triggered effects, optional on-hit statuses, and an optional prerequisite. There are no sets. Each relic is unique per actor. Drafts shuffle eligible relics without replacement and offer up to three; exhausted debug inventories are safely skipped. Normal four-choice runs have three eligible options at every draft.
+`ItemDefinition` includes ID, display name, description, rarity, tags, stat modifiers, triggered effects, optional on-hit statuses, and an optional prerequisite. Each relic is unique per actor. Drafts shuffle eligible relics without replacement and offer up to three; exhausted debug inventories are safely skipped.
+
+`WeaponDefinition` keeps weapon family independent from elemental tags and adds Common through Legendary rarity, on-hit status data, descriptive identity, and an optional `WeaponSkillDefinition`. The generic skill executor supports dash melee, radial burst, projectile volley, persistent zone, and gravity-well delivery without weapon-specific controller classes.
+
+`PlayerEquipment` owns one Head, Chest, Gloves, and Boots entry. `ArmorDefinition` carries element/build tags, modifiers, and a lightweight passive. Pieces reference `ArmorSetDefinition`; the equipment component groups equipped pieces by set and activates both the two-piece and four-piece tiers when their thresholds are reached. Stats, effects, passive powers, build analysis, telemetry, and debug UI query the equipment component rather than duplicating set state.
 
 | Relic | Main behavior |
 |---|---|
@@ -100,7 +104,7 @@ After boss death, all players are restored for the final encounter. Two/three pl
 
 `CorruptionAbilities` applies the boss profile separately from `PlayerController`: health/damage/movement multipliers, burning on weapon hits, a burning dash trail, a fire-burst override, and a violet silhouette/crown/ring. The profile has a VFX prefab hook and thematic tags. Extending beyond the prototype's ash abilities calls for another behavior component/profile interpreter, not more conditionals inside the player controller.
 
-Solo never creates an AI ally. `BuildAnalyzer` counts item tags, ranks up to two among Critical/Bleed/Lightning, and resolves stable ties by enum order. `CorruptionSystem` copies the player's core weapon and maps those dominant tags to at most four representative relics. It then applies ash corruption and `ReflectionController`. It does not clone arbitrary item state or all upgrades.
+Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, Weapon Skill, armor, and active-set tags, ranks up to three readable themes, and resolves stable ties by enum order. `CorruptionSystem` copies the player's weapon, including element and skill, then maps the analyzed themes to at most four representative relics. It applies ash corruption afterward, so the boss profile layers over the copied elemental build. It does not clone every equipment effect or arbitrary item state.
 
 ## Script map
 
@@ -118,7 +122,7 @@ Solo never creates an AI ally. `BuildAnalyzer` counts item tags, ranks up to two
 | `Enemies/EnemyController` | Melee, ranged, charging, and elite behavior |
 | `Bosses/CinderRegentController` | Boss patterns and health phase |
 | `Roguelike/UpgradeDraft`, `UpgradeEffectController` | Choice lifecycle and proc interpretation |
-| `Items/*Definition`, `PlayerInventory`, `ItemPickup` | Item data, ownership, and pickups |
+| `Items/*Definition`, `PlayerInventory`, `PlayerEquipment`, `WeaponSkillExecutor` | Relic/weapon/skill/armor data, ownership, set evaluation, and skill delivery |
 | `Rooms/RoomDirector`, `RoomView`, `LoreFragment` | Encounters, seals, primitive layout, collectible fragments |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
 | `Corruption/*`, `Solo/ReflectionController` | Boss modifiers, roster selection, solo final opponent |
