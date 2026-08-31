@@ -67,6 +67,8 @@ namespace Ashbound.Tests
                     KillHostiles(); yield return State(RunState.Reward);
                     Assert.That(run.Draft.Options.Length, Is.EqualTo(3));
                     Assert.That(run.Draft.Choose(0), Is.True);
+                    Assert.That(run.EquipmentRewards.Active,Is.True);
+                    Assert.That(run.EquipmentRewards.Leave(),Is.True);
                 }
                 yield return State(RunState.Exploration);
                 Assert.That(run.Rooms.ExitOpen, Is.True);
@@ -270,6 +272,15 @@ namespace Ashbound.Tests
             Assert.That(reflection.Weapon.skill.id, Is.EqualTo("moonfrost-draw"));
             Assert.That(reflection.DisplayName, Does.Contain("Frost"));
             Assert.That(reflection.Corruption, Is.EqualTo(run.Catalog.boss.corruption));
+        }
+
+        [UnityTest]
+        public IEnumerator V04EncounterResourcesAndPersonalEquipmentRewardFlowWork()
+        {
+            run.StartRun(204);yield return State(RunState.Combat);var player=run.Players[0];KillHostiles();yield return State(RunState.Reward);
+            Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(0));Assert.That(run.Draft.Choose(0),Is.True);Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.EquipmentRewards.CurrentPlayer,Is.EqualTo(player));
+            var option=run.EquipmentRewards.Options[0];Assert.That(run.EquipmentRewards.Dismantle(0),Is.True);Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(10));yield return State(RunState.Exploration);
+            Assert.That(player.Equipment.Equipped.Count,Is.EqualTo(0));Assert.That(run.Progression.Profile.lifetime.equipmentDismantled,Is.GreaterThan(0));
         }
     }
 }

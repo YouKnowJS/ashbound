@@ -1,0 +1,136 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7bd5bfc1d69b8d42ac76e3540303935, type: 3}
+  m_Name: forge
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.HubFacilityDefinition
+  id: forge
+  displayName: Forge
+  description: Unlock weapons, elemental variants, skills, and modest rarity craftsmanship.
+  kind: 1
+  initiallyUnlocked: 1
+  tiers:
+  - id: forge-weapons
+    displayName: Weapon Research
+    description: Add five elemental weapons and Winterglass armor to future reward
+      pools.
+    cost:
+      ash: 24
+      emberShards: 3
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 0
+    power: 0
+    unlockWeaponIds:
+    - flamebreaker
+    - moonfrost
+    - storm-twins
+    - venom-rain
+    - gravity-ash
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds:
+    - winterglass
+    unlockPreparationIds: []
+  - id: forge-elements
+    displayName: Elemental Forging
+    description: Add five alternate combinations and Stormcaller armor.
+    cost:
+      ash: 38
+      emberShards: 7
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 0
+    power: 0
+    unlockWeaponIds:
+    - cinder-crook
+    - winter-pike
+    - thunder-string
+    - decay-brand
+    - rift-edge
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds:
+    - stormcaller
+    unlockPreparationIds: []
+  - id: forge-skills
+    displayName: Weapon Skill Research
+    description: Allow researched weapons to appear with skills; add Venomblood and
+      Riftwalker armor.
+    cost:
+      ash: 52
+      emberShards: 10
+      ancientAlloy: 1
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 0
+    power: 0
+    unlockWeaponIds: []
+    unlockWeaponSkillIds:
+    - flamebreaker
+    - moonfrost-draw
+    - storm-rush
+    - venom-rain
+    - gravity-well
+    - cinder-volley
+    - frost-lance
+    - storm-volley
+    - toxic-wave
+    - rift-cleave
+    unlockRelicIds: []
+    unlockArmorSetIds:
+    - venomblood
+    - riftwalker
+    unlockPreparationIds: []
+  - id: forge-craftsmanship
+    displayName: Rarity Craftsmanship
+    description: Increase high-rarity reward weighting by a capped 5%.
+    cost:
+      ash: 70
+      emberShards: 14
+      ancientAlloy: 2
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 2
+    power: 0.05
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: forge-legendary
+    displayName: Legendary Research
+    description: Moon-Eater and Hearth-Sunder can enter eligible pools; they are
+      not starting gear.
+    cost:
+      ash: 90
+      emberShards: 20
+      ancientAlloy: 5
+      corruptionFragments: 2
+    prerequisiteFacilityId: expedition-table
+    prerequisiteLevel: 2
+    effect: 0
+    power: 0
+    unlockWeaponIds:
+    - moon-eater
+    - hearth-sunder
+    unlockWeaponSkillIds:
+    - moon-eater-cut
+    - hearth-collapse
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []

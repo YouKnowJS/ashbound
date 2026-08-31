@@ -141,3 +141,11 @@ Audio cues cover exploration/combat/boss music, boss death, music fade, silence,
 ## Extension limits
 
 No networking library is installed. Stable IDs, input abstraction, events, and central damage authority make future host validation possible, but prediction, reconciliation, snapshots, identity authentication, reconnect mapping, and synchronized RNG/physics are unimplemented. Never expose direct client authority over item grants, boss death, or faction selection when adding a transport.
+
+## v0.4 profile, Hub, and expedition economy
+
+`MetaProgressionProfile` is versioned, host-owned persistent data. It stores currencies, facilities, unlock pools, preparations, discoveries, bosses, and lifetime statistics. It never stores live combatants, health, current relics, run weapons, armor, or corruption state. `MetaProgressionStore` writes an atomic JSON file below `Application.persistentDataPath/Profile`, migrates older valid profiles through normalization, and moves invalid data aside before creating safe defaults. Profile ID and run player entity ID remain independent.
+
+`MetaProgressionService` is the runtime boundary between the profile and an expedition. Its `RunResources` wallet is recreated at launch, receives encounter/salvage rewards, and settles into the persistent wallet only on outcome. `ProgressionEconomy` owns retention, salvage, and merchant-price invariants. `HubFacilityDefinition`, `PreparationDefinition`, and `ProgressionTuningDefinition` keep costs, unlocks, caps, future node targets, reward quality, and Rest/Temper hooks in ScriptableObjects.
+
+The existing MainMenu lobby is now the functional Hub. It exposes the Expedition Table, Forge, Quartermaster, Infirmary, Archive, and Research Station without creating a second input authority or replacing the local roster. `EquipmentRewardDraft` runs after the relic draft, queues each combatant independently, filters the profile's unlocked pools, applies modest rarity/element weights, and lets that player equip, leave, or dismantle. Equipment remains on the combatant and disappears with the run.

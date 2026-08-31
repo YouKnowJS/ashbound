@@ -35,12 +35,13 @@ namespace Ashbound.Editor
             if (missingScene && !Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             string[] folders = { "Assets/Resources", "Assets/ScriptableObjects/Items", "Assets/ScriptableObjects/Bosses",
                 "Assets/ScriptableObjects/Corruption", "Assets/ScriptableObjects/Rooms", "Assets/ScriptableObjects/Lore", "Assets/ScriptableObjects/Weapons",
-                "Assets/ScriptableObjects/WeaponSkills", "Assets/ScriptableObjects/Armor", "Assets/ScriptableObjects/ArmorSets", "Assets/Scenes" };
+                "Assets/ScriptableObjects/WeaponSkills", "Assets/ScriptableObjects/Armor", "Assets/ScriptableObjects/ArmorSets", "Assets/ScriptableObjects/Meta", "Assets/Scenes" };
             foreach (string folder in folders) Directory.CreateDirectory(folder);
             AssetDatabase.Refresh();
             var items = CreateItems(); var weaponSkills=CreateWeaponSkills();
             var weapons = CreateWeapons(weaponSkills); var weapon = weapons[0];
             var armorSets=CreateArmorSets(); var armor=CreateArmor(armorSets);
+            var facilities=CreateFacilities();var preparations=CreatePreparations();var progressionTuning=CreateProgressionTuning();
             var corruption = Asset<BossCorruptionProfile>("Assets/ScriptableObjects/Corruption/Ash.asset", x => { });
             var boss = Asset<BossDefinition>("Assets/ScriptableObjects/Bosses/CinderRegent.asset", x => x.corruption = corruption);
             var firstLore = Asset<LoreEntry>("Assets/ScriptableObjects/Lore/WatchkeepersNote.asset", x =>
@@ -65,7 +66,7 @@ namespace Ashbound.Editor
                 x.id = "cinder-throne"; x.displayName = "07 / The Cinder Throne"; x.description = "The last keeper waits."; x.isBoss = true; x.spawnPoints = points; x.waves = Array.Empty<EnemyWave>();
             });
             var catalog = Asset<PrototypeCatalog>("Assets/Resources/PrototypeCatalog.asset", x =>
-            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.weaponSkills=weaponSkills; x.armorSets=armorSets; x.armor=armor; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom }; });
+            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.weaponSkills=weaponSkills; x.armorSets=armorSets; x.armor=armor;x.facilities=facilities;x.preparations=preparations;x.progressionTuning=progressionTuning; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom }; });
             if (!File.Exists("Assets/Resources/PrototypeLit.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")), "Assets/Resources/PrototypeLit.mat");
             if (!File.Exists("Assets/Resources/PrototypeLine.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Sprites/Default")), "Assets/Resources/PrototypeLine.mat");
             ConfigureProject(); AssetDatabase.SaveAssets();
@@ -81,8 +82,72 @@ namespace Ashbound.Editor
                 else EditorSceneManager.OpenScene("Assets/Scenes/MainMenu.unity");
             }
             AssetDatabase.SaveAssets();
-            Debug.Log("Ashbound v0.3 content ready: 45 relics, 20 weapons, 12 skills, 20 armor pieces, 5 sets, and 7 encounters.");
+            Debug.Log("Ashbound v0.4 content ready: v0.3 combat plus 6 Hub facilities, 28 upgrades, 5 preparations, resources, and equipment rewards.");
         }
+
+        private static HubFacilityDefinition[] CreateFacilities()
+        {
+            ResourceWallet C(int ash=0,int ember=0,int alloy=0,int corruption=0)=>new ResourceWallet{ash=ash,emberShards=ember,ancientAlloy=alloy,corruptionFragments=corruption};
+            FacilityUpgradeTier T(string id,string name,string description,ResourceWallet cost,MetaEffectKind effect,float power=0,string prerequisite="",int prerequisiteLevel=0,string[] weapons=null,string[] skills=null,string[] relics=null,string[] sets=null)=>new FacilityUpgradeTier{id=id,displayName=name,description=description,cost=cost,effect=effect,power=power,prerequisiteFacilityId=prerequisite,prerequisiteLevel=prerequisiteLevel,unlockWeaponIds=weapons??Array.Empty<string>(),unlockWeaponSkillIds=skills??Array.Empty<string>(),unlockRelicIds=relics??Array.Empty<string>(),unlockArmorSetIds=sets??Array.Empty<string>(),unlockPreparationIds=Array.Empty<string>()};
+            HubFacilityDefinition F(string id,string name,HubFacilityKind kind,string description,params FacilityUpgradeTier[] tiers)=>Asset<HubFacilityDefinition>("Assets/ScriptableObjects/Meta/"+id+".asset",x=>{x.id=id;x.displayName=name;x.kind=kind;x.description=description;x.initiallyUnlocked=true;x.tiers=tiers;});
+            return new[]{
+                F("expedition-table","Expedition Table",HubFacilityKind.ExpeditionTable,"Review progress, preparations, route intelligence, and launch the next expedition.",
+                    T("table-survey","Survey Ledger","Record the highest region and encounter reached.",C(18),MetaEffectKind.RouteReveal,0),
+                    T("table-routes","Route Annotations","Reveal one additional future node hook.",C(30,3),MetaEffectKind.RouteReveal,1),
+                    T("table-boss-ledger","Boss Ledger","Expose defeated-boss records and milestone retention information.",C(45,6),MetaEffectKind.RouteReveal,0),
+                    T("table-deep-chart","Deep Chart","Reveal another future node hook without selecting a route for the player.",C(65,8,1),MetaEffectKind.RouteReveal,1)),
+                F("forge","Forge",HubFacilityKind.Forge,"Unlock weapons, elemental variants, skills, and modest rarity craftsmanship.",
+                    T("forge-weapons","Weapon Research","Add five elemental weapons and Winterglass armor to future reward pools.",C(24,3),MetaEffectKind.None,0,weapons:new[]{"flamebreaker","moonfrost","storm-twins","venom-rain","gravity-ash"},sets:new[]{"winterglass"}),
+                    T("forge-elements","Elemental Forging","Add five alternate combinations and Stormcaller armor.",C(38,7),MetaEffectKind.None,0,weapons:new[]{"cinder-crook","winter-pike","thunder-string","decay-brand","rift-edge"},sets:new[]{"stormcaller"}),
+                    T("forge-skills","Weapon Skill Research","Allow researched weapons to appear with skills; add Venomblood and Riftwalker armor.",C(52,10,1),MetaEffectKind.None,0,skills:new[]{"flamebreaker","moonfrost-draw","storm-rush","venom-rain","gravity-well","cinder-volley","frost-lance","storm-volley","toxic-wave","rift-cleave"},sets:new[]{"venomblood","riftwalker"}),
+                    T("forge-craftsmanship","Rarity Craftsmanship","Increase high-rarity reward weighting by a capped 5%.",C(70,14,2),MetaEffectKind.RareWeight,.05f),
+                    T("forge-legendary","Legendary Research","Moon-Eater and Hearth-Sunder can enter eligible pools; they are not starting gear.",C(90,20,5,2),MetaEffectKind.None,0,"expedition-table",2,new[]{"moon-eater","hearth-sunder"},new[]{"moon-eater-cut","hearth-collapse"})),
+                F("quartermaster","Quartermaster",HubFacilityKind.Quartermaster,"Improve merchant choice and expedition economy without large combat stats.",
+                    T("quartermaster-stock","Merchant Stock I","Future merchants may offer one additional option.",C(20),MetaEffectKind.MerchantStock,1),
+                    T("quartermaster-network","Merchant Network","Slightly improve future merchant-node weighting.",C(32,3),MetaEffectKind.MerchantChance,.05f),
+                    T("quartermaster-negotiation","Negotiation","The first future merchant reroll receives a discount hook.",C(42,6),MetaEffectKind.RerollDiscount,.25f),
+                    T("quartermaster-salvage","Salvage Training","Dismantling yields 10% more expedition materials.",C(55,8,1),MetaEffectKind.SalvageYield,.1f),
+                    T("quartermaster-cache","Supply Cache","Begin each expedition with 8 run Ash.",C(68,10,2),MetaEffectKind.StartingAsh,8)),
+                F("infirmary","Infirmary",HubFacilityKind.Infirmary,"Small capped survival and recovery improvements.",
+                    T("infirmary-medicine","Field Medicine","Checkpoint and future Rest recovery improve by 10%.",C(20),MetaEffectKind.RestRecovery,.1f),
+                    T("infirmary-recovery","Recovery Training","Failure retention improves by 3%, within the global cap.",C(32,3),MetaEffectKind.FailureRetention,.03f),
+                    T("infirmary-emergency","Emergency Supply","Expose one extra future Rest recovery option.",C(42,5),MetaEffectKind.EmergencyRest,1),
+                    T("infirmary-vitality-1","Vitality Training I","Increase base maximum HP by 2%.",C(50,7),MetaEffectKind.MaxHealth,.02f),
+                    T("infirmary-vitality-2","Vitality Training II","Increase base maximum HP by another 2%.",C(65,9,1),MetaEffectKind.MaxHealth,.02f),
+                    T("infirmary-vitality-3","Vitality Training III","Reach the prototype permanent HP cap of 6%.",C(80,12,2),MetaEffectKind.MaxHealth,.02f)),
+                F("archive","Archive",HubFacilityKind.Archive,"Optional fragmentary lore, boss observations, and Legendary records.",
+                    T("archive-shelves","Recovered Shelves","Display discovered expedition notes.",C(12),MetaEffectKind.ArchiveCapacity,4),
+                    T("archive-insignia","Insignia Index","Expand optional region-record capacity.",C(22,2),MetaEffectKind.ArchiveCapacity,4),
+                    T("archive-observations","Boss Observations","Display defeated-boss records without explaining the cycle.",C(34,4),MetaEffectKind.ArchiveCapacity,4),
+                    T("archive-legends","Legendary Folio","Display lore for discovered Legendary research.",C(46,6,1),MetaEffectKind.ArchiveCapacity,4)),
+                F("research-station","Research Station",HubFacilityKind.ResearchStation,"Manipulate possibilities, information, and randomness.",
+                    T("research-scavenging","Scavenging","Increase Rare-or-higher weighting by 5% and add foundational elemental relics.",C(24,3),MetaEffectKind.RareWeight,.05f,relics:new[]{"ember-brand","kindling","wildfire","rime-edge","deep-winter","cold-snap","static-charge","overload","venom-edge","toxicity","void-mark","rift-step"}),
+                    T("research-cartography","Cartography","Reveal one additional future node hook.",C(36,5),MetaEffectKind.RouteReveal,1),
+                    T("research-relics","Relic Analysis","Gain one relic reroll and add advanced synergy relics.",C(48,8,1),MetaEffectKind.RelicReroll,1,relics:new[]{"flashpoint","ashen-wake","inferno-core","shatter","frozen-step","brittle-ice","stormstep","thunderhead","corrosion","catalyst","toxic-burst","collapse","entropy","echo-beyond","abyssal-pact","patient-force","fault-line","bell-ringer","open-wound","rising-tempo","crescendo","flowing-step","afterimage-edge","keen-step","warded-heel"}),
+                    T("research-appraisal","Equipment Appraisal","Expose richer equipment comparison information.",C(58,10,1),MetaEffectKind.EquipmentAppraisal,1),
+                    T("research-affinity","Elemental Affinity","Enable capped elemental-bias preparations.",C(72,14,2),MetaEffectKind.ElementBias,0))
+            };
+        }
+
+        private static PreparationDefinition[] CreatePreparations()
+        {
+            PreparationDefinition P(string id,string name,string description,PreparationKind kind,string facility,int level,MetaEffectKind effect,float power,ElementTag element=ElementTag.None)=>Asset<PreparationDefinition>("Assets/ScriptableObjects/Meta/preparation-"+id+".asset",x=>{x.id=id;x.displayName=name;x.description=description;x.kind=kind;x.requiredFacilityId=facility;x.requiredFacilityLevel=level;x.effect=effect;x.power=power;x.element=element;});
+            return new[]{
+                P("hunters-preparation","Hunter's Preparation","Slightly improve Rare reward weighting for the next expedition.",PreparationKind.HuntersPreparation,"forge",1,MetaEffectKind.RareWeight,.05f),
+                P("frost-research","Frost Research","Bias eligible equipment toward Frost by 15%; never guarantees it.",PreparationKind.FrostResearch,"research-station",5,MetaEffectKind.ElementBias,.15f,ElementTag.Frost),
+                P("cartographers-notes","Cartographer's Notes","Reveal one extra future route node.",PreparationKind.CartographersNotes,"expedition-table",2,MetaEffectKind.RouteReveal,1),
+                P("merchant-contract","Merchant Contract","Reserve a free-first-reroll hook for future merchants.",PreparationKind.MerchantContract,"quartermaster",3,MetaEffectKind.RerollDiscount,1),
+                P("field-supplies","Field Supplies","Checkpoint and future Rest healing improve by 15% this expedition.",PreparationKind.FieldSupplies,"infirmary",1,MetaEffectKind.RestRecovery,.15f)
+            };
+        }
+
+        private static ProgressionTuningDefinition CreateProgressionTuning()=>Asset<ProgressionTuningDefinition>("Assets/ScriptableObjects/Meta/progression-tuning.asset",x=>
+        {
+            x.retention=new RetentionRules{ashFailure=.7f,emberFailure=.5f,alloyFailure=.25f,corruptionFailure=0,bossMilestoneBonus=.15f,maxFailureBonus=.15f};x.permanentHealthCap=.08f;x.rarityWeightCap=.15f;x.elementalBiasCap=.2f;
+            x.targetMajorRegions=5;x.targetFinalAreas=1;x.targetNodesPerRegionMin=8;x.targetNodesPerRegionMax=10;x.targetExperiencedRunMinutesMin=30;x.targetExperiencedRunMinutesMax=45;
+            x.rewards=new[]{new EncounterResourceReward{nodeType=ExpeditionNodeType.NormalCombat,resources=new ResourceWallet{ash=10},minimumQuality=RewardQuality.Common,maximumQuality=RewardQuality.Rare},new EncounterResourceReward{nodeType=ExpeditionNodeType.Elite,resources=new ResourceWallet{ash=14,emberShards=3},minimumQuality=RewardQuality.Advanced,maximumQuality=RewardQuality.Epic},new EncounterResourceReward{nodeType=ExpeditionNodeType.Boss,resources=new ResourceWallet{ash=28,emberShards=7,ancientAlloy=2,corruptionFragments=1},minimumQuality=RewardQuality.Rare,maximumQuality=RewardQuality.Legendary}};
+            x.restOptions=new[]{new RestOptionDefinition{kind=RestOptionKind.Rest,displayName="Rest",description="Recover health.",power=.3f},new RestOptionDefinition{kind=RestOptionKind.Temper,displayName="Temper",description="Skip healing and reserve a small equipment-improvement hook.",power=.05f}};
+        });
 
         private static RoomDefinition Room(string assetName, string id, string name, string description, Vector3[] points, LoreEntry lore, params EnemyKind[] enemies) =>
             Asset<RoomDefinition>("Assets/ScriptableObjects/Rooms/" + assetName + ".asset", x =>

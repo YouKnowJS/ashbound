@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7bd5bfc1d69b8d42ac76e3540303935, type: 3}
+  m_Name: infirmary
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.HubFacilityDefinition
+  id: infirmary
+  displayName: Infirmary
+  description: Small capped survival and recovery improvements.
+  kind: 3
+  initiallyUnlocked: 1
+  tiers:
+  - id: infirmary-medicine
+    displayName: Field Medicine
+    description: Checkpoint and future Rest recovery improve by 10%.
+    cost:
+      ash: 20
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 8
+    power: 0.1
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: infirmary-recovery
+    displayName: Recovery Training
+    description: Failure retention improves by 3%, within the global cap.
+    cost:
+      ash: 32
+      emberShards: 3
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 9
+    power: 0.03
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: infirmary-emergency
+    displayName: Emergency Supply
+    description: Expose one extra future Rest recovery option.
+    cost:
+      ash: 42
+      emberShards: 5
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 10
+    power: 1
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: infirmary-vitality-1
+    displayName: Vitality Training I
+    description: Increase base maximum HP by 2%.
+    cost:
+      ash: 50
+      emberShards: 7
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 11
+    power: 0.02
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: infirmary-vitality-2
+    displayName: Vitality Training II
+    description: Increase base maximum HP by another 2%.
+    cost:
+      ash: 65
+      emberShards: 9
+      ancientAlloy: 1
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 11
+    power: 0.02
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: infirmary-vitality-3
+    displayName: Vitality Training III
+    description: Reach the prototype permanent HP cap of 6%.
+    cost:
+      ash: 80
+      emberShards: 12
+      ancientAlloy: 2
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 11
+    power: 0.02
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []

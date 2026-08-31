@@ -1,6 +1,6 @@
 # Ashbound — Unity 6 prototype
 
-A modular, primitive-mesh action roguelike with a seven-encounter expedition, eight weapon families, 45 relics, five elemental identities, weapon skills, armor sets, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
+A modular, primitive-mesh action roguelike with a persistent expedition Hub, four-resource economy, seven-encounter run, eight weapon families, 45 relics, five elemental identities, weapon skills, armor sets, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
 
 ## Play
 
@@ -11,7 +11,7 @@ A modular, primitive-mesh action roguelike with a seven-encounter expedition, ei
 1. In Unity Hub, **Add → Add project from disk**, and select this repository folder.
 2. Open with **Unity 6000.4.11f1** (the installed/tested editor version). An active Unity license is required.
 3. Open `Assets/Scenes/MainMenu.unity` and press **Play**.
-4. Select **Enter the vault** for solo. For local play, add a second keyboard player and/or connected gamepads before starting.
+4. Use the Hub to spend resources and choose one preparation, then launch solo or add a second keyboard player and/or connected gamepads.
 
 The project uses the built-in renderer, Input System 1.19.0, and Test Framework 1.6.0. Unity restores these pinned packages on import. No Asset Store assets, API keys, services, or paid plugins are required.
 
@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), [verification and test instructions](Docs/VERIFICATION.md), and [balance and next milestone](Docs/NEXT_MILESTONE.md).
+See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -64,6 +64,7 @@ F1 pauses simulation and exposes:
 - Select a player, add a relic, spawn an owned pickup, or toggle invulnerability.
 - Force weapon family, rarity, element, and Weapon Skill; equip two or four pieces of any authored set; clear equipment.
 - Display dominant BuildAnalyzer themes, force relic themes, spawn elemental test enemies, and toggle status/VFX feedback.
+- Add/zero persistent resources, set facility levels, unlock equipment, reset the profile, force preparations/reward rarity, and simulate expedition outcomes.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -76,7 +77,7 @@ One local JSON file is written on completion, reset, or application exit, under:
 %USERPROFILE%/AppData/LocalLow/AshboundPrototype/Ashbound/Telemetry/run-<id>.json
 ```
 
-The authoritative directory is `Application.persistentDataPath/Telemetry`. The result screen and Unity log show the full path. Records include seed, duration (excluding pauses), selections, dominant tags, damage dealt/taken including shields, boss damage, corruption type, final-phase duration, winner/team IDs, abort status, and a debug flag. Nothing is uploaded.
+The authoritative directories are `Application.persistentDataPath/Profile` and `Application.persistentDataPath/Telemetry`. The Hub and result screen show paths and resource settlement. Records include combat/build data plus collected/retained/lost resources, Hub spending, facility levels, preparation, equipment acquisition/salvage, rerolls, progression depth, bosses, outcome, and a debug flag. Nothing is uploaded.
 
 ### Build / test from PowerShell
 
@@ -99,6 +100,6 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.2 added eight weapon families, 45 relics across five elemental and five physical themes, tiered combat feedback, a six-reward expedition, and a Mini-Boss. v0.3 adds five readable elemental weapon identities, five weapon rarities, 12 Weapon Skills, 20 armor pieces, and five 2/4-piece sets. See [the v0.3 guide](Docs/V0.3_ELEMENT_EQUIPMENT.md).
+Ashbound v0.4 adds the persistent host profile, Expedition Hub, four-resource economy, preparations, data-driven facilities, unlock pools, failure retention, and personal equipment reward/salvage flow while preserving the v0.3 build systems. See [the v0.4 guide](Docs/V0.4_META_PROGRESSION.md).
 
 Next milestone: collect repeated human solo and 2–4 player run telemetry, tune weapon/build/boss/reflection fairness and control feel, then prototype an authoritative networking transport without adding more content.

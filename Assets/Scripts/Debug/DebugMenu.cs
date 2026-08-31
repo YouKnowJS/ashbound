@@ -7,7 +7,7 @@ namespace Ashbound
 {
     public sealed class DebugMenu:MonoBehaviour
     {
-        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage;
+        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage,metaFacility;private bool metaPage;
         private string result="Configure equipment, then close F1 to resume.";
         public void Configure(RunManager manager){run=manager;}
         private void Update(){if(run&&Keyboard.current!=null&&Keyboard.current.f1Key.wasPressedThisFrame)run.DebugOpen=!run.DebugOpen;}
@@ -15,7 +15,8 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,900,32,"ASHBOUND v0.3 · EQUIPMENT LAB",U.Heading);if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
+            U.Label(60,34,820,32,"ASHBOUND v0.4 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(900,32,170,32),metaPage?"Equipment page":"Meta page"))metaPage=!metaPage;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
+            if(metaPage){MetaPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
@@ -53,5 +54,17 @@ namespace Ashbound
             GUI.matrix=old;
         }
         private void EquipSet(Combatant player,ArmorSetDefinition set,int count){player.Equipment.Clear();foreach(var armor in run.Catalog.armor.Where(x=>x.set==set).Take(count))player.Equipment.Equip(armor);}
+        private void MetaPanel()
+        {
+            var meta=run.Progression;U.Label(60,88,1120,25,"PROFILE · "+meta.Profile.profileId+"   "+meta.Profile.currencies,U.CardTitle);U.Label(60,116,1120,22,"Save: "+meta.SavePath,U.Small);
+            ExpeditionResource[] resources=(ExpeditionResource[])System.Enum.GetValues(typeof(ExpeditionResource));for(int i=0;i<resources.Length;i++)if(U.Click(new Rect(60+i*185,155,175,32),"+100 "+resources[i])){meta.DebugAdd(resources[i],100);Mark();}
+            if(U.Click(new Rect(810,155,165,32),"Zero currencies")){meta.DebugZeroCurrencies();Mark();}if(U.Click(new Rect(985,155,195,32),"Unlock all gear")){meta.DebugUnlockAll();Mark();}
+            U.Label(60,210,500,25,"FACILITY LEVELS",U.CardTitle);for(int i=0;i<run.Catalog.facilities.Length;i++)if(U.Click(new Rect(60+(i%3)*190,245+(i/3)*38,180,30),run.Catalog.facilities[i].displayName))metaFacility=i;metaFacility=Mathf.Clamp(metaFacility,0,run.Catalog.facilities.Length-1);var facility=run.Catalog.facilities[metaFacility];var progress=meta.Profile.Facility(facility.id);
+            U.Label(650,210,530,60,facility.displayName+" · "+progress.level+" / "+facility.MaxLevel+"\n"+facility.description,U.Small);if(U.Click(new Rect(650,282,125,32),"Level -")){meta.DebugSetFacility(facility,progress.level-1);Mark();}if(U.Click(new Rect(785,282,125,32),"Level +")){meta.DebugSetFacility(facility,progress.level+1);Mark();}if(U.Click(new Rect(920,282,260,32),"Set max / unlock")){meta.DebugSetFacility(facility,facility.MaxLevel);Mark();}
+            U.Label(60,345,500,25,"PREPARATION",U.CardTitle);for(int i=0;i<run.Catalog.preparations.Length;i++){var prep=run.Catalog.preparations[i];GUI.enabled=meta.PreparationAvailable(prep);if(U.Click(new Rect(60+(i%3)*220,380+(i/3)*38,210,30),prep.displayName)){meta.SelectPreparation(prep);result="Forced "+prep.displayName;Mark();}GUI.enabled=true;}
+            U.Label(60,465,500,25,"OUTCOME / REWARD",U.CardTitle);if(U.Click(new Rect(60,500,205,34),"Simulate failed expedition")){var s=meta.DebugSimulateOutcome(false);result="Retained "+s.Retained;Mark();}if(U.Click(new Rect(275,500,215,34),"Simulate successful expedition")){var s=meta.DebugSimulateOutcome(true);result="Retained "+s.Retained;Mark();}
+            WeaponRarity[] rarities=(WeaponRarity[])System.Enum.GetValues(typeof(WeaponRarity));for(int i=0;i<rarities.Length;i++)if(U.Click(new Rect(510+i*120,500,112,34),rarities[i].ToString()))weaponRarity=i;GUI.enabled=run.Players.Count>0;if(U.Click(new Rect(510,545,250,34),"Force equipment reward")){run.DebugForceEquipmentReward(rarities[weaponRarity]);result="Forced "+rarities[weaponRarity]+" reward";Mark();}GUI.enabled=true;
+            if(U.Click(new Rect(60,605,240,38),"RESET META PROFILE")){meta.ResetProfile();result="Meta profile reset";Mark();}U.Label(330,600,850,70,result+"\nRun resources: "+meta.RunResources+"\nThe profile is host-owned; run player IDs remain separate.",U.Small);
+        }
     }
 }

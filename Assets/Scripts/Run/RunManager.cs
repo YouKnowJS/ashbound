@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +21,8 @@ namespace Ashbound
         public CorruptionSystem Corruption { get; private set; }
         public MatchTelemetry Telemetry { get; } = new MatchTelemetry();
         public UpgradeDraft Draft { get; private set; }
+        public EquipmentRewardDraft EquipmentRewards { get; private set; }
+        public MetaProgressionService Progression { get; private set; }
         public string Message { get; private set; } = "The Cinder Vault";
         public string Outcome { get; private set; }
         public string MissingDevice { get; private set; }
@@ -35,6 +38,8 @@ namespace Ashbound
         public void Configure(PrototypeCatalog catalog, CombatService combat, RoomDirector rooms, EntityFactory factory, Camera view)
         {
             Catalog = catalog; Combat = combat; Rooms = rooms; this.factory = factory; this.view = view;
+            string profilePath=Application.isBatchMode?Path.Combine(Application.temporaryCachePath,"AshboundTests","profile-"+Guid.NewGuid().ToString("N")+".json"):null;
+            Progression = new MetaProgressionService(catalog,profilePath);
             Corruption = new CorruptionSystem(catalog, factory);
             Flow.Changed += state => { Combat.State = state; Combat.FriendlyFire = false; StateChanged?.Invoke(state); };
             Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc; Combat.ControlApplied+=Telemetry.Control;
@@ -46,17 +51,24 @@ namespace Ashbound
             if (Flow.State != RunState.Lobby) return false;
             Seed = seed == 0 ? Environment.TickCount & int.MaxValue : seed;
             corruptionRandom = new System.Random(Seed ^ 7243); Combat.Seed(Seed); Lobby.Lock(); Journal.Clear(); Outcome = null;
+            Progression.BeginExpedition();Progression.RecordProgress(1,1);
             Rooms.Load(0);
             for (int i = 0; i < Lobby.Slots.Count; i++)
             {
                 var player = factory.Player(Lobby.Slots[i], i, new Vector3((i - (Lobby.Slots.Count - 1) * .5f) * 2, 0, -6), view);
                 players.Add(player); player.GetComponent<PlayerController>().Interacted += Interact;
                 player.Inventory.Added += item => Telemetry.Item(player, item, false);
+                Progression.ApplyRunStart(player);
             }
-            Telemetry.Begin(Seed, players);
-            Draft = new UpgradeDraft(Catalog, Seed ^ 8721);
+            Telemetry.Begin(Seed, players, Progression);
+            Draft = new UpgradeDraft(Catalog, Progression, Seed ^ 8721);
             Draft.Selected += (player, item) => Telemetry.Item(player, item, true);
-            Draft.Finished += OnRewardsFinished;
+            Draft.Rerolled += player=>Telemetry.ShopReroll(player);
+            Draft.Finished += BeginEquipmentRewards;
+            EquipmentRewards=new EquipmentRewardDraft(Catalog,Progression,Seed^3187);
+            EquipmentRewards.Equipped+=(player,option)=>Telemetry.Equipment(player,option,false);
+            EquipmentRewards.Dismantled+=(player,option,value)=>Telemetry.Equipment(player,option,true);
+            EquipmentRewards.Finished+=OnRewardsFinished;
             Flow.TryAdvance(RunState.StartingRun); StartCoroutine(EnterRoom()); return true;
         }
 
@@ -75,15 +87,17 @@ namespace Ashbound
         {
             if (Rooms.RoomIndex == 4) Telemetry.MiniBossKilled();
             if (!Flow.TryAdvance(RunState.Reward)) return;
+            AwardEncounterResources();Progression.RecordProgress(1,Rooms.RoomIndex+1);
             Rooms.ClearTransientCombat();
             foreach (var player in players)
             {
-                if (!player.Alive) player.Restore(.45f); else player.Health.Heal(player.Health.MaxHealth * .25f);
+                if (!player.Alive) player.Restore(.45f); else player.Health.Heal(player.Health.MaxHealth * .25f*(1+Progression.EffectPower(MetaEffectKind.RestRecovery)));
                 player.Motor.Stop();
             }
             Message = "Something remains in the ashes.";
             Draft.Begin(players);
         }
+        private void BeginEquipmentRewards(){EquipmentRewards.Begin(players,Rooms.RoomIndex+1);Message="Equipment remains among the ashes.";}
         private void OnRewardsFinished()
         {
             if (!Flow.TryAdvance(RunState.Exploration)) return;
@@ -101,6 +115,7 @@ namespace Ashbound
             if (fragment && Vector3.Distance(actor.transform.position, fragment.transform.position) < 2.2f)
             {
                 if (!Journal.Contains(fragment.Entry)) Journal.Add(fragment.Entry);
+                Progression.RecordLore(fragment.Entry.id);
                 Message = fragment.Entry.title + "\n" + fragment.Entry.text;
                 Destroy(fragment.gameObject); fragment = null; return;
             }
@@ -113,6 +128,7 @@ namespace Ashbound
         private void OnBossDied()
         {
             Telemetry.FinalBossKilled();
+            Progression.Award(ExpeditionResource.Ash,28);Progression.Award(ExpeditionResource.EmberShards,7);Progression.Award(ExpeditionResource.AncientAlloy,2);Progression.Award(ExpeditionResource.CorruptionFragments,1);Progression.RecordBoss(Catalog.boss.id);
             if (!Flow.TryAdvance(RunState.BossDefeated)) return;
             Rooms.ClearTransientCombat(); foreach (var player in players) player.Motor.Stop();
             Message = "The keeper falls.\nFor a moment, the vault is silent.";
@@ -165,7 +181,7 @@ namespace Ashbound
         private void Finish(string winner, string outcome)
         {
             if (!Flow.TryAdvance(RunState.RunComplete)) return;
-            Outcome = outcome; Message = outcome; Rooms.ClearTransientCombat(); Telemetry.Finish(players, winner, outcome);
+            Outcome = outcome; Message = outcome; Rooms.ClearTransientCombat();var settlement=Progression.ResolveRun(winner!="Hostiles",Flow.BossWasDefeated);Telemetry.Progression(Progression,settlement);Telemetry.Finish(players, winner, outcome);
         }
         public bool DebugSkipToBoss()
         {
@@ -188,18 +204,26 @@ namespace Ashbound
             Rooms.SpawnNextWave(players.Count); Message = Catalog.rooms[index].displayName; Telemetry.Record.debugUsed = true; return true;
         }
         public void DebugSpawnElementalGroup(ElementTag element){if(players.Count>0&&CombatRules.IsCombatState(Flow.State)){Rooms.DebugSpawnElementalGroup(element,players.Count);Telemetry.Record.debugUsed=true;}}
+        public void DebugForceEquipmentReward(WeaponRarity rarity){if(players.Count==0)return;if(Flow.State!=RunState.Reward)Flow.DebugJumpToCombat();Flow.TryAdvance(RunState.Reward);Draft?.Cancel();EquipmentRewards??=new EquipmentRewardDraft(Catalog,Progression,Seed^3187);EquipmentRewards.ForcedRarity=rarity;EquipmentRewards.Begin(players,Rooms.RoomIndex+1);DebugOpen=true;if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;}
         public void ResetRun()
         {
             StopAllCoroutines();
+            if(Progression.RunOpen){var settlement=Progression.ResolveRun(false,Flow.BossWasDefeated,true);Telemetry.Progression(Progression,settlement);}
             Telemetry.Finish(players, "None", "Run reset", true);
-            Rooms.Clear(); Corruption.Reset(); Draft?.Cancel();
+            Rooms.Clear(); Corruption.Reset(); Draft?.Cancel();EquipmentRewards?.Cancel();
             foreach (var player in players) { Combat.Unregister(player); player.gameObject.SetActive(false); Destroy(player.gameObject); }
             players.Clear(); foreach (var item in FindObjectsByType<ItemPickup>()) Destroy(item.gameObject);
             if (fragment) Destroy(fragment.gameObject);
             ManualPaused = DebugOpen = false; MissingDevice = null; Time.timeScale = 1;
             Lobby.Unlock(); Flow.Reset(); Rooms.Load(0); Message = "The Cinder Vault";
         }
-        private void OnApplicationQuit() { Telemetry.Finish(players, "None", "Application closed", true); }
+        private void AwardEncounterResources()
+        {
+            int room=Rooms.RoomIndex;Progression.Award(ExpeditionResource.Ash,room==4?18:room==2||room==5?14:10);
+            if(room==2||room==5)Progression.Award(ExpeditionResource.EmberShards,3);
+            if(room==4){Progression.Award(ExpeditionResource.EmberShards,5);Progression.Award(ExpeditionResource.AncientAlloy,1);}
+        }
+        private void OnApplicationQuit() { if(Progression!=null&&Progression.RunOpen){var settlement=Progression.ResolveRun(false,Flow.BossWasDefeated,true);Telemetry.Progression(Progression,settlement);}Telemetry.Finish(players, "None", "Application closed", true); }
         private void OnDestroy()
         {
             Telemetry.Finish(players.Where(x => x && x.Inventory).ToArray(), "None", "Scene closed", true);

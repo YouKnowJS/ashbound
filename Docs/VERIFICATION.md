@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.3 content validation additionally checks all eight weapon families, 45 unique relics, seven expedition encounters, 12 elemental sample weapons, all five weapon rarities/elements, 12 Weapon Skills, two Legendary weapons, 20 armor pieces, every armor slot, five sets, and both set thresholds.
+v0.4 content validation additionally checks six facilities, 29 authored facility tiers, five preparations, four resources, future region/node targets, Rest/Temper definitions, unlock pools, and the complete v0.3 content set.
 
 ### Edit Mode
 
@@ -24,6 +24,8 @@ v0.3 content validation additionally checks all eight weapon families, 45 unique
 - Authored content references, IDs, room counts, and elite presence.
 - Elemental weapon combinations, family/element separation, rarity coverage, and Rare-or-higher skill eligibility.
 - Armor slot coverage, two/four-piece activation, and BuildAnalyzer input from relic, weapon, skill, armor, and set layers.
+- Profile save/load, legacy normalization, invalid/missing fallback, reset, nonnegative spending, prerequisites, maximum facility levels, and unlock persistence.
+- Failure/milestone/success retention, preparation selection, run-to-profile transfer, rarity salvage values, and merchant-price versus salvage invariants.
 
 ### Play Mode
 
@@ -36,6 +38,7 @@ v0.3 content validation additionally checks all eight weapon families, 45 unique
 - Bound gamepad input reading and disconnect pause, using the Input System's isolated `InputTestFixture`.
 - Source-attributed damage over time, pause behavior, slow, and stun expiry.
 - An elemental Weapon Skill damaging/applying status in combat, four-piece equipment activation, solo reflection weapon/skill identity, and corruption layering.
+- Encounter resource collection and a per-player equipment reward dismantle flow using the real run state machine.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -51,6 +54,21 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 8. Finish/reset a run, inspect the local telemetry JSON, and start a second run to check cleanup.
 
 ## Verification status
+
+### v0.4 verification — 2026-08-31
+
+Using Unity **6000.4.11f1** on Windows after the Hub/meta-progression expansion:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **33 passed**, 0 failed, 0 skipped |
+| Play Mode | **10 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for six seconds; no managed exception signature found in `Player.log` |
+| Human progression/economy pacing and physical controllers | Not completed |
+
+The automated suite verifies persistence, currency invariants, facilities, unlocks, preparations, retention, salvage, resource settlement, equipment rewards, the v0.3 build systems, and the final corruption encounter. It does not establish balanced progression pacing.
 
 ### v0.3 verification — 2026-08-31
 

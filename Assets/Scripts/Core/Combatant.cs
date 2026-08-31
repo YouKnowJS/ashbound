@@ -24,13 +24,14 @@ namespace Ashbound
         public ElementTag ElementAffinity { get; set; }
         public float BaseSpeed { get; set; } = 7;
         public float BaseMaxHealth { get; private set; } = 120;
+        public float MetaMaxHealthBonus { get; private set; }
         public bool Alive => Health && Health.IsAlive;
         public float DamageMultiplier => (1 + Inventory.SumModifiers().damage + Equipment.SumModifiers().damage) * (Corruption ? Corruption.damageMultiplier : 1);
         public float CriticalChance => Mathf.Clamp01(.08f + (Weapon ? Weapon.criticalChanceModifier : 0) + Inventory.SumModifiers().criticalChance + Equipment.SumModifiers().criticalChance);
         public float CriticalMultiplier => 1.7f + (Weapon ? Weapon.criticalDamageModifier : 0) + Inventory.SumModifiers().criticalMultiplier + Equipment.SumModifiers().criticalMultiplier;
         public float Speed => BaseSpeed * (1 + Inventory.SumModifiers().movementSpeed + Equipment.SumModifiers().movementSpeed) * (Corruption ? Corruption.movementMultiplier : 1) * Statuses.MovementFactor;
         public float AttackInterval => Weapon.attackInterval / Mathf.Max(.25f, 1 + Inventory.SumModifiers().attackSpeed + Equipment.SumModifiers().attackSpeed);
-        public float MaximumHealth => BaseMaxHealth * (1 + Inventory.SumModifiers().maxHealth + Equipment.SumModifiers().maxHealth) * (Corruption ? Corruption.healthMultiplier : 1);
+        public float MaximumHealth => BaseMaxHealth * (1 + MetaMaxHealthBonus + Inventory.SumModifiers().maxHealth + Equipment.SumModifiers().maxHealth) * (Corruption ? Corruption.healthMultiplier : 1);
 
         public void Initialize(string id, string displayName, bool isPlayer, Faction faction, float health, CombatService combat, WeaponDefinition weapon)
         {
@@ -62,6 +63,7 @@ namespace Ashbound
         {
             BaseMaxHealth *= Mathf.Max(.1f, multiplier); Health.Resize(MaximumHealth); Health.Heal(Health.MaxHealth);
         }
+        public void SetMetaHealthBonus(float bonus){MetaMaxHealthBonus=Mathf.Clamp(bonus,0,.1f);Health.Resize(MaximumHealth);}
         private void OnDestroy() { if (Combat) Combat.Unregister(this); }
         public bool HasEffect(TriggerKind kind) => Inventory.HasEffect(kind) || Equipment.HasEffect(kind);
         public float EffectPower(TriggerKind kind) => Inventory.EffectPower(kind) + Equipment.EffectPower(kind);

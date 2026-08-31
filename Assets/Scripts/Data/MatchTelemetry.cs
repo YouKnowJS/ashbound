@@ -24,18 +24,29 @@ namespace Ashbound
         public List<string> damageBySource = new List<string>();
         public List<string> damageByElement = new List<string>();
         public List<string> buildProcCounts = new List<string>();
+        public List<string> equipmentAcquired = new List<string>();
+        public List<string> equipmentDismantled = new List<string>();
+        public int shopRerolls;
         public bool corrupted;
     }
     [Serializable]
     public sealed class MatchRecord
     {
-        public int schemaVersion = 2;
+        public int schemaVersion = 3;
         public string runId, startedUtc, endedUtc, corruptionType, winner, outcome;
         public int seed;
         public float runDuration, finalPvPDuration;
         public float miniBossKillTime, finalBossKillTime;
         public string finalResultType;
         public bool aborted, debugUsed;
+        public ResourceWallet resourcesCollected = new ResourceWallet();
+        public ResourceWallet resourcesRetained = new ResourceWallet();
+        public ResourceWallet resourcesLost = new ResourceWallet();
+        public ResourceWallet materialsSpentInHub = new ResourceWallet();
+        public List<string> facilityLevels = new List<string>();
+        public List<string> bossesDefeated = new List<string>();
+        public string activePreparation, runCompletionStatus;
+        public int highestRegionReached;
         public List<string> winningPlayerIds = new List<string>();
         public List<PlayerTelemetry> players = new List<PlayerTelemetry>();
     }
@@ -48,9 +59,11 @@ namespace Ashbound
         public string LastPath { get; private set; }
         public string LastError { get; private set; }
         public bool Recording { get; private set; }
-        public void Begin(int seed, IEnumerable<Combatant> players)
+        public void Begin(int seed, IEnumerable<Combatant> players, MetaProgressionService progression)
         {
-            Record = new MatchRecord { runId = Guid.NewGuid().ToString("N"), startedUtc = DateTime.UtcNow.ToString("O"), seed = seed, debugUsed = Application.isBatchMode };
+            Record = new MatchRecord { runId = Guid.NewGuid().ToString("N"), startedUtc = DateTime.UtcNow.ToString("O"), seed = seed, debugUsed = Application.isBatchMode,
+                activePreparation=progression.ActivePreparation?progression.ActivePreparation.id:PreparationKind.None.ToString(),materialsSpentInHub=progression.ConsumeMaterialsSpent(),highestRegionReached=1 };
+            Record.facilityLevels=progression.Profile.facilities.Select(x=>x.facilityId+":"+x.level).ToList();Record.bossesDefeated=progression.Profile.defeatedBosses.ToList();
             foreach (var player in players)
             {
                 Record.players.Add(new PlayerTelemetry { playerId = player.Id, weaponFamily = player.Weapon ? player.Weapon.family.ToString() : "None",
@@ -96,10 +109,19 @@ namespace Ashbound
             if (record == null) return;
             if (upgrade) record.upgradesSelected.Add(item.id); else record.itemsSelected.Add(item.id);
         }
+        public void Equipment(Combatant player,EquipmentRewardOption option,bool dismantled)
+        {
+            if(!Recording)return;var record=Record.players.Find(x=>x.playerId==player.Id);if(record==null)return;var target=dismantled?record.equipmentDismantled:record.equipmentAcquired;target.Add(option.DisplayName+":"+option.Rarity);
+        }
+        public void ShopReroll(Combatant player){if(!Recording)return;var record=Record.players.Find(x=>x.playerId==player.Id);if(record!=null)record.shopRerolls++;}
+        public void Progression(MetaProgressionService progression,ResourceSettlement settlement)
+        {
+            if(Record==null)return;Record.resourcesCollected=settlement.Collected.Copy();Record.resourcesRetained=settlement.Retained.Copy();Record.resourcesLost=settlement.Lost.Copy();Record.highestRegionReached=progression.Profile.lifetime.highestRegionReached;Record.bossesDefeated=progression.Profile.defeatedBosses.ToList();Record.facilityLevels=progression.Profile.facilities.Select(x=>x.facilityId+":"+x.level).ToList();
+        }
         public void Finish(IEnumerable<Combatant> players, string winner, string outcome, bool aborted = false)
         {
             if (!Recording) return;
-            Recording = false; Record.winner = winner; Record.outcome = outcome; Record.aborted = aborted; Record.endedUtc = DateTime.UtcNow.ToString("O");
+            Recording = false; Record.winner = winner; Record.outcome = outcome; Record.aborted = aborted; Record.endedUtc = DateTime.UtcNow.ToString("O");Record.runCompletionStatus=aborted?"Abandoned":winner=="Hostiles"?"Failed":"Completed";
             foreach (var actor in players)
             {
                 var record = Record.players.Find(x => x.playerId == actor.Id);

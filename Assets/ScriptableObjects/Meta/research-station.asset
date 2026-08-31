@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7bd5bfc1d69b8d42ac76e3540303935, type: 3}
+  m_Name: research-station
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.HubFacilityDefinition
+  id: research-station
+  displayName: Research Station
+  description: Manipulate possibilities, information, and randomness.
+  kind: 5
+  initiallyUnlocked: 1
+  tiers:
+  - id: research-scavenging
+    displayName: Scavenging
+    description: Increase Rare-or-higher weighting by 5% and add foundational elemental
+      relics.
+    cost:
+      ash: 24
+      emberShards: 3
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 2
+    power: 0.05
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds:
+    - ember-brand
+    - kindling
+    - wildfire
+    - rime-edge
+    - deep-winter
+    - cold-snap
+    - static-charge
+    - overload
+    - venom-edge
+    - toxicity
+    - void-mark
+    - rift-step
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: research-cartography
+    displayName: Cartography
+    description: Reveal one additional future node hook.
+    cost:
+      ash: 36
+      emberShards: 5
+      ancientAlloy: 0
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 1
+    power: 1
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: research-relics
+    displayName: Relic Analysis
+    description: Gain one relic reroll and add advanced synergy relics.
+    cost:
+      ash: 48
+      emberShards: 8
+      ancientAlloy: 1
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 12
+    power: 1
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds:
+    - flashpoint
+    - ashen-wake
+    - inferno-core
+    - shatter
+    - frozen-step
+    - brittle-ice
+    - stormstep
+    - thunderhead
+    - corrosion
+    - catalyst
+    - toxic-burst
+    - collapse
+    - entropy
+    - echo-beyond
+    - abyssal-pact
+    - patient-force
+    - fault-line
+    - bell-ringer
+    - open-wound
+    - rising-tempo
+    - crescendo
+    - flowing-step
+    - afterimage-edge
+    - keen-step
+    - warded-heel
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: research-appraisal
+    displayName: Equipment Appraisal
+    description: Expose richer equipment comparison information.
+    cost:
+      ash: 58
+      emberShards: 10
+      ancientAlloy: 1
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 13
+    power: 1
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []
+  - id: research-affinity
+    displayName: Elemental Affinity
+    description: Enable capped elemental-bias preparations.
+    cost:
+      ash: 72
+      emberShards: 14
+      ancientAlloy: 2
+      corruptionFragments: 0
+    prerequisiteFacilityId: 
+    prerequisiteLevel: 0
+    effect: 14
+    power: 0
+    unlockWeaponIds: []
+    unlockWeaponSkillIds: []
+    unlockRelicIds: []
+    unlockArmorSetIds: []
+    unlockPreparationIds: []

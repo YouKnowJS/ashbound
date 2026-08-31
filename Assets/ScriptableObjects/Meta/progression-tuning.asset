@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38dd27de7f814dd47b69cd90ab8fbcd7, type: 3}
+  m_Name: progression-tuning
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ProgressionTuningDefinition
+  retention:
+    ashFailure: 0.7
+    emberFailure: 0.5
+    alloyFailure: 0.25
+    corruptionFailure: 0
+    bossMilestoneBonus: 0.15
+    maxFailureBonus: 0.15
+  permanentHealthCap: 0.08
+  rarityWeightCap: 0.15
+  elementalBiasCap: 0.2
+  targetMajorRegions: 5
+  targetFinalAreas: 1
+  targetNodesPerRegionMin: 8
+  targetNodesPerRegionMax: 10
+  targetExperiencedRunMinutesMin: 30
+  targetExperiencedRunMinutesMax: 45
+  rewards:
+  - nodeType: 0
+    resources:
+      ash: 10
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    minimumQuality: 0
+    maximumQuality: 2
+  - nodeType: 2
+    resources:
+      ash: 14
+      emberShards: 3
+      ancientAlloy: 0
+      corruptionFragments: 0
+    minimumQuality: 1
+    maximumQuality: 3
+  - nodeType: 9
+    resources:
+      ash: 28
+      emberShards: 7
+      ancientAlloy: 2
+      corruptionFragments: 1
+    minimumQuality: 2
+    maximumQuality: 4
+  restOptions:
+  - kind: 0
+    displayName: Rest
+    description: Recover health.
+    power: 0.3
+  - kind: 1
+    displayName: Temper
+    description: Skip healing and reserve a small equipment-improvement hook.
+    power: 0.05

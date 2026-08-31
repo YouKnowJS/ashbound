@@ -11,6 +11,9 @@ namespace Ashbound
         public WeaponSkillDefinition[] weaponSkills;
         public ArmorDefinition[] armor;
         public ArmorSetDefinition[] armorSets;
+        public HubFacilityDefinition[] facilities;
+        public PreparationDefinition[] preparations;
+        public ProgressionTuningDefinition progressionTuning;
         public BossDefinition boss;
         public ItemDefinition[] items;
         public RoomDefinition[] rooms;

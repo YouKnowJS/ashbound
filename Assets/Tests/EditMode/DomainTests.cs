@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -210,6 +211,85 @@ namespace Ashbound.Tests
             Assert.That(dominant.First(), Is.EqualTo(BuildTag.Fire));
             Assert.That(dominant, Does.Contain(BuildTag.Critical));
             Assert.That(dominant, Does.Contain(BuildTag.Heavy));
+        }
+
+        [Test]
+        public void V04WalletNeverSpendsBelowZero()
+        {
+            var wallet=new ResourceWallet{ash=10,emberShards=2};
+            Assert.That(wallet.TrySpend(new ResourceWallet{ash=11}),Is.False);
+            Assert.That(wallet.ash,Is.EqualTo(10));
+            Assert.That(wallet.TrySpend(new ResourceWallet{ash=7,emberShards=2}),Is.True);
+            Assert.That(wallet.ash,Is.EqualTo(3));Assert.That(wallet.emberShards,Is.Zero);
+            wallet.Add(ExpeditionResource.Ash,-100);Assert.That(wallet.ash,Is.EqualTo(3));
+        }
+
+        [Test]
+        public void V04RetentionDistinguishesFailureMilestoneAndCompletion()
+        {
+            var found=new ResourceWallet{ash=100,emberShards=20,ancientAlloy=8,corruptionFragments=4};var rules=new RetentionRules();
+            var failed=ProgressionEconomy.Retained(found,false,false,rules);var milestone=ProgressionEconomy.Retained(found,false,true,rules);var completed=ProgressionEconomy.Retained(found,true,false,rules);
+            Assert.That(failed.ash,Is.EqualTo(70));Assert.That(failed.emberShards,Is.EqualTo(10));Assert.That(failed.ancientAlloy,Is.EqualTo(2));Assert.That(failed.corruptionFragments,Is.Zero);
+            Assert.That(milestone.ash,Is.GreaterThan(failed.ash));Assert.That(completed.ash,Is.EqualTo(100));Assert.That(completed.corruptionFragments,Is.EqualTo(4));
+        }
+
+        [Test]
+        public void V04SalvageScalesByRarityAndCannotBeatMerchantPrice()
+        {
+            var common=ProgressionEconomy.Salvage(WeaponRarity.Common,true);var legendary=ProgressionEconomy.Salvage(WeaponRarity.Legendary,true);
+            Assert.That(legendary.ash,Is.GreaterThan(common.ash));Assert.That(legendary.ancientAlloy,Is.GreaterThan(0));
+            foreach(WeaponRarity rarity in Enum.GetValues(typeof(WeaponRarity)))Assert.That(ProgressionEconomy.MerchantAlwaysExceedsSalvage(rarity,true),Is.True,rarity.ToString());
+        }
+
+        [Test]
+        public void V04ProfileSaveLoadFallbackAndResetAreSafe()
+        {
+            string directory=Path.Combine(Path.GetTempPath(),"ashbound-profile-tests",Guid.NewGuid().ToString("N"));string path=Path.Combine(directory,"profile.json");
+            try
+            {
+                var store=new MetaProgressionStore(path);var profile=store.LoadOrCreate();profile.currencies.ash=77;profile.unlockedWeapons.Add("flamebreaker");Assert.That(store.Save(profile),Is.True);
+                var loaded=new MetaProgressionStore(path).LoadOrCreate();Assert.That(loaded.profileId,Is.EqualTo(profile.profileId));Assert.That(loaded.currencies.ash,Is.EqualTo(77));Assert.That(loaded.unlockedWeapons,Does.Contain("flamebreaker"));
+                var legacy=MetaProgressionProfile.CreateDefault("legacy-profile");legacy.schemaVersion=1;File.WriteAllText(path,JsonUtility.ToJson(legacy));var migrated=new MetaProgressionStore(path).LoadOrCreate();Assert.That(migrated.schemaVersion,Is.EqualTo(MetaProgressionProfile.CurrentVersion));Assert.That(migrated.profileId,Is.EqualTo("legacy-profile"));
+                File.WriteAllText(path,"not valid json");var invalidStore=new MetaProgressionStore(path);var fallback=invalidStore.LoadOrCreate();Assert.That(fallback.profileId,Is.Not.Empty);Assert.That(invalidStore.LastError,Is.Not.Null);
+                fallback.currencies.ash=50;invalidStore.Save(fallback);var reset=invalidStore.Reset();Assert.That(reset.currencies.ash,Is.Zero);Assert.That(new MetaProgressionStore(path).LoadOrCreate().currencies.ash,Is.Zero);
+            }
+            finally{if(Directory.Exists(directory))Directory.Delete(directory,true);}
+        }
+
+        [Test]
+        public void V04FacilitiesEnforceCostsPrerequisitesMaximumsAndPersistUnlocks()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");string directory=Path.Combine(Path.GetTempPath(),"ashbound-service-tests",Guid.NewGuid().ToString("N"));string path=Path.Combine(directory,"profile.json");
+            try
+            {
+                var service=new MetaProgressionService(catalog,path);var forge=catalog.facilities.First(x=>x.id=="forge");
+                Assert.That(service.TryUpgrade(forge,out _),Is.False,"empty wallet");service.DebugAdd(ExpeditionResource.Ash,10000);service.DebugAdd(ExpeditionResource.EmberShards,1000);service.DebugAdd(ExpeditionResource.AncientAlloy,100);service.DebugAdd(ExpeditionResource.CorruptionFragments,20);
+                for(int i=0;i<4;i++)Assert.That(service.TryUpgrade(forge,out _),Is.True,"forge tier "+i);
+                Assert.That(service.TryUpgrade(forge,out string prerequisite),Is.False);Assert.That(prerequisite,Does.Contain("Prerequisite"));
+                var table=catalog.facilities.First(x=>x.id=="expedition-table");service.DebugSetFacility(table,2);Assert.That(service.TryUpgrade(forge,out _),Is.True);Assert.That(service.TryUpgrade(forge,out _),Is.False,"max level");
+                Assert.That(service.Profile.unlockedWeapons,Does.Contain("moon-eater"));var reloaded=new MetaProgressionService(catalog,path);Assert.That(reloaded.Profile.Facility("forge").level,Is.EqualTo(forge.MaxLevel));Assert.That(reloaded.Profile.unlockedWeapons,Does.Contain("moon-eater"));
+            }
+            finally{if(Directory.Exists(directory))Directory.Delete(directory,true);}
+        }
+
+        [Test]
+        public void V04PreparationAndRunTransferRemainProfileScoped()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");string directory=Path.Combine(Path.GetTempPath(),"ashbound-transfer-tests",Guid.NewGuid().ToString("N"));string path=Path.Combine(directory,"profile.json");
+            try
+            {
+                var service=new MetaProgressionService(catalog,path);var field=catalog.preparations.First(x=>x.id=="field-supplies");Assert.That(service.SelectPreparation(field),Is.False);service.DebugSetFacility(catalog.facilities.First(x=>x.id=="infirmary"),1);Assert.That(service.SelectPreparation(field),Is.True);
+                service.BeginExpedition();Assert.That(service.ActivePreparation,Is.EqualTo(field));service.Award(ExpeditionResource.Ash,100);service.Award(ExpeditionResource.AncientAlloy,4);var failed=service.ResolveRun(false);Assert.That(failed.Retained.ash,Is.InRange(70,85));Assert.That(service.Profile.currencies.ash,Is.EqualTo(failed.Retained.ash));
+                service.BeginExpedition();service.Award(ExpeditionResource.Ash,20);service.Award(ExpeditionResource.CorruptionFragments,2);var complete=service.ResolveRun(true);Assert.That(complete.Retained.ash,Is.EqualTo(20));Assert.That(complete.Retained.corruptionFragments,Is.EqualTo(2));
+            }
+            finally{if(Directory.Exists(directory))Directory.Delete(directory,true);}
+        }
+
+        [Test]
+        public void V04AuthoredHubContentAndPowerCapsAreComplete()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.facilities.Length,Is.EqualTo(6));Assert.That(catalog.preparations.Length,Is.EqualTo(5));Assert.That(catalog.facilities.All(x=>x.MaxLevel>=4&&x.MaxLevel<=6),Is.True);Assert.That(catalog.progressionTuning.permanentHealthCap,Is.LessThanOrEqualTo(.1f));
+            Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Rest));Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Temper));Assert.That(Enum.GetValues(typeof(ExpeditionNodeType)).Length,Is.EqualTo(10));
         }
     }
 }

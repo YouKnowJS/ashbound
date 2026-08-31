@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47a84349cc82eb043929ef6a982743bf, type: 3}
+  m_Name: preparation-frost-research
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.PreparationDefinition
+  id: frost-research
+  displayName: Frost Research
+  description: Bias eligible equipment toward Frost by 15%; never guarantees it.
+  kind: 2
+  requiredFacilityId: research-station
+  requiredFacilityLevel: 5
+  effect: 14
+  power: 0.15
+  element: 2

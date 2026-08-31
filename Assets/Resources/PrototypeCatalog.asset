@@ -74,6 +74,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b3ef4334d8617da48b76094f90c41df0, type: 2}
   - {fileID: 11400000, guid: 877d658cf70c78f4f801b86e2e97becf, type: 2}
   - {fileID: 11400000, guid: 83b3607fc8c9a0c4f908dd0b626c1d9f, type: 2}
+  facilities:
+  - {fileID: 11400000, guid: afb9eefa87af3c14f9defaaa82b692b9, type: 2}
+  - {fileID: 11400000, guid: d5899e4c18fc3f942ad476089ebbc2f5, type: 2}
+  - {fileID: 11400000, guid: 17cc45590cc684b458c363df4d5c1942, type: 2}
+  - {fileID: 11400000, guid: 05d3096e89fbf5e4f8a077a1509d8ff5, type: 2}
+  - {fileID: 11400000, guid: c36890958854fa54483192ae25d1baa4, type: 2}
+  - {fileID: 11400000, guid: 7ba76f4d66efe59498fa130d63ef38bd, type: 2}
+  preparations:
+  - {fileID: 11400000, guid: 6e1270f3b27559c4f992902ee1aa3b66, type: 2}
+  - {fileID: 11400000, guid: 5f7dda75ce622024fbe9341d96ac8d2b, type: 2}
+  - {fileID: 11400000, guid: 77259037db454d84cb935a7bcb308162, type: 2}
+  - {fileID: 11400000, guid: e88f1e4e1f4dcf04cbb9890594aa3148, type: 2}
+  - {fileID: 11400000, guid: fb8a2af667ed20d4b9124a277f112577, type: 2}
+  progressionTuning: {fileID: 11400000, guid: a3c61d934cd580b40bf3917a4c602210, type: 2}
   boss: {fileID: 11400000, guid: c72dc6e5b611b1e4086c60a77d85bd5d, type: 2}
   items:
   - {fileID: 11400000, guid: 7eeb9372c2dff08419228dd7785dceb6, type: 2}

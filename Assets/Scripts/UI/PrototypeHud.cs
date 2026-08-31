@@ -12,6 +12,8 @@ namespace Ashbound
         private Camera view;
         private bool journalOpen;
         private int buildPlayer;
+        private int hubFacility;
+        private string hubMessage="Choose where the recovered materials should go.";
         public void Configure(RunManager manager, Camera camera) { run = manager; view = camera; }
         private void Update()
         {
@@ -26,13 +28,18 @@ namespace Ashbound
                 if (Gamepad.all.Any(p => p.startButton.wasPressedThisFrame)) run.StartRun();
                 return;
             }
-            if (run.Flow.State != RunState.Reward || run.DebugOpen || run.ManualPaused || !run.Draft.Active) return;
+            if (run.Flow.State != RunState.Reward || run.DebugOpen || run.ManualPaused) return;
+            if(!run.Draft.Active)
+            {
+                if(!run.EquipmentRewards.Active)return;var reward=run.EquipmentRewards;var rewardSlot=run.Lobby.Slots.FirstOrDefault(s=>s.PlayerId==reward.CurrentPlayer.Id);if(rewardSlot!=null&&rewardSlot.InputKind==InputKind.Gamepad){var rewardPad=Gamepad.all.FirstOrDefault(p=>p.deviceId==rewardSlot.DeviceId);if(rewardPad!=null){if(rewardPad.buttonSouth.wasPressedThisFrame)reward.Equip(0);else if(rewardPad.buttonEast.wasPressedThisFrame&&reward.Options.Length>1)reward.Equip(1);else if(rewardPad.buttonNorth.wasPressedThisFrame)reward.Dismantle(0);else if(rewardPad.selectButton.wasPressedThisFrame)reward.Leave();}}return;
+            }
             int choice = -1;
             if (keyboard != null)
             {
                 if (keyboard.digit1Key.wasPressedThisFrame) choice = 0;
                 else if (keyboard.digit2Key.wasPressedThisFrame) choice = 1;
                 else if (keyboard.digit3Key.wasPressedThisFrame) choice = 2;
+                else if (keyboard.rKey.wasPressedThisFrame) run.Draft.Reroll();
             }
             var slot = run.Lobby.Slots.FirstOrDefault(s => s.PlayerId == run.Draft.CurrentPlayer.Id);
             if (slot != null && slot.InputKind == InputKind.Gamepad)
@@ -56,6 +63,7 @@ namespace Ashbound
                 if (run.Flow.State == RunState.Lobby) { Lobby(); return; }
                 WorldLabels(); Hud();
                 if (run.Flow.State == RunState.Reward && run.Draft.Active) Reward();
+                else if(run.Flow.State==RunState.Reward&&run.EquipmentRewards.Active)EquipmentReward();
                 if (run.Flow.State == RunState.BossDefeated || run.Flow.State == RunState.CorruptionTransition)
                 {
                     U.Box(new Rect(0, 0, 1280, 720), new Color(.035f, .025f, .045f, .65f));
@@ -76,33 +84,35 @@ namespace Ashbound
         private void Lobby()
         {
             U.Box(new Rect(0, 0, 1280, 720), new Color(.025f, .035f, .05f, .72f));
-            U.Label(110, 80, 950, 30, "GRAY-BOX PROTOTYPE  /  01", U.Small);
-            U.Label(105, 111, 550, 65, "A S H B O U N D", U.Title);
-            U.Label(110, 183, 500, 44, "THE CINDER VAULT", U.Heading);
-            U.Label(110, 244, 430, 84, "Enter the vault. Break its seals.\nFind what the last keeper left behind.");
-            U.Label(110, 338, 430, 80, "A short action roguelike for 1–4 local players.\nTwo chambers. One keeper. A build of your own.", U.Small);
-            if (U.Click(new Rect(110, 430, 370, 57), run.Lobby.Slots.Count == 1 ? "ENTER THE VAULT  ·  SOLO" : "ENTER TOGETHER  ·  " + run.Lobby.Slots.Count + " PLAYERS")) run.StartRun();
-            U.Label(110, 509, 450, 105, "WASD move  ·  Mouse aim  ·  Hold LMB strike\nSpace dash  ·  E ward pulse  ·  F interact\nEsc pause  ·  Tab build / journal  ·  F1 debug", U.Small);
-            U.Panel(new Rect(660, 120, 510, 475));
-            U.Label(686, 140, 450, 40, "LOCAL PARTY", U.Heading);
-            U.Label(686, 182, 450, 30, "Solo has no companions. New players join only here.", U.Small);
-            for (int i = 0; i < 4; i++)
+            U.Label(45,25,700,48,"A S H B O U N D  ·  EXPEDITION HUB",U.Heading);U.Label(45,69,900,25,run.Progression.Profile.currencies.ToString(),U.CardTitle);
+            var facilities=run.Catalog.facilities;for(int i=0;i<facilities.Length;i++)if(U.Click(new Rect(45+i*198,105,188,31),facilities[i].displayName))hubFacility=i;hubFacility=Mathf.Clamp(hubFacility,0,facilities.Length-1);var facility=facilities[hubFacility];var progress=run.Progression.Profile.Facility(facility.id);
+            U.Panel(new Rect(45,150,770,390));U.Label(70,170,720,35,facility.displayName+"  ·  LEVEL "+progress.level+" / "+facility.MaxLevel,U.Heading);U.Label(70,214,720,42,facility.description,U.Small);
+            if(facility.kind==HubFacilityKind.ExpeditionTable)
             {
-                U.Box(new Rect(686, 223 + i * 47, 452, 40), new Color(.12f, .15f, .19f));
-                U.Label(700, 229 + i * 47, 420, 32, i < run.Lobby.Slots.Count ? run.Lobby.Slots[i].PlayerId + "   " + run.Lobby.Slots[i].DeviceLabel : "—   Empty slot", i < run.Lobby.Slots.Count ? U.Text : U.Small);
+                var stats=run.Progression.Profile.lifetime;U.Label(70,270,710,60,"Expeditions "+stats.expeditionsStarted+"  ·  Completed "+stats.expeditionsCompleted+"  ·  Failed "+stats.expeditionsFailed+"\nHighest region "+stats.highestRegionReached+"  ·  Encounter "+stats.highestEncounterReached+"  ·  Bosses "+stats.bossesDefeated,U.Small);
+                U.Label(70,342,700,25,"ONE PREPARATION",U.CardTitle);int prep=0;foreach(var definition in run.Catalog.preparations){bool prepAvailable=run.Progression.PreparationAvailable(definition);GUI.enabled=prepAvailable;if(U.Click(new Rect(70+(prep%2)*350,375+(prep/2)*39,335,31),(run.Progression.Profile.selectedPreparation==definition.id?"✓ ":"")+definition.displayName))run.Progression.SelectPreparation(definition);GUI.enabled=true;prep++;}
             }
+            else if(facility.kind==HubFacilityKind.Archive)
+            {U.Label(70,275,710,180,run.Progression.Profile.discoveredLore.Count==0?"No recovered notes. The Archive remains optional.":"Recovered: "+string.Join("  ·  ",run.Progression.Profile.discoveredLore)+"\nBoss observations: "+string.Join("  ·  ",run.Progression.Profile.defeatedBosses),U.Small);}
+            if(progress.level<facility.MaxLevel){var tier=facility.tiers[progress.level];U.Label(70,455,520,48,"NEXT · "+tier.displayName+"\n"+tier.description,U.Small);U.Label(600,448,185,28,tier.cost.ToString(),U.Small);if(U.Click(new Rect(600,482,185,32),"Upgrade")){hubMessage=run.Progression.TryUpgrade(facility,out string reason)?"Upgraded "+tier.displayName:reason;}}
+            else U.Label(70,475,700,30,"Facility prototype complete.",U.CardTitle);
+            U.Label(70,515,710,20,hubMessage,U.Small);
+
+            U.Panel(new Rect(835,150,400,390));U.Label(860,170,350,32,"LOCAL PARTY",U.Heading);
+            for(int i=0;i<4;i++){U.Box(new Rect(860,215+i*43,350,35),new Color(.12f,.15f,.19f));U.Label(872,220+i*43,325,25,i<run.Lobby.Slots.Count?run.Lobby.Slots[i].PlayerId+" · "+run.Lobby.Slots[i].DeviceLabel:"— Empty slot",U.Small);}
             GUI.enabled = run.Lobby.Slots.Count < 4 && run.Lobby.Slots.All(s => s.InputKind != InputKind.SecondKeyboard);
-            if (U.Click(new Rect(686, 427, 290, 40), "Add second keyboard player")) run.Lobby.TryJoin(InputKind.SecondKeyboard, -2, "Shared keyboard · arrows / IJKL");
+            if (U.Click(new Rect(860,395,215,34), "Add second keyboard")) run.Lobby.TryJoin(InputKind.SecondKeyboard, -2, "Shared keyboard · arrows / IJKL");
             GUI.enabled = run.Lobby.Slots.Count > 1;
-            if (U.Click(new Rect(987, 427, 150, 40), "Remove last")) run.Lobby.RemoveLast();
+            if (U.Click(new Rect(1082,395,128,34), "Remove last")) run.Lobby.RemoveLast();
             GUI.enabled = true;
             var available = Gamepad.all.FirstOrDefault(p => run.Lobby.Slots.All(s => s.InputKind != InputKind.Gamepad || s.DeviceId != p.deviceId));
             GUI.enabled = available != null && run.Lobby.Slots.Count < 4;
-            if (U.Click(new Rect(686, 479, 451, 40), available == null ? "Connect a gamepad to add a player" : "Add gamepad · " + available.displayName))
+            if (U.Click(new Rect(860,440,350,34), available == null ? "Connect a gamepad" : "Add gamepad · " + available.displayName))
                 run.Lobby.TryJoin(InputKind.Gamepad, available.deviceId, available.displayName);
             GUI.enabled = true;
-            U.Label(686, 535, 451, 45, "Gamepad: sticks move / aim · RT attack · LB dash\nY ability · A interact · Start enters run", U.Small);
-            U.Label(110, 648, 1050, 42, "P2 KEYBOARD: arrows move · IJKL aim · RCtrl strike · RShift dash · Enter ability · RAlt interact", U.Small);
+            if(U.Click(new Rect(835,565,400,58),run.Lobby.Slots.Count==1?"LAUNCH EXPEDITION · SOLO":"LAUNCH · "+run.Lobby.Slots.Count+" PLAYERS"))run.StartRun();
+            U.Label(45,570,740,92,"Selected: "+(run.Catalog.preparations.FirstOrDefault(x=>x.id==run.Progression.Profile.selectedPreparation)?.displayName??"None")+"\nPermanent HP cap: 8% · Current: "+(run.Progression.EffectPower(MetaEffectKind.MaxHealth)*100).ToString("0")+"%\nF1 progression/debug tools · Save: "+run.Progression.SavePath,U.Small);
+            U.Label(45,665,1180,30,"Hub progress uses one local host profile. Run weapons, armor, relics and corruption still reset between expeditions.",U.Small);
         }
         private void Hud()
         {
@@ -113,6 +123,7 @@ namespace Ashbound
             U.Label(32, 48, 320, 20, stage, U.Small);
             U.Panel(new Rect(1030, 16, 232, 58));
             U.Label(1043, 25, 210, 32, TimeSpan.FromSeconds(run.Telemetry.Record?.runDuration ?? 0).ToString(@"mm\:ss") + "  ·  Esc pause", U.Text);
+            U.Label(385,75,520,23,"EXPEDITION MATERIALS · "+run.Progression.RunResources,U.Small);
             if (run.Rooms.Boss && run.Rooms.Boss.Alive)
             {
                 var boss = run.Rooms.Boss;
@@ -176,13 +187,28 @@ namespace Ashbound
                 if (U.Click(new Rect(x + 18, 489, 237, 31), "Take relic  [" + (i + 1) + "]")) { run.Draft.Choose(i); break; }
             }
             U.Label(210, 555, 860, 40, "Click or press 1 / 2 / 3. Current player's gamepad: A / B / Y.\nEach player chooses in turn. Health restored at this checkpoint.", U.Small);
+            GUI.enabled=run.Draft.RerollsRemaining>0;if(U.Click(new Rect(505,610,270,34),"Reroll · "+run.Draft.RerollsRemaining+" remaining"))run.Draft.Reroll();GUI.enabled=true;
+        }
+        private void EquipmentReward()
+        {
+            var draft=run.EquipmentRewards;U.Box(new Rect(0,0,1280,720),new Color(.02f,.03f,.045f,.84f));U.Label(210,85,860,54,"EXPEDITION EQUIPMENT",U.Title);U.Label(210,150,860,40,draft.CurrentPlayer.Id+" · Equip, dismantle into run materials, or leave. Gear resets after the expedition.");
+            for(int i=0;i<draft.Options.Length;i++)
+            {
+                var option=draft.Options[i];float x=250+i*400;U.Panel(new Rect(x,215,375,350));U.Label(x+20,235,335,24,option.Rarity.ToString().ToUpperInvariant()+" · "+(option.IsWeapon?"WEAPON":"ARMOR"),U.Small);U.Label(x+20,270,335,40,option.DisplayName,U.CardTitle);
+                string identity=option.IsWeapon?option.Weapon.family+" · "+option.Element+"\nDamage "+option.Weapon.damage+" · Skill "+(option.Weapon.skill?option.Weapon.skill.displayName:"Locked / none") : option.Armor.slot+" · "+option.Element+" · "+(option.Armor.set?option.Armor.set.displayName:"No set");
+                string current=option.IsWeapon?"Current: "+draft.CurrentPlayer.Weapon.displayName+" · "+draft.CurrentPlayer.Weapon.damage+" damage":"Current: "+(draft.CurrentPlayer.Equipment.InSlot(option.Armor.slot)?draft.CurrentPlayer.Equipment.InSlot(option.Armor.slot).displayName:"Empty "+option.Armor.slot);
+                U.Label(x+20,325,335,92,identity+"\n\n"+current,U.Small);var salvage=ProgressionEconomy.Salvage(option.Rarity,option.IsWeapon,run.Progression.EffectPower(MetaEffectKind.SalvageYield));U.Label(x+20,430,335,35,"Salvage: "+salvage,U.Small);
+                if(U.Click(new Rect(x+20,480,155,38),"Equip")){draft.Equip(i);break;}if(U.Click(new Rect(x+190,480,165,38),"Dismantle")){draft.Dismantle(i);break;}
+            }
+            if(U.Click(new Rect(505,595,270,38),"Leave equipment"))draft.Leave();U.Label(260,650,760,30,"Gamepad: A equip first · B equip second · Y dismantle first · Select leave",U.Small);
         }
         private void Complete()
         {
             U.Panel(new Rect(285, 165, 710, 377));
             U.Label(315, 193, 650, 45, run.Outcome, U.Heading);
             U.Label(315, 255, 650, 70, "Run " + TimeSpan.FromSeconds(run.Telemetry.Record.runDuration).ToString(@"mm\:ss") + "   ·   Seed " + run.Seed + "\nWinner: " + run.Telemetry.Record.winner);
-            U.Label(315, 340, 650, 85, run.Telemetry.LastError != null ? "Telemetry save failed: " + run.Telemetry.LastError : "Match telemetry saved locally.\n" + run.Telemetry.LastPath, U.Small);
+            var settlement=run.Progression.LastSettlement;string resources=settlement.HasValue?"Collected: "+settlement.Value.Collected+"\nRetained: "+settlement.Value.Retained+"\nLost: "+settlement.Value.Lost:"No resource settlement.";
+            U.Label(315, 330, 650, 110, resources+"\n"+(run.Telemetry.LastError != null ? "Telemetry save failed: " + run.Telemetry.LastError : "Telemetry saved: "+run.Telemetry.LastPath), U.Small);
             if (U.Click(new Rect(315, 451, 650, 52), "RETURN TO THE THRESHOLD")) { journalOpen = false; run.ResetRun(); }
         }
         private void Pause()
