@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11a266f1c5297f543b4de03ea8f4ce8c, type: 3}
+  m_Name: cinder-cache-table
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.TreasureDefinition
+  id: cinder-cache-table
+  displayName: Cinder Cache
+  variants:
+  - id: standard-cache
+    displayName: Standard Cache
+    description: A stable field cache with one equipment choice.
+    kind: 0
+    weight: 52
+    rewardQuality: 1
+    offerKind: 0
+    openCost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    maximumGreedRewards: 1
+    bonusResources:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 0}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 0
+  - id: sealed-vault
+    displayName: Sealed Vault
+    description: A paid seal containing focused armor choices.
+    kind: 1
+    weight: 14
+    rewardQuality: 2
+    offerKind: 2
+    openCost:
+      ash: 8
+      emberShards: 1
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    maximumGreedRewards: 1
+    bonusResources:
+      ash: 3
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 0}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 0
+  - id: cursed-chest
+    displayName: Cursed Chest
+    description: Spend current health without downing the party; the next Rest can
+      clear its pressure.
+    kind: 2
+    weight: 9
+    rewardQuality: 2
+    offerKind: 0
+    openCost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0.18
+    maximumGreedRewards: 1
+    bonusResources:
+      ash: 5
+      emberShards: 1
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 0}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 1
+  - id: greedy-cache
+    displayName: Greedy Cache
+    description: Take up to three rewards. Later claims spend health and empower
+      the next combat.
+    kind: 3
+    weight: 10
+    rewardQuality: 1
+    offerKind: 0
+    openCost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    maximumGreedRewards: 3
+    bonusResources:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 0}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 0
+  - id: mimic
+    displayName: Mimic
+    description: The common false cache becomes a combat encounter, then improves
+      the equipment quality.
+    kind: 4
+    weight: 8
+    rewardQuality: 1
+    offerKind: 0
+    openCost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    maximumGreedRewards: 1
+    bonusResources:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 11400000, guid: f88e2f4febb06f74e93afab53613f64e, type: 2}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 0
+  - id: corrupted-cache
+    displayName: Corrupted Cache
+    description: Void pressure follows the party into its next combat.
+    kind: 5
+    weight: 7
+    rewardQuality: 3
+    offerKind: 1
+    openCost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 1
+    currentHealthCost: 0
+    maximumGreedRewards: 1
+    bonusResources:
+      ash: 4
+      emberShards: 2
+      ancientAlloy: 0
+      corruptionFragments: 0
+    mimicEncounter: {fileID: 0}
+    addsEliteToNextCombat: 0
+    addsVoidPressureToNextCombat: 1
+  informationRule: The route reveals Treasure identity, but the weighted cache variant
+    stays concealed until arrival.

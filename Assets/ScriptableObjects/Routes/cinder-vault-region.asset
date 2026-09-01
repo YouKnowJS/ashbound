@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b287ac4b7a7d1e348a097b57a277b355, type: 3}
+  m_Name: cinder-vault-region
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionRegionDefinition
+  id: cinder-vault-region
+  displayName: The Cinder Vault
+  regionIntent: One complete branching 10-node region proving route identity, limited
+    information, local voting, and regional-boss gating while reusing v0.5 combat
+    spaces.
+  graphVariants:
+  - {fileID: 11400000, guid: 352439f026a13cd468e86c1f9d828e90, type: 2}
+  - {fileID: 11400000, guid: 674591f471f88f74481230f0799867d4, type: 2}
+  - {fileID: 11400000, guid: 1db7de0839bacdb4686d8c55ced56e71, type: 2}
+  eventualRegionCount: 5
+  eventualFinalAreaCount: 1
+  targetNodesPerRegionMin: 8
+  targetNodesPerRegionMax: 10

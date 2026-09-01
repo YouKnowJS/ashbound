@@ -21,6 +21,13 @@ namespace Ashbound
         public EncounterDefinition[] encounters;
         public CombatSpaceDefinition[] combatSpaces;
         public RegionEnemyPoolDefinition[] regionEcologies;
+        public ExpeditionRegionDefinition prototypeRegion;
+        public TreasureDefinition[] treasures;
+        public MerchantDefinition[] merchants;
+        public RestNodeDefinition[] rests;
+        public EventDefinition[] events;
+        public ChallengeDefinition[] challenges;
+        public BossRewardDefinition[] bossRewards;
         [Range(1, 2)] public int corruptedAtFourPlayers = 2;
         public ItemDefinition FindItem(string id) => items.FirstOrDefault(x => x.id == id);
         public WeaponDefinition FindWeapon(WeaponFamily family) => weapons?.FirstOrDefault(x => x && x.family == family) ?? weapon;

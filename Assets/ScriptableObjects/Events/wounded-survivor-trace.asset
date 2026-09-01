@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d84b9f6625988942876e69a80c10724, type: 3}
+  m_Name: wounded-survivor-trace
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EventDefinition
+  id: wounded-survivor-trace
+  displayName: Wounded Survivor Trace
+  description: A warm trail ends beside an abandoned pack.
+  choices:
+  - id: use-medicine
+    displayName: Use supplies
+    outcomeText: The party recovers, but the pack stays untouched.
+    outcomeInitiallyHidden: 0
+    outcome: 1
+    cost:
+      ash: 4
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0.32
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  - id: follow-trail
+    displayName: Follow the trail
+    outcomeText: The route ahead is annotated.
+    outcomeInitiallyHidden: 0
+    outcome: 5
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  - id: take-pack
+    displayName: Take the pack
+    outcomeText: Gain materials and accept an ambush.
+    outcomeInitiallyHidden: 1
+    outcome: 4
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 9
+      emberShards: 1
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 11400000, guid: 7c2ad88375a986646b53d6660ce05a9d, type: 2}
+    equipmentQuality: 1
+  loreFragments:
+  - Someone left before the ash could choose them.

@@ -52,10 +52,22 @@ namespace Ashbound
         public bool elitePresent;
     }
     [Serializable]
+    public sealed class RouteNodeTelemetry
+    {
+        public string nodeId,nodeType,risk,rewardCategory,treasureVariant,treasureCost,merchantSpend,restChoice,eventChoice,challengeId,bossReward;
+        public float duration,damageTaken,averageRemainingPlayerHp;
+        public bool mimicEncountered,mimicDefeated,challengeSuccess;
+        public int treasureRewards,merchantRerolls;
+        public List<string> resourcesGained=new List<string>();
+        public List<string> offeredRoutes=new List<string>();
+        public List<string> routeVotes=new List<string>();
+        public string chosenRoute;
+    }
+    [Serializable]
     public sealed class MatchRecord
     {
-        public int schemaVersion = 4;
-        public string runId, startedUtc, endedUtc, corruptionType, winner, outcome;
+        public int schemaVersion = 5;
+        public string runId, startedUtc, endedUtc, corruptionType, winner, outcome,routeGraphId;
         public int seed;
         public float runDuration, finalPvPDuration;
         public float miniBossKillTime, finalBossKillTime;
@@ -74,6 +86,9 @@ namespace Ashbound
         public List<EnemyRoleTelemetry> enemyRoles = new List<EnemyRoleTelemetry>();
         public List<EnemyElementTelemetry> enemyElements = new List<EnemyElementTelemetry>();
         public List<EncounterTelemetry> encounters = new List<EncounterTelemetry>();
+        public List<RouteNodeTelemetry> routeNodes = new List<RouteNodeTelemetry>();
+        public float routeMenuSeconds,treasureMenuSeconds,merchantMenuSeconds,restMenuSeconds,eventMenuSeconds,rewardMenuSeconds;
+        public bool trueFinalBossEntered;
     }
     public sealed class MatchTelemetry
     {
@@ -84,6 +99,7 @@ namespace Ashbound
         private readonly Dictionary<ElementTag, EnemyElementTelemetry> enemyElements = new Dictionary<ElementTag, EnemyElementTelemetry>();
         private Combatant[] playerActors=Array.Empty<Combatant>();
         private EncounterTelemetry activeEncounter;
+        private RouteNodeTelemetry activeNode;
         private float encounterStart,encounterSeparationTotal;
         private int encounterSeparationSamples;
         public MatchRecord Record { get; private set; }
@@ -92,7 +108,7 @@ namespace Ashbound
         public bool Recording { get; private set; }
         public void Begin(int seed, IEnumerable<Combatant> players, MetaProgressionService progression)
         {
-            sources.Clear();elements.Clear();procs.Clear();enemyRoles.Clear();enemyElements.Clear();activeEncounter=null;playerActors=players.ToArray();
+            sources.Clear();elements.Clear();procs.Clear();enemyRoles.Clear();enemyElements.Clear();activeEncounter=null;activeNode=null;playerActors=players.ToArray();
             Record = new MatchRecord { runId = Guid.NewGuid().ToString("N"), startedUtc = DateTime.UtcNow.ToString("O"), seed = seed, debugUsed = Application.isBatchMode,
                 activePreparation=progression.ActivePreparation?progression.ActivePreparation.id:PreparationKind.None.ToString(),materialsSpentInHub=progression.ConsumeMaterialsSpent(),highestRegionReached=1 };
             Record.facilityLevels=progression.Profile.facilities.Select(x=>x.facilityId+":"+x.level).ToList();Record.bossesDefeated=progression.Profile.defeatedBosses.ToList();
@@ -128,7 +144,7 @@ namespace Ashbound
                 if(damage.Info.Impact>=ImpactTier.Ability||damage.Info.Kind==DamageKind.Rupture||damage.Info.Kind==DamageKind.Shockwave)attacker.areaDamage+=damage.Loss.Total;
                 Add(sources[attacker.playerId], damage.Info.Kind.ToString(), damage.Loss.Total); Add(elements[attacker.playerId], damage.Info.Element.ToString(), damage.Loss.Total);
             }
-            if (target != null) target.damageTaken += damage.Loss.Total;
+            if (target != null){target.damageTaken += damage.Loss.Total;if(activeNode!=null)activeNode.damageTaken+=damage.Loss.Total;}
             if(damage.Info.Source&&damage.Info.Source.EnemyDefinition&&damage.Target.IsPlayer)
             {
                 var definition=damage.Info.Source.EnemyDefinition;var role=Role(definition.role);role.damageToPlayers+=damage.Loss.Total;var element=Element(definition.element);element.damageToPlayers+=damage.Loss.Total;if(activeEncounter!=null)activeEncounter.playerDamageTaken+=damage.Loss.Total;
@@ -167,6 +183,34 @@ namespace Ashbound
             if(!Recording)return;var record=Record.players.Find(x=>x.playerId==player.Id);if(record==null)return;var target=dismantled?record.equipmentDismantled:record.equipmentAcquired;target.Add(option.DisplayName+":"+option.Rarity);
         }
         public void ShopReroll(Combatant player){if(!Recording)return;var record=Record.players.Find(x=>x.playerId==player.Id);if(record!=null)record.shopRerolls++;}
+        public void RouteBegin(string graphId){if(Recording)Record.routeGraphId=graphId??"";}
+        public void NodeBegin(ExpeditionNodeDefinition node)
+        {
+            if(!Recording||!node)return;activeNode=new RouteNodeTelemetry{nodeId=node.id,nodeType=node.nodeType.ToString(),risk=node.risk.ToString(),rewardCategory=node.rewardCategory.ToString()};Record.routeNodes.Add(activeNode);
+        }
+        public void NodeResource(ExpeditionResource resource,int amount){if(Recording&&activeNode!=null&&amount>0)activeNode.resourcesGained.Add(resource+":"+amount);}
+        public void NodeComplete(ExpeditionNodeDefinition node,float duration,IEnumerable<Combatant> players)
+        {
+            if(!Recording||activeNode==null)return;activeNode.duration=Mathf.Max(0,duration);var party=players.Where(x=>x).ToArray();activeNode.averageRemainingPlayerHp=party.Length==0?0:party.Average(x=>x.Alive?x.Health.CurrentHealth/x.Health.MaxHealth:0);
+        }
+        public void RouteOffered(IEnumerable<string> routes){if(Recording&&activeNode!=null)activeNode.offeredRoutes=routes.Where(x=>!string.IsNullOrEmpty(x)).ToList();}
+        public void RouteVote(string playerId,string nodeId){if(Recording&&activeNode!=null)activeNode.routeVotes.Add(playerId+":"+nodeId);}
+        public void RouteChosen(string nodeId,IReadOnlyDictionary<string,string> votes){if(Recording&&activeNode!=null)activeNode.chosenRoute=nodeId??"";}
+        public void TreasureSeen(TreasureVariantDefinition variant){if(Recording&&activeNode!=null&&variant!=null)activeNode.treasureVariant=variant.kind.ToString();}
+        public void TreasureAction(TreasureVariantDefinition variant,ResourceWallet cost,int rewardsTaken){if(!Recording||activeNode==null)return;activeNode.treasureVariant=variant!=null?variant.kind.ToString():"";activeNode.treasureCost=Wallet(cost);activeNode.treasureRewards=Mathf.Max(activeNode.treasureRewards,rewardsTaken);}
+        public void MimicEncountered(){if(Recording&&activeNode!=null)activeNode.mimicEncountered=true;}
+        public void MimicResult(bool defeated){if(Recording&&activeNode!=null)activeNode.mimicDefeated=defeated;}
+        public void MerchantPurchase(ResourceWallet price,string kind){if(!Recording||activeNode==null)return;activeNode.merchantSpend=WalletSum(activeNode.merchantSpend,price);activeNode.resourcesGained.Add("Purchase:"+kind);}
+        public void MerchantReroll(ResourceWallet price){if(!Recording||activeNode==null)return;activeNode.merchantRerolls++;activeNode.merchantSpend=WalletSum(activeNode.merchantSpend,price);}
+        public void RestChoice(string choice){if(Recording&&activeNode!=null)activeNode.restChoice=choice??"";}
+        public void EventChoice(string eventId,string choiceId){if(Recording&&activeNode!=null)activeNode.eventChoice=eventId+":"+choiceId;}
+        public void ChallengeResult(ChallengeDefinition challenge,bool success){if(!Recording||activeNode==null)return;activeNode.challengeId=challenge?challenge.id:"";activeNode.challengeSuccess=success;}
+        public void BossReward(BossRewardDefinition reward){if(Recording&&activeNode!=null)activeNode.bossReward=reward?reward.id:"";}
+        public void TrueFinalBossEntered(){if(Recording)Record.trueFinalBossEntered=true;}
+        public void MenuTime(string key,float delta)
+        {
+            if(!Recording||delta<=0||string.IsNullOrEmpty(key))return;switch(key){case "Route":Record.routeMenuSeconds+=delta;break;case "Treasure":Record.treasureMenuSeconds+=delta;break;case "Merchant":Record.merchantMenuSeconds+=delta;break;case "Rest":Record.restMenuSeconds+=delta;break;case "Event":Record.eventMenuSeconds+=delta;break;case "Reward":case "RelicReward":case "EquipmentReward":Record.rewardMenuSeconds+=delta;break;}
+        }
         public void Progression(MetaProgressionService progression,ResourceSettlement settlement)
         {
             if(Record==null)return;Record.resourcesCollected=settlement.Collected.Copy();Record.resourcesRetained=settlement.Retained.Copy();Record.resourcesLost=settlement.Lost.Copy();Record.highestRegionReached=progression.Profile.lifetime.highestRegionReached;Record.bossesDefeated=progression.Profile.defeatedBosses.ToList();Record.facilityLevels=progression.Profile.facilities.Select(x=>x.facilityId+":"+x.level).ToList();
@@ -207,5 +251,7 @@ namespace Ashbound
             { LastError = exception.Message; Debug.LogWarning("Unable to save match telemetry: " + LastError); }
         }
         private static void Add(Dictionary<string, float> values, string key, float amount) => values[key] = values.TryGetValue(key, out float current) ? current + amount : amount;
+        private static string Wallet(ResourceWallet value)=>value==null?"Ash:0,Ember:0,Alloy:0,Corruption:0":$"Ash:{value.ash},Ember:{value.emberShards},Alloy:{value.ancientAlloy},Corruption:{value.corruptionFragments}";
+        private static string WalletSum(string current,ResourceWallet add)=>string.IsNullOrEmpty(current)?Wallet(add):current+" + "+Wallet(add);
     }
 }

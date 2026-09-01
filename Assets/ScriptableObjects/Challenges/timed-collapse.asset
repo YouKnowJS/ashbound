@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7dc95b95b4de6c43b12cea3ce15ca53, type: 3}
+  m_Name: timed-collapse
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ChallengeDefinition
+  id: timed-collapse
+  displayName: Timed Collapse
+  description: Eliminate the formation before the seal closes. Failure grants consolation
+    and continues the route.
+  kind: 0
+  duration: 48
+  encounter: {fileID: 11400000, guid: 397d1683b2976d341adc6624709c15e8, type: 2}
+  successReward:
+    ash: 16
+    emberShards: 3
+    ancientAlloy: 1
+    corruptionFragments: 0
+  consolationReward:
+    ash: 5
+    emberShards: 0
+    ancientAlloy: 0
+    corruptionFragments: 0
+  successQuality: 2
+  noHealing: 0
+  failureEndsRun: 0

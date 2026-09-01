@@ -165,6 +165,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c482bf6880fe4a04d9cf8a2308dc5ab4, type: 2}
   - {fileID: 11400000, guid: 95594166a8fd51e4b97f6c3c9750233f, type: 2}
   - {fileID: 11400000, guid: 1eff2eadd8838cd43b8dda456fd5cdbc, type: 2}
+  - {fileID: 11400000, guid: b03011c8267d40b4c97a948c986f46ed, type: 2}
   encounters:
   - {fileID: 11400000, guid: 8961f5ff91a709a4d89130d14a0d165a, type: 2}
   - {fileID: 11400000, guid: 397d1683b2976d341adc6624709c15e8, type: 2}
@@ -172,6 +173,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7c2ad88375a986646b53d6660ce05a9d, type: 2}
   - {fileID: 11400000, guid: 05ff532371bb2804a8b240dcb7f8694b, type: 2}
   - {fileID: 11400000, guid: 723966084ac158d45af92435dc53be11, type: 2}
+  - {fileID: 11400000, guid: f88e2f4febb06f74e93afab53613f64e, type: 2}
   combatSpaces:
   - {fileID: 11400000, guid: ad2a34ad5b213b14284668293f23a1d4, type: 2}
   - {fileID: 11400000, guid: fe8cd230d883a4242ac3664d970d790b, type: 2}
@@ -182,4 +184,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: aee2e4daf5ba1d442850f425a2beacc4, type: 2}
   - {fileID: 11400000, guid: 4568f8ac39c939341a870152912dd300, type: 2}
   - {fileID: 11400000, guid: a9acb98029ef731408967413e1878789, type: 2}
+  prototypeRegion: {fileID: 11400000, guid: 75ae3836a81116e409abe7aefb86cce2, type: 2}
+  treasures:
+  - {fileID: 11400000, guid: ab6fe59cf894c5f49ab2263deb970252, type: 2}
+  merchants:
+  - {fileID: 11400000, guid: ece988f73797f454293ec61d08ed49db, type: 2}
+  rests:
+  - {fileID: 11400000, guid: 7a81e52110513c941acf654985059fea, type: 2}
+  events:
+  - {fileID: 11400000, guid: 5951ec909238f704494bbbfab54c3e69, type: 2}
+  - {fileID: 11400000, guid: 846b1e24821158046b708c4cc0038be0, type: 2}
+  - {fileID: 11400000, guid: 1fd57cc8074df064492c554f12b62def, type: 2}
+  - {fileID: 11400000, guid: 66139c9d8c96b534bbbf2d1079785967, type: 2}
+  - {fileID: 11400000, guid: 21fe671ccd78b584887d045dc81e4390, type: 2}
+  challenges:
+  - {fileID: 11400000, guid: 97b601df15b74434696e863926d652fd, type: 2}
+  - {fileID: 11400000, guid: 05cf787bc1242e7488fd0a2f76048fb4, type: 2}
+  - {fileID: 11400000, guid: ed8ad68730602c74f9614b9a96d692cc, type: 2}
+  bossRewards:
+  - {fileID: 11400000, guid: 0380406c10f5a294e8253da059d70b94, type: 2}
   corruptedAtFourPlayers: 2

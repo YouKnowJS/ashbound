@@ -15,7 +15,7 @@ namespace Ashbound
             {
                 case RunState.Lobby: allowed |= next == RunState.StartingRun; break;
                 case RunState.StartingRun: allowed |= next == RunState.Exploration; break;
-                case RunState.Exploration: allowed |= next == RunState.Combat || next == RunState.BossFight; break;
+                case RunState.Exploration: allowed |= next == RunState.Combat || next == RunState.BossFight || next == RunState.Reward; break;
                 case RunState.Combat: allowed |= next == RunState.Reward; break;
                 case RunState.Reward: allowed |= next == RunState.Exploration; break;
                 case RunState.BossFight: allowed |= next == RunState.BossDefeated; break;

@@ -289,7 +289,7 @@ namespace Ashbound.Tests
         public void V04AuthoredHubContentAndPowerCapsAreComplete()
         {
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.facilities.Length,Is.EqualTo(6));Assert.That(catalog.preparations.Length,Is.EqualTo(5));Assert.That(catalog.facilities.All(x=>x.MaxLevel>=4&&x.MaxLevel<=6),Is.True);Assert.That(catalog.progressionTuning.permanentHealthCap,Is.LessThanOrEqualTo(.1f));
-            Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Rest));Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Temper));Assert.That(Enum.GetValues(typeof(ExpeditionNodeType)).Length,Is.EqualTo(10));
+            Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Rest));Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Temper));Assert.That(Enum.GetValues(typeof(ExpeditionNodeType)).Cast<ExpeditionNodeType>(),Does.Contain(ExpeditionNodeType.Relic));
         }
 
         [Test]
@@ -304,7 +304,7 @@ namespace Ashbound.Tests
         [Test]
         public void V05EnemyDefinitionsExposeCombatResistancePresentationAndReplacementHooks()
         {
-            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.enemies.Length,Is.EqualTo(21));
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.enemies.Length,Is.EqualTo(22));
             foreach(var enemy in catalog.enemies){Assert.That(enemy.id,Is.Not.Empty);Assert.That(enemy.displayName,Is.Not.Empty);Assert.That(enemy.maxHealth,Is.GreaterThan(0));Assert.That(enemy.movementSpeed,Is.GreaterThan(0));Assert.That(enemy.attackDamage,Is.GreaterThan(0));Assert.That(enemy.preferredDistance,Is.GreaterThan(0));Assert.That(enemy.telegraphLanguage,Is.Not.Empty);Assert.That(enemy.statusResistance,Is.InRange(0,.9f));Assert.That(enemy.staggerResistance,Is.InRange(0,.9f));}
         }
 
@@ -317,6 +317,36 @@ namespace Ashbound.Tests
             foreach(var space in catalog.combatSpaces){Assert.That(space.sections.Length,Is.GreaterThanOrEqualTo(3));Assert.That(space.sections.Count(x=>!x.transitionPath),Is.GreaterThanOrEqualTo(2));Assert.That(space.sections.Any(x=>x.transitionPath),Is.True);Assert.That(space.boundaryPoints.Length,Is.GreaterThanOrEqualTo(9));Assert.That(space.distantLandmarkHooks,Is.Not.Empty);Assert.That(space.multiplayerSeparationLimit,Is.GreaterThan(0));}
             Assert.That(catalog.rooms.Where(x=>!x.isBoss).All(x=>x.combatSpace&&x.waves.All(w=>w.encounter)),Is.True);
             Assert.That(catalog.regionEcologies.Length,Is.EqualTo(3));Assert.That(catalog.regionEcologies.All(x=>x.commonEnemies.Length>0&&x.hardEnemies.Length>0&&x.encounterPool.Length>0),Is.True);
+        }
+
+        [Test]
+        public void V06RouteVariantsValidateAndCoverEveryImplementedNodeIdentity()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.prototypeRegion,Is.Not.Null);Assert.That(catalog.prototypeRegion.graphVariants.Length,Is.EqualTo(3));
+            var required=new[]{ExpeditionNodeType.NormalCombat,ExpeditionNodeType.HardCombat,ExpeditionNodeType.Elite,ExpeditionNodeType.Treasure,ExpeditionNodeType.Relic,ExpeditionNodeType.Merchant,ExpeditionNodeType.Rest,ExpeditionNodeType.Event,ExpeditionNodeType.Challenge,ExpeditionNodeType.Boss};
+            foreach(var graph in catalog.prototypeRegion.graphVariants){var validation=ExpeditionGraphValidator.Validate(graph);Assert.That(validation.IsValid,Is.True,string.Join(" | ",validation.Errors));Assert.That(graph.nodes.Length,Is.InRange(8,10));Assert.That(graph.nodes.Select(x=>x.nodeType),Is.SupersetOf(required));Assert.That(graph.nodes.Select(x=>x.id).Distinct().Count(),Is.EqualTo(graph.nodes.Length));}var topologySignatures=catalog.prototypeRegion.graphVariants.Select(g=>string.Join("|",g.nodes.OrderBy(n=>n.nodeType).Select(n=>n.nodeType+":"+string.Join(",",n.outgoingConnections.Select(id=>g.nodes.First(x=>x.id==id).nodeType))))).ToArray();Assert.That(topologySignatures.Distinct().Count(),Is.EqualTo(topologySignatures.Length));
+        }
+
+        [Test]
+        public void V06RouteVisibilityVotingAndSeededVariantAreDeterministic()
+        {
+            var region=Resources.Load<PrototypeCatalog>("PrototypeCatalog").prototypeRegion;var first=new ExpeditionRouteRuntime(region,606,0,new[]{"P1","P2"});var again=new ExpeditionRouteRuntime(region,606,0,new[]{"P1","P2"});Assert.That(first.Graph,Is.EqualTo(again.Graph));Assert.That(first.Available.Count,Is.InRange(2,3));
+            var options=first.Available.ToArray();Assert.That(first.Visibility(options[0]),Is.EqualTo(RouteVisibilityState.Visible));var far=first.Nodes.First(x=>!x.Discovered&&x!=first.Current);Assert.That(first.Visibility(far),Is.Not.EqualTo(RouteVisibilityState.Visible));
+            first.BeginSelection();Assert.That(first.CastVote("P1",options[0].Definition.id,out var pending),Is.True);Assert.That(pending,Is.Null);Assert.That(first.CastVote("P2",options[1].Definition.id,out var selected),Is.True);Assert.That(selected,Is.Not.Null);if(first.Graph.tieBehavior==VoteTieBehavior.HostBreaksTie)Assert.That(selected.Definition.id,Is.EqualTo(options[0].Definition.id));
+        }
+
+        [Test]
+        public void V06TreasureWeightsMimicAndNodeRewardCadenceAreAuthored()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var variants=catalog.treasures.Single().variants;Assert.That(variants.Select(x=>x.kind),Is.EquivalentTo(Enum.GetValues(typeof(TreasureVariantKind)).Cast<TreasureVariantKind>()));Assert.That(variants.Sum(x=>x.weight),Is.EqualTo(100).Within(.001));Assert.That(variants.Single(x=>x.kind==TreasureVariantKind.Mimic).weight,Is.InRange(5,10));Assert.That(variants.Single(x=>x.kind==TreasureVariantKind.Mimic).mimicEncounter.id,Is.EqualTo("mimic-reveal"));Assert.That(catalog.FindEnemy("common-vault-mimic"),Is.Not.Null);
+            var nodes=catalog.prototypeRegion.graphVariants[0].nodes;var normal=nodes.Single(x=>x.nodeType==ExpeditionNodeType.NormalCombat);var hard=nodes.Single(x=>x.nodeType==ExpeditionNodeType.HardCombat);Assert.That(normal.grantRelic||normal.grantEquipment,Is.False);Assert.That(hard.grantEquipment,Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Relic).grantRelic,Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Boss).isTrueFinalBoss,Is.False);
+        }
+
+        [Test]
+        public void V06HealthCostsAndMerchantEconomyCannotCreateFatalOrBuySalvageExploits()
+        {
+            var health=new HealthPool(100);health.Damage(99);Assert.That(health.SpendCurrentHealth(50),Is.Zero);Assert.That(health.Alive,Is.True);health.Reset(100);Assert.That(health.SpendCurrentHealth(1000),Is.EqualTo(99));Assert.That(health.Current,Is.EqualTo(1));
+            foreach(WeaponRarity rarity in Enum.GetValues(typeof(WeaponRarity))){Assert.That(ProgressionEconomy.MerchantAlwaysExceedsSalvage(rarity,true),Is.True);Assert.That(ProgressionEconomy.MerchantAlwaysExceedsSalvage(rarity,false),Is.True);}
         }
     }
 }

@@ -43,6 +43,8 @@ namespace Ashbound
         {
             if(!RunOpen||amount<=0)return;RunResources.Add(resource,amount);RunResourceAdded?.Invoke(resource,amount);
         }
+        public void Award(ResourceWallet value){if(!RunOpen||value==null)return;foreach(ExpeditionResource resource in Enum.GetValues(typeof(ExpeditionResource))){int amount=value.Get(resource);if(amount>0)Award(resource,amount);}}
+        public bool TrySpendRun(ResourceWallet cost){if(!RunOpen||cost==null)return false;return RunResources.TrySpend(cost);}
         public ResourceSettlement ResolveRun(bool completed,bool bossMilestone=false,bool abandoned=false)
         {
             if(!RunOpen)return LastSettlement??new ResourceSettlement(new ResourceWallet(),new ResourceWallet(),completed);

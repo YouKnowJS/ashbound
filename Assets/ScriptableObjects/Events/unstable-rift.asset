@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d84b9f6625988942876e69a80c10724, type: 3}
+  m_Name: unstable-rift
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EventDefinition
+  id: unstable-rift
+  displayName: Unstable Rift
+  description: A narrow void fold distorts the next few steps.
+  choices:
+  - id: stabilize
+    displayName: Stabilize
+    outcomeText: Spend fragments for alloy.
+    outcomeInitiallyHidden: 0
+    outcome: 0
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 1
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 2
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  - id: cross
+    displayName: Cross the fold
+    outcomeText: Take equipment at a current-health cost.
+    outcomeInitiallyHidden: 0
+    outcome: 2
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0.15
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 3
+  - id: map-edge
+    displayName: Map its edge
+    outcomeText: Reveal all remaining node identities.
+    outcomeInitiallyHidden: 0
+    outcome: 5
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  loreFragments:
+  - The fold repeats one distant bell out of sequence.

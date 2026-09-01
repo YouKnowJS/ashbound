@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b03b3a41c6d4142a9366313ff392b9, type: 3}
+  m_Name: route-a-elite
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionNodeDefinition
+  id: route-a-elite
+  displayName: Warden Escort
+  description: An elite composition offers a stronger equipment reward.
+  nodeType: 2
+  risk: 3
+  rewardCategory: 1
+  rewardQuality: 2
+  outgoingConnections:
+  - route-a-rest
+  - route-a-event
+  encounter: {fileID: 11400000, guid: 05ff532371bb2804a8b240dcb7f8694b, type: 2}
+  combatSpace: {fileID: 11400000, guid: 10cb9b395a3367c4b9a3b7a08efe622b, type: 2}
+  treasure: {fileID: 0}
+  merchant: {fileID: 0}
+  rest: {fileID: 0}
+  eventDefinition: {fileID: 0}
+  challenge: {fileID: 0}
+  finalBoss: {fileID: 0}
+  bossReward: {fileID: 0}
+  isTrueFinalBoss: 0
+  grantEquipment: 1
+  grantRelic: 0
+  resourceReward:
+    ash: 20
+    emberShards: 5
+    ancientAlloy: 0
+    corruptionFragments: 0
+  spawnPoints:
+  - {x: -7, y: 0, z: 4}
+  - {x: 6, y: 0, z: 5}
+  - {x: 0, y: 0, z: 7}
+  - {x: 8, y: 0, z: -1}
+  - {x: -8, y: 0, z: -1}
+  - {x: 3, y: 0, z: 3}
+  - {x: -4, y: 0, z: 6}
+  - {x: 0, y: 0, z: 4}
+  telemetryTags:
+  - region-1
+  - a
+  - elite

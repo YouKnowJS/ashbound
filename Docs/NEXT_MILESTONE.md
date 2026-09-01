@@ -1,11 +1,12 @@
-# Next milestone: validate fairness before adding content
+# Next milestone: v0.7 route validation and presentation
 
-1. Play the existing loop repeatedly in solo, two-player shared keyboard, and 3–4 player gamepad sessions. Capture normal and debug telemetry separately.
-2. Tune player response, enemy telegraph timing, boss downtime, reflection speed, final-phase health, and four-player corruption counts. Track which builds win before adding another character.
-3. Test that the reveal is understandable through silhouettes, attack colors, and combat events. Avoid an early tutorial explaining the twist.
-4. Add a minimal host-authoritative LAN transport behind `IPlayerInput` and the central mutation points. Validate commands against stable authenticated player IDs; replicate run state, health, item selections, and corruption assignments. Keep late join disabled. Plan reconnect separately.
-5. Add controller-only lobby navigation and bindings/remapping, then automated virtual-device input tests and physical disconnect/reconnect tests.
-6. Only after loop/balance validation, replace factories with authored prefabs and animation, add pooling where profiling shows allocation pressure, and expand toward 10–15 minute maps.
+1. Human-playtest the complete v0.6 region across solo, two-player shared keyboard, and 3–4 physical gamepads. Compare at least three seeds and record route decisions, health entering nodes, wallet spend, skipped rewards, and menu time.
+2. Tune only after evidence: route reveal, Normal/Hard/Elite resource spacing, Merchant prices, Treasure weights and health costs, Greedy decisions, Challenge timers, Rest recovery, and regional Boss reward.
+3. Add controller-first focus/navigation for Route, Treasure, Merchant, Rest, Event, and equipment screens. Preserve locked device ownership and the all-player voting requirement.
+4. Author a small set of non-combat camp, shrine, vault-pocket, and merchant-space presentation variants while keeping the v0.5 irregular-space and transition-path model.
+5. Improve Challenge runtime rules for survival, no-healing, priority targets, and defend-point goals; retain nonfatal failure unless explicitly authored otherwise.
+6. Use schema-5 telemetry to compare time in combat, route selection, rewards, and shops. Keep debug and normal runs separate.
+7. Do not begin all five regions until one-region pacing and economy are understandable in repeated human sessions.
 
 ## Initial tuning knobs
 
@@ -19,4 +20,4 @@
 | Item assets | Tags, modifiers, thresholds, prerequisite, status duration/stacks |
 | `EntityFactory` / `ActorMotor` | Prototype enemy baselines, player speed, dash timing |
 
-Keep baseline character stats comparable when adding characters. Identity should come from mechanics. Avoid permanent damage/health grinds that influence the final player encounter.
+Keep baseline character stats comparable when adding characters. Identity should come from mechanics. Avoid permanent damage/health grinds that influence the final player encounter. No current automated result proves route pacing, economy, Mimic frequency, Challenge timing, or combat-space scale is balanced.

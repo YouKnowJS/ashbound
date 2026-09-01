@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42af36d64e7feac43aa5ef4a0041c635, type: 3}
+  m_Name: regional-warden-hoard
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.BossRewardDefinition
+  id: regional-warden-hoard
+  displayName: Regional Warden Hoard
+  resources:
+    ash: 24
+    emberShards: 6
+    ancientAlloy: 2
+    corruptionFragments: 0
+  equipmentQuality: 3
+  grantEquipment: 1
+  grantRelic: 0
+  futureRegionTransitionHook: Advance to a future region selector; v0.6 routes this
+    prototype through the explicit final-area gate.

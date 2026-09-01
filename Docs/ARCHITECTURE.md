@@ -125,6 +125,7 @@ Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, We
 | `Roguelike/UpgradeDraft`, `UpgradeEffectController` | Choice lifecycle and proc interpretation |
 | `Items/*Definition`, `PlayerInventory`, `PlayerEquipment`, `WeaponSkillExecutor` | Relic/weapon/skill/armor data, ownership, set evaluation, and skill delivery |
 | `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, seals, and spawning |
+| `Routes/*Definition`, `ExpeditionRouteRuntime`, `RouteNodeSessions` | Seeded graph topology, visibility/voting, node services, and regional Boss rewards |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
 | `Corruption/*`, `Solo/ReflectionController` | Boss modifiers, roster selection, solo final opponent |
 | `UI/PrototypeHud`, `Debug/DebugMenu` | Play/lobby UI and gated test controls |
@@ -150,3 +151,11 @@ No networking library is installed. Stable IDs, input abstraction, events, and c
 `MetaProgressionService` is the runtime boundary between the profile and an expedition. Its `RunResources` wallet is recreated at launch, receives encounter/salvage rewards, and settles into the persistent wallet only on outcome. `ProgressionEconomy` owns retention, salvage, and merchant-price invariants. `HubFacilityDefinition`, `PreparationDefinition`, and `ProgressionTuningDefinition` keep costs, unlocks, caps, future node targets, reward quality, and Rest/Temper hooks in ScriptableObjects.
 
 The existing MainMenu lobby is now the functional Hub. It exposes the Expedition Table, Forge, Quartermaster, Infirmary, Archive, and Research Station without creating a second input authority or replacing the local roster. `EquipmentRewardDraft` runs after the relic draft, queues each combatant independently, filters the profile's unlocked pools, applies modest rarity/element weights, and lets that player equip, leave, or dismantle. Equipment remains on the combatant and disappears with the run.
+
+## v0.6 route graph and node identity
+
+The route graph is an abstract progression layer over the playable world. `ExpeditionRouteRuntime` chooses one of three validated graph variants from the run seed, exposes only information permitted by route-reveal score, and requires every local roster member to vote before resolving multiplayer choices. It never constructs combat geometry. `RoomDirector.LoadNode` continues to build the node's assigned v0.5 irregular `CombatSpaceDefinition`, including transition paths and distant extension hooks.
+
+Node services are short-lived runtime sessions. Treasure, Merchant, Rest, and Event sessions own their own costs and completion rules. Combat nodes return through the same encounter, enemy-brain, and space pipeline as v0.5. The graph Boss is explicitly regional; only the separate final-area gate changes the state machine to `BossFight`, preserving the corruption security boundary.
+
+Reward cadence is authored per node. Normal Combat does not automatically open either draft. Hard and Elite can request equipment at distinct quality floors; Relic owns relic selection; Treasure owns targeted/costed equipment; Merchant spends the run wallet; Rest owns recovery/Temper; and the Boss uses `BossRewardDefinition`.

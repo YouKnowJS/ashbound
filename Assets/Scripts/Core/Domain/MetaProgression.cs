@@ -13,7 +13,7 @@ namespace Ashbound
         StartingAsh, RestRecovery, FailureRetention, EmergencyRest, MaxHealth, RelicReroll,
         EquipmentAppraisal, ElementBias, ArchiveCapacity
     }
-    public enum ExpeditionNodeType { NormalCombat, HardCombat, Elite, Challenge, Merchant, Event, Rest, Treasure, Secret, Boss }
+    public enum ExpeditionNodeType { NormalCombat, HardCombat, Elite, Challenge, Merchant, Event, Rest, Treasure, Secret, Boss, Relic }
     public enum RewardQuality { Common, Advanced, Rare, Epic, Legendary }
     public enum RestOptionKind { Rest, Temper, Salvage, Prepare }
 

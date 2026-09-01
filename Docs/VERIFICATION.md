@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.5 content validation additionally checks ten base enemy roles, ten elemental variants, encounter composition, future region ecology pools, Small/Medium/Large spaces, irregular connected sections, transitions, world-extension hooks, and the complete v0.4 content set.
+v0.6 content validation additionally checks all ten implemented node identities, three valid graph variants, route constraints and visibility, six weighted Treasure variants, Common Mimic, Merchant economy, Rest/Temper bounds, Events, Challenges, regional/final-Boss gating, schema-5 telemetry, and the complete v0.5 content set.
 
 ### Edit Mode
 
@@ -41,6 +41,9 @@ v0.5 content validation additionally checks ten base enemy roles, ten elemental 
 - Encounter resource collection and a per-player equipment reward dismantle flow using the real run state machine.
 - Data-driven encounter spawning with `EnemyBrain`/definition wiring and visible connected transition geometry.
 - Schema-4 encounter telemetry with composition, role kills, and arena-category context.
+- Seeded graph selection, route validation/visibility, local majority voting and host tie-break behavior.
+- Node-driven reward cadence, regional-Boss/final-Boss gating, Cursed Chest bounded health cost, Merchant purchasing, and Common Mimic combat/reward flow.
+- Schema-5 node, route-choice, vote, service, and menu-duration telemetry.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -58,6 +61,21 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 10. Walk the transition paths and inspect all five spaces for square-box presentation, camera loss, blocked spawn points, and projectile/obstacle behavior.
 
 ## Verification status
+
+### v0.6 verification — 2026-08-31
+
+Using Unity **6000.4.11f1** on Windows after the expedition-route and node-identity expansion:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **40 passed**, 0 failed, 0 skipped |
+| Play Mode | **15 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for eight seconds |
+| Human route pacing, economy, Mimic frequency, physical multiplayer voting | Not completed |
+
+Automated tests validate graph constraints, deterministic routing, visibility, vote resolution, node reward separation, service integration, economy invariants, final-Boss gating, and telemetry wiring. They do not establish route pacing, reward balance, combat-space scale, or good Treasure/Mimic frequency.
 
 ### v0.5 verification — 2026-08-31
 

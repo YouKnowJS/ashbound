@@ -15,8 +15,8 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,700,32,"ASHBOUND v0.5 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(730,32,105,32),"Equipment"))page=0;if(U.Click(new Rect(840,32,105,32),"Meta"))page=1;if(U.Click(new Rect(950,32,105,32),"Ecology"))page=2;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
-            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}
+            U.Label(60,34,560,32,"ASHBOUND v0.6 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(620,32,105,32),"Equipment"))page=0;if(U.Click(new Rect(730,32,105,32),"Meta"))page=1;if(U.Click(new Rect(840,32,105,32),"Ecology"))page=2;if(U.Click(new Rect(950,32,105,32),"Route"))page=3;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
+            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
@@ -79,6 +79,16 @@ namespace Ashbound
             U.Label(650,260,520,24,"COMBAT SPACE",U.CardTitle);if(run.Catalog.combatSpaces.Length>0){spaceIndex=Mathf.Clamp(spaceIndex,0,run.Catalog.combatSpaces.Length-1);for(int i=0;i<run.Catalog.combatSpaces.Length;i++)if(U.Click(new Rect(650+(i%2)*250,294+(i/2)*36,240,29),run.Catalog.combatSpaces[i].displayName))spaceIndex=i;var space=run.Catalog.combatSpaces[spaceIndex];U.Label(650,408,520,60,space.category+" · "+space.layout+" · camera "+space.cameraOrthographicSize+"\n"+space.spatialIntent,U.Small);if(U.Click(new Rect(650,475,220,34),"Load selected space")){run.DebugLoadCombatSpace(space);result="Loaded "+space.displayName;Mark();}}
             EnemyBrain.AiEnabled=GUI.Toggle(new Rect(60,525,140,26),EnemyBrain.AiEnabled,"Enemy AI");EnemyBrain.TelegraphsEnabled=GUI.Toggle(new Rect(210,525,160,26),EnemyBrain.TelegraphsEnabled,"Telegraphs");
             U.Label(60,570,1120,82,"ROLE READS\nWarrior baseline · Bruiser space control · Assassin flank · Ranger sustained shots · Mage AOE · Flyer dive windows · Burrower eruption · Bomber countdown/chain · Support capped aid · Controller short slow/pull\n"+result,U.Small);
+        }
+        private void RoutePanel()
+        {
+            U.Label(60,86,1120,25,"EXPEDITION ROUTE GRAPH",U.CardTitle);if(run.Route==null){U.Label(60,122,760,42,"No active graph. Start a deterministic local route to inspect nodes and services.",U.Small);if(U.Click(new Rect(850,110,330,36),"Start route · seed 606")){run.StartRun(606);result="Started deterministic route";Mark();}return;}
+            U.Label(60,118,1120,46,run.Route.Graph.displayName+" · "+run.Route.Graph.id+" · "+run.GraphValidation+"\nCurrent: "+run.CurrentNode.Definition.id+" · Reveal score "+run.Route.RevealScore,U.Small);
+            if(U.Click(new Rect(60,175,190,34),"Regenerate · reset seed")){run.ResetRun();run.StartRun(606);run.DebugOpen=true;result="Regenerated route seed 606";Mark();}if(U.Click(new Rect(260,175,155,34),"Reveal all")){run.DebugRevealRoute(true);result="Full route revealed";}if(U.Click(new Rect(425,175,155,34),"Limited reveal")){run.DebugRevealRoute(false);result="Limited route restored";}if(U.Click(new Rect(590,175,210,34),"+ run currency")){run.DebugAddRunCurrency();result="Added run currency";}
+            U.Label(60,230,1120,24,"FORCE NODE TYPE",U.CardTitle);ExpeditionNodeType[] types={ExpeditionNodeType.NormalCombat,ExpeditionNodeType.HardCombat,ExpeditionNodeType.Elite,ExpeditionNodeType.Treasure,ExpeditionNodeType.Relic,ExpeditionNodeType.Merchant,ExpeditionNodeType.Rest,ExpeditionNodeType.Event,ExpeditionNodeType.Challenge,ExpeditionNodeType.Boss};for(int i=0;i<types.Length;i++){var type=types[i];if(U.Click(new Rect(60+(i%5)*218,265+(i/5)*38,208,30),type.ToString())){result=run.DebugForceNodeType(type)?"Loaded "+type:"Node unavailable";Mark();}}
+            U.Label(60,355,1120,24,"FORCE TREASURE VARIANT",U.CardTitle);TreasureVariantKind[] variants=(TreasureVariantKind[])System.Enum.GetValues(typeof(TreasureVariantKind));for(int i=0;i<variants.Length;i++){var variant=variants[i];if(U.Click(new Rect(60+(i%3)*300,390+(i/3)*38,288,30),variant.ToString())){result=run.DebugForceTreasure(variant)?"Forced "+variant:"Treasure unavailable";Mark();}}
+            U.Label(60,488,1120,24,"DIRECT NODE IDS",U.CardTitle);var nodes=run.Route.Nodes.OrderBy(x=>x.Definition.id).ToArray();for(int i=0;i<nodes.Length;i++){var node=nodes[i];string visibility=run.Route.Visibility(node).ToString();if(U.Click(new Rect(60+(i%3)*370,523+(i/3)*34,356,27),(node.Completed?"✓ ":"")+node.Definition.id+" · "+visibility)){run.DebugJumpToNode(node.Definition.id);result="Jumped to "+node.Definition.id;Mark();}}
+            U.Label(60,657,1120,24,result+" · Graph variants validate on construction; debug telemetry is marked.",U.Small);
         }
     }
 }

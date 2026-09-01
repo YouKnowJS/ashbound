@@ -50,6 +50,10 @@ namespace Ashbound
             Current += actual;
             return actual;
         }
+        public float SpendCurrentHealth(float amount)
+        {
+            if(!Alive||amount<=0||float.IsNaN(amount)||float.IsInfinity(amount))return 0;float paid=Math.Min(Math.Max(0,Current-1),amount);Current-=paid;return paid;
+        }
 
         public void AddShield(float amount)
         {

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b03b3a41c6d4142a9366313ff392b9, type: 3}
+  m_Name: route-c-hard
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionNodeDefinition
+  id: route-c-hard
+  displayName: Broken Formation
+  description: A more demanding formation pays resources and one equipment draft.
+  nodeType: 1
+  risk: 2
+  rewardCategory: 1
+  rewardQuality: 1
+  outgoingConnections:
+  - route-c-relic
+  - route-c-merchant
+  encounter: {fileID: 11400000, guid: 397d1683b2976d341adc6624709c15e8, type: 2}
+  combatSpace: {fileID: 11400000, guid: fe8cd230d883a4242ac3664d970d790b, type: 2}
+  treasure: {fileID: 0}
+  merchant: {fileID: 0}
+  rest: {fileID: 0}
+  eventDefinition: {fileID: 0}
+  challenge: {fileID: 0}
+  finalBoss: {fileID: 0}
+  bossReward: {fileID: 0}
+  isTrueFinalBoss: 0
+  grantEquipment: 1
+  grantRelic: 0
+  resourceReward:
+    ash: 15
+    emberShards: 2
+    ancientAlloy: 0
+    corruptionFragments: 0
+  spawnPoints:
+  - {x: -7, y: 0, z: 4}
+  - {x: 6, y: 0, z: 5}
+  - {x: 0, y: 0, z: 7}
+  - {x: 8, y: 0, z: -1}
+  - {x: -8, y: 0, z: -1}
+  - {x: 3, y: 0, z: 3}
+  - {x: -4, y: 0, z: 6}
+  - {x: 0, y: 0, z: 4}
+  telemetryTags:
+  - region-1
+  - c
+  - hard

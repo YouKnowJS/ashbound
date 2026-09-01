@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0888064d035daad47898dcbdd0d5ab88, type: 3}
+  m_Name: mimic-reveal
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EncounterDefinition
+  id: mimic-reveal
+  displayName: False Cache
+  intent: A common mimic reveals itself at close range; the compact duel pays one
+    quality step above the false cache.
+  groups:
+  - id: mimic
+    enemy: {fileID: 11400000, guid: b03011c8267d40b4c97a948c986f46ed, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 2
+    reinforcement: 0
+  difficulty: 1
+  riskTier: 1
+  elementalPressure: 05000000
+  rewardTier: 1
+  requiredArenaSize: 0
+  preferredSpaceDiameter: 20
+  targetDurationSeconds: 75
+  allowsElite: 0
+  compositionNotes: Uses the shared assassin movement, telegraph, target selection,
+    damage, and death pipeline.

@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d84b9f6625988942876e69a80c10724, type: 3}
+  m_Name: collapsed-armory
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EventDefinition
+  id: collapsed-armory
+  displayName: Collapsed Armory
+  description: Bent racks hold one usable frame and many broken plates.
+  choices:
+  - id: recover-frame
+    displayName: Recover the frame
+    outcomeText: Choose advanced equipment.
+    outcomeInitiallyHidden: 0
+    outcome: 2
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  - id: salvage-plates
+    displayName: Salvage plates
+    outcomeText: Alloy and Ash enter the run wallet.
+    outcomeInitiallyHidden: 0
+    outcome: 0
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 7
+      emberShards: 0
+      ancientAlloy: 1
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 0}
+    equipmentQuality: 1
+  - id: move-rubble
+    displayName: Move the rubble
+    outcomeText: A guard wakes before a richer cache.
+    outcomeInitiallyHidden: 1
+    outcome: 4
+    cost:
+      ash: 0
+      emberShards: 0
+      ancientAlloy: 0
+      corruptionFragments: 0
+    reward:
+      ash: 13
+      emberShards: 2
+      ancientAlloy: 0
+      corruptionFragments: 0
+    currentHealthCost: 0
+    recoveryFraction: 0
+    escalationEncounter: {fileID: 11400000, guid: 8961f5ff91a709a4d89130d14a0d165a, type: 2}
+    equipmentQuality: 1
+  loreFragments:
+  - The armory inventory ends one line before the keeper's seal.

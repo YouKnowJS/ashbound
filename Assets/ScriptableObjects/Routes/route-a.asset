@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1d28b272af7ab347a3663c0d7e0bb76, type: 3}
+  m_Name: route-a
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionRouteGraphDefinition
+  id: route-a
+  displayName: The Split Procession
+  startNodeId: route-a-start
+  bossNodeId: route-a-boss
+  nodes:
+  - {fileID: 11400000, guid: 0a9106f7e5c036e4dbe884dd64ad120c, type: 2}
+  - {fileID: 11400000, guid: 4de23a256ff185e4a9d7100eefa64c86, type: 2}
+  - {fileID: 11400000, guid: 1923d1711b9aaf740bbdbf09279caf03, type: 2}
+  - {fileID: 11400000, guid: baade6c1d33b4044484fcef8d0b28175, type: 2}
+  - {fileID: 11400000, guid: f76f6de50c3e8124fa9ce1e1efd02718, type: 2}
+  - {fileID: 11400000, guid: a0490efec11df514f8864d22212bf9c4, type: 2}
+  - {fileID: 11400000, guid: 9bfc9e677c0ac1b4493222c6b19ac4b2, type: 2}
+  - {fileID: 11400000, guid: a0e006620addc204798a164bda5e0571, type: 2}
+  - {fileID: 11400000, guid: 519e29a086a60114f99c11a913355329, type: 2}
+  - {fileID: 11400000, guid: 5126d8fdeae20b0468a19e15cd8ef671, type: 2}
+  tieBehavior: 0
+  minimumCombatNodes: 3
+  maximumRestNodes: 1
+  maximumMerchantNodes: 1
+  maximumRepeatedType: 2

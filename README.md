@@ -1,6 +1,6 @@
 # Ashbound — Unity 6 prototype
 
-A modular, primitive-mesh action roguelike with a persistent expedition Hub, four-resource economy, seven-encounter run, eight weapon families, 45 relics, five elemental identities, weapon skills, armor sets, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
+A modular, primitive-mesh action roguelike with a persistent expedition Hub, four-resource economy, a seeded branching region, ten route-node identities, eight weapon families, 45 relics, five elemental identities, weapon skills, armor sets, a regional Boss, the Cinder Regent, and a boss-gated final encounter. Supports solo or 2–4 humans on the same computer. No online networking or AI companions.
 
 ## Play
 
@@ -25,12 +25,12 @@ The project uses the built-in renderer, Input System 1.19.0, and Test Framework 
 | Dash | Space | Right Shift | LB / X |
 | Active ability | E | Enter | Y |
 | Interact | F | Right Alt | A |
-| Choose relic | Click / 1, 2, 3 | Shared selection controls | A, B, Y for current player |
+| Route vote / reward choice | Click / 1, 2, 3 | Player tabs plus 1, 2, 3 | A, B, Y |
 | Pause | Esc | Shared | Keyboard Esc |
 | Build and fragments | Tab | Shared | Keyboard Tab |
 | Debug menu | F1 | Shared | Keyboard F1 |
 
-Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Defeat each wave, choose a relic, then approach the cyan northern exit and interact after each encounter. Pick up gold text fragments by interacting nearby.
+Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Complete a node, follow the playable transition to the cyan exit, interact, and choose among 2–3 visible routes. Rewards now follow node identity instead of stacking relic and equipment drafts after every combat.
 
 Local rewards are selected sequentially for each player. The mouse/number keys can choose for any player. Downed allies return with 45% health at the next reward; surviving players heal 25%. The party loses if everyone falls during combat. Gamepad disconnection pauses the whole run; reconnect the same device or return to the lobby. There is no join-in-progress.
 
@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), and [verification instructions](Docs/VERIFICATION.md).
+See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -66,6 +66,7 @@ F1 pauses simulation and exposes:
 - Display dominant BuildAnalyzer themes, force relic themes, spawn elemental test enemies, and toggle status/VFX feedback.
 - Add/zero persistent resources, set facility levels, unlock equipment, reset the profile, force preparations/reward rarity, and simulate expedition outcomes.
 - Open the Ecology page to spawn by role/element, force an Elite, load an encounter preset or combat-space size, and toggle enemy AI or telegraphs.
+- Open the Route page to regenerate/reveal the graph, add run currency, jump to any node identity, or force Treasure variants including Mimic and Cursed Chest.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -78,7 +79,7 @@ One local JSON file is written on completion, reset, or application exit, under:
 %USERPROFILE%/AppData/LocalLow/AshboundPrototype/Ashbound/Telemetry/run-<id>.json
 ```
 
-The authoritative directories are `Application.persistentDataPath/Profile` and `Application.persistentDataPath/Telemetry`. The Hub and result screen show paths and resource settlement. Records include combat/build data plus collected/retained/lost resources, Hub spending, facility levels, preparation, equipment acquisition/salvage, rerolls, progression depth, enemy role/element pressure, encounter composition/duration, arena category, party separation, bosses, outcome, and a debug flag. Nothing is uploaded.
+The authoritative directories are `Application.persistentDataPath/Profile` and `Application.persistentDataPath/Telemetry`. The Hub and result screen show paths and resource settlement. Schema-5 records include combat/build data, node identity, route offers/choice/votes, node resources and damage, Treasure/Mimic, Merchant, Rest, Event, Challenge, Boss reward, menu duration, settlement, outcome, and a debug flag. Nothing is uploaded.
 
 ### Build / test from PowerShell
 
@@ -101,6 +102,6 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.5 adds ten data-driven enemy roles, ten elemental variants, authored encounter compositions, future region-ecology pools, and five irregular Small/Medium/Large graybox spaces while preserving v0.4 progression and the final corruption flow. See [the v0.5 guide](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md).
+Ashbound v0.6 adds three seeded ten-node route variants, limited information, local voting, differentiated reward cadence, six Treasure variants, Merchant, Rest/Temper, Events, Challenges, and explicit regional/final-Boss gating while preserving v0.5 ecology and spaces. See [the v0.6 guide](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md).
 
-Next milestone: collect repeated human solo and 2–4 player ecology telemetry, tune role overlap and arena scale, then add measured navigation/avoidance and dynamic shared-camera improvements before expanding content.
+Next milestone: collect repeated human solo and 2–4 player route telemetry, tune only from playtest evidence, add controller-first menu navigation, and improve non-combat location presentation before expanding to more regions.
