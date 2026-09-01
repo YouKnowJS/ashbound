@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.7 validation additionally checks camera tuning and world-depth data, Medium/Large scale separation, node-to-space categories, smooth solo transition follow, multiplayer centroid framing, spread-driven zoom caps, regrouping, and the soft spread hook. It retains the complete v0.6 route and service coverage.
+The presentation-foundation validation additionally checks four distinct resource icons, Simplified Chinese terminology coverage, a six-station walkable Camp, fixed resource HUD state, resource feedback, NPC-specific panels, Camp camera focus, room-root handoff, and launch through the Expedition Table. It retains all v0.7 camera and earlier gameplay coverage.
 
 ### Edit Mode
 
@@ -26,6 +26,7 @@ v0.7 validation additionally checks camera tuning and world-depth data, Medium/L
 - Armor slot coverage, two/four-piece activation, and BuildAnalyzer input from relic, weapon, skill, armor, and set layers.
 - Profile save/load, legacy normalization, invalid/missing fallback, reset, nonnegative spending, prerequisites, maximum facility levels, and unlock persistence.
 - Failure/milestone/success retention, preparation selection, run-to-profile transfer, rarity salvage values, and merchant-price versus salvage invariants.
+- Four unique generated resource icons plus Simplified Chinese resources, uses, facilities, node terminology, and CJK localization paths.
 
 ### Play Mode
 
@@ -44,6 +45,7 @@ v0.7 validation additionally checks camera tuning and world-depth data, Medium/L
 - Seeded graph selection, route validation/visibility, local majority voting and host tie-break behavior.
 - Node-driven reward cadence, regional-Boss/final-Boss gating, Cursed Chest bounded health cost, Merchant purchasing, and Common Mimic combat/reward flow.
 - Schema-5 node, route-choice, vote, service, and menu-duration telemetry.
+- Camp startup, hidden combat room, six NPC/station mappings, avatar and fixed resource HUD, station panel opening, resource feedback, Camp camera focus, bilingual switching, and real expedition launch handoff.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -61,8 +63,26 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 10. Walk the transition paths and inspect all five spaces for square-box presentation, camera loss, blocked spawn points, and projectile/obstacle behavior.
 11. Open F1 → Camera. Test follow off/on, Solo and Party Centroid, forced min/max zoom, centroid/spread/clamp overlays, and both enlarged test spaces.
 12. In local co-op, separate beyond the shown soft limit. Confirm zoom stops at the configured maximum, edge indicators remain readable, and regrouping zooms back in without teleporting either player.
+13. Walk through the Camp with keyboard and a physical gamepad. Check all six prompts, NPC facing/gesture/highlight, camera damping/focus, fire/smoke/embers, warm/cool lighting, and station layout.
+14. For each facility, inspect available, unaffordable, prerequisite-locked, and complete states. Confirm icon costs match the persistent wallet and remain after restart.
+15. Switch between English and Simplified Chinese, restart the build, and inspect camp/settings/tooltips/route/HUD text for missing glyphs, wrapping, or clipping.
 
 ## Verification status
+
+### Presentation foundation — 2026-09-01
+
+Using Unity **6000.4.11f1** after implementing the walkable camp, NPC stations, icon resource HUD, localization, and procedural presentation:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **44 passed**, 0 failed, 0 skipped |
+| Play Mode | **20 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for eight seconds; dedicated player log had no managed/runtime exception signature |
+| Human bilingual, physical-controller, and visual-quality pass | Not completed |
+
+Automated checks prove composition, interaction boundaries, localization terminology, icon identity, authoritative progression use, and the Lobby-to-run handoff. They do not prove final art quality, physical controller ergonomics, subjective camera feel, or typography at every display scale.
 
 ### Camera and larger-world update — 2026-08-31
 

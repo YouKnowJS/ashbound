@@ -31,6 +31,7 @@ namespace Ashbound
         private IEnumerator Pattern(Combatant target)
         {
             busy = true; actor.Motor.SetMove(Vector3.zero);
+            if(actor.View)actor.View.PlayAttack(.5f);
             Vector3 direction = (target.transform.position - transform.position).normalized;
             float warning = definition.telegraphDuration * (SecondPhase ? .8f : 1);
             switch (pattern++ % 3)

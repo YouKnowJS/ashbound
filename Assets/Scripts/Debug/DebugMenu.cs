@@ -15,8 +15,8 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,500,32,"ASHBOUND v0.7 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(555,32,98,32),"Equipment"))page=0;if(U.Click(new Rect(658,32,92,32),"Meta"))page=1;if(U.Click(new Rect(755,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(852,32,92,32),"Route"))page=3;if(U.Click(new Rect(949,32,92,32),"Camera"))page=4;if(U.Click(new Rect(1060,32,150,32),"Close F1"))run.DebugOpen=false;
-            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}if(page==4){CameraPanel();GUI.matrix=old;return;}
+            U.Label(60,34,410,32,"ASHBOUND v0.8 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(470,32,112,32),"Equipment"))page=0;if(U.Click(new Rect(587,32,82,32),"Meta"))page=1;if(U.Click(new Rect(674,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(771,32,82,32),"Route"))page=3;if(U.Click(new Rect(858,32,92,32),"Camera"))page=4;if(U.Click(new Rect(955,32,82,32),"Camp"))page=5;if(U.Click(new Rect(1047,32,163,32),"Close F1"))run.DebugOpen=false;
+            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}if(page==4){CameraPanel();GUI.matrix=old;return;}if(page==5){CampPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
@@ -57,7 +57,7 @@ namespace Ashbound
         private void MetaPanel()
         {
             var meta=run.Progression;U.Label(60,88,1120,25,"PROFILE · "+meta.Profile.profileId+"   "+meta.Profile.currencies,U.CardTitle);U.Label(60,116,1120,22,"Save: "+meta.SavePath,U.Small);
-            ExpeditionResource[] resources=(ExpeditionResource[])System.Enum.GetValues(typeof(ExpeditionResource));for(int i=0;i<resources.Length;i++)if(U.Click(new Rect(60+i*185,155,175,32),"+100 "+resources[i])){meta.DebugAdd(resources[i],100);Mark();}
+            ExpeditionResource[] resources=(ExpeditionResource[])System.Enum.GetValues(typeof(ExpeditionResource));for(int i=0;i<resources.Length;i++){if(U.Click(new Rect(60+i*185,155,82,32),"+100")){meta.DebugAdd(resources[i],100);Mark();}if(U.Click(new Rect(146+i*185,155,86,32),"Set 500")){meta.DebugSet(resources[i],500);Mark();}}
             if(U.Click(new Rect(810,155,165,32),"Zero currencies")){meta.DebugZeroCurrencies();Mark();}if(U.Click(new Rect(985,155,195,32),"Unlock all gear")){meta.DebugUnlockAll();Mark();}
             U.Label(60,210,500,25,"FACILITY LEVELS",U.CardTitle);for(int i=0;i<run.Catalog.facilities.Length;i++)if(U.Click(new Rect(60+(i%3)*190,245+(i/3)*38,180,30),run.Catalog.facilities[i].displayName))metaFacility=i;metaFacility=Mathf.Clamp(metaFacility,0,run.Catalog.facilities.Length-1);var facility=run.Catalog.facilities[metaFacility];var progress=meta.Profile.Facility(facility.id);
             U.Label(650,210,530,60,facility.displayName+" · "+progress.level+" / "+facility.MaxLevel+"\n"+facility.description,U.Small);if(U.Click(new Rect(650,282,125,32),"Level -")){meta.DebugSetFacility(facility,progress.level-1);Mark();}if(U.Click(new Rect(785,282,125,32),"Level +")){meta.DebugSetFacility(facility,progress.level+1);Mark();}if(U.Click(new Rect(920,282,260,32),"Set max / unlock")){meta.DebugSetFacility(facility,facility.MaxLevel);Mark();}
@@ -110,6 +110,15 @@ namespace Ashbound
             U.Label(60,465,550,130,"Context: "+camera.Context+"\nFollow: "+camera.FollowMode+" · Zoom: "+camera.ZoomOverride+"\nFocus: "+camera.FocusPoint.ToString("F1")+"\nCentroid: "+camera.PartyCentroid.ToString("F1")+"\nSpread: "+camera.PartySpread.ToString("0.0")+" / "+soft.ToString("0.0")+(camera.PartyBeyondSoftLimit?"  REGROUP HOOK ACTIVE":""),U.Small);
             U.Label(650,465,530,130,"Zoom: "+camera.CurrentZoom.ToString("0.0")+"  ["+camera.MinimumZoom.ToString("0.0")+"–"+camera.MaximumZoom.ToString("0.0")+"]\nClamp: "+bounds.xMin.ToString("0.0")+","+bounds.yMin.ToString("0.0")+" → "+bounds.xMax.ToString("0.0")+","+bounds.yMax.ToString("0.0")+"\nEdge indicators: "+camera.OffscreenIndicatorCount+"\nNo hard party teleport is used; soft-spread exposes a regroup event hook.",U.Small);
             U.Label(60,625,1120,45,result+" · Follow, centroid, spread, zoom limits, clamp bounds, Medium and Large spaces can be tested here.",U.Small);
+        }
+        private void CampPanel()
+        {
+            var camp=CampHub.Instance;U.Label(60,86,1120,25,"CAMP PRESENTATION & INTERACTION",U.CardTitle);if(!camp){U.Label(60,125,900,40,"Camp runtime is unavailable in this scene.",U.Small);return;}
+            U.Label(60,125,1120,44,"Active: "+camp.Active+" · Stations: "+camp.Stations.Count+" · Resource HUD: "+camp.ResourceHudVisible+" · Language: "+LocalizationService.Current,U.Small);
+            U.Label(60,180,1120,24,"TELEPORT / OPEN NPC",U.CardTitle);HubFacilityKind[] kinds=(HubFacilityKind[])System.Enum.GetValues(typeof(HubFacilityKind));for(int i=0;i<kinds.Length;i++){var kind=kinds[i];if(U.Click(new Rect(60+(i%3)*370,215+(i/3)*42,355,34),kind.ToString())){camp.TeleportTo(kind);camp.Open(kind);result="Opened "+kind;Mark();}}
+            U.Label(60,325,1120,24,"PRESENTATION CHECKS",U.CardTitle);if(U.Click(new Rect(60,365,210,36),"Add resource feedback")){camp.TestResourceGain();result="Resource gain feedback fired";Mark();}if(U.Click(new Rect(285,365,190,36),"Toggle resource HUD")){camp.ToggleResourceHud();Mark();}if(U.Click(new Rect(490,365,190,36),"Switch EN / 中文")){camp.SwitchLanguage();Mark();}if(U.Click(new Rect(695,365,200,36),"NPC interaction")){camp.TestNpcInteraction();Mark();}if(U.Click(new Rect(910,365,200,36),"Camera focus")){camp.TestCamera();Mark();}
+            U.Label(60,435,1120,24,"SET PERSISTENT RESOURCES",U.CardTitle);ExpeditionResource[] resources=(ExpeditionResource[])System.Enum.GetValues(typeof(ExpeditionResource));for(int i=0;i<resources.Length;i++)if(U.Click(new Rect(60+i*275,470,260,36),"Set 500 · "+resources[i])){run.Progression.DebugSet(resources[i],500);Mark();}
+            U.Label(60,545,1120,75,result+"\nCamp tools use the authoritative MetaProgressionService and mark active expedition telemetry when one exists.",U.Small);
         }
     }
 }

@@ -55,6 +55,22 @@ namespace Ashbound.Tests
         }
 
         [UnityTest]
+        public IEnumerator V08CampCreatesWalkableHubNpcStationsResourceHudAndLaunchGate()
+        {
+            var camp=CampHub.Instance;Assert.That(camp,Is.Not.Null);Assert.That(camp.Active,Is.True);Assert.That(run.Rooms.gameObject.activeSelf,Is.False);Assert.That(camp.Avatar,Is.Not.Null);Assert.That(camp.Stations.Count,Is.EqualTo(6));Assert.That(camp.Stations.Select(x=>x.Kind),Is.EquivalentTo(System.Enum.GetValues(typeof(HubFacilityKind))));Assert.That(camp.ResourceHudVisible,Is.True);
+            camp.TeleportTo(HubFacilityKind.Forge);camp.Open(HubFacilityKind.Forge);yield return null;Assert.That(camp.OpenFacility,Is.Not.Null);Assert.That(camp.OpenFacility.kind,Is.EqualTo(HubFacilityKind.Forge));
+            int before=camp.FeedbackCount;run.Progression.DebugAdd(ExpeditionResource.Ash,8);yield return null;Assert.That(camp.FeedbackCount,Is.EqualTo(before+1));
+            camp.ClosePanel();camp.Open(HubFacilityKind.ExpeditionTable);Assert.That(camp.LaunchExpedition(),Is.True);Assert.That(run.Rooms.gameObject.activeSelf,Is.True);Assert.That(camp.Active,Is.False);yield return State(RunState.Combat);
+        }
+
+        [UnityTest]
+        public IEnumerator V08CampCameraFocusAndLanguageSelectionRemainAvailable()
+        {
+            var camp=CampHub.Instance;var camera=ArenaCamera.Instance;Assert.That(camera.Context,Is.EqualTo(CameraContext.Camp));camp.TeleportTo(HubFacilityKind.Archive);camp.Open(HubFacilityKind.Archive);yield return new WaitForSeconds(.2f);Assert.That(camera.FocusPoint.z,Is.LessThan(0));
+            var previous=LocalizationService.Current;LocalizationService.SetLanguage(GameLanguage.SimplifiedChinese);Assert.That(LocalizationService.ResourceName(ExpeditionResource.Ash),Is.EqualTo("灰烬"));LocalizationService.SetLanguage(GameLanguage.English);Assert.That(LocalizationService.ResourceName(ExpeditionResource.Ash),Is.EqualTo("Ash"));LocalizationService.SetLanguage(previous);
+        }
+
+        [UnityTest]
         public IEnumerator FullSoloRunTraversesBranchingRegionRegionalBossFinalBossAndReflection()
         {
             Assert.That(run.StartRun(123), Is.True);

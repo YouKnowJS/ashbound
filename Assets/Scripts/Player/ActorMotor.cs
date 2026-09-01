@@ -22,6 +22,7 @@ namespace Ashbound
         };
         public Vector3 Facing { get; private set; } = Vector3.forward;
         public bool IsDashing => Time.time < dashUntil;
+        public bool IsMoving => IsDashing || desired.sqrMagnitude>.02f || impulse.sqrMagnitude>.02f;
         public bool IsStunned => Time.time < stunUntil || actor.Statuses.Stunned;
         public float DashCooldown => Mathf.Max(0, dashReadyAt - Time.time);
         public float LastDashTime { get; private set; } = -99;

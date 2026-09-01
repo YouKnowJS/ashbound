@@ -16,6 +16,7 @@ namespace Ashbound
             * (1 - Mathf.Clamp(actor.Equipment.PassivePower(ArmorPassiveKind.Cooldown), 0, .75f)));
         public int Combo => combo;
         public event Action BasicAttack;
+        public event Action AbilityUsed;
         public void Configure(Combatant owner) { actor = owner; }
         public void ResetCooldowns() { nextAttack = nextAbility = 0; combo = focusedHits = 0; focusedTarget = null; }
         public void ReduceCooldown(float seconds) { nextAbility -= seconds; }
@@ -105,7 +106,7 @@ namespace Ashbound
                 actor.Health.Shield(20); CombatVfx.Pulse(transform.position, 3.5f, Palette.Player);
                 actor.Combat.DamageArea(actor, transform.position, 3.5f, 36, DamageKind.Ability, .55f, 7);
             }
-            return true;
+            AbilityUsed?.Invoke();return true;
         }
         private bool CanAct() => actor.Alive && actor.Combat.Active && !actor.Motor.IsStunned;
     }

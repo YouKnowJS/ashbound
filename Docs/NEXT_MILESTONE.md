@@ -1,12 +1,11 @@
-# Next milestone: v0.7 route validation and presentation
+# Next milestone: camp usability and one authored presentation slice
 
-1. Human-playtest the complete v0.6 region across solo, two-player shared keyboard, and 3–4 physical gamepads. Compare at least three seeds and record route decisions, health entering nodes, wallet spend, skipped rewards, and menu time.
-2. Tune only after evidence: route reveal, Normal/Hard/Elite resource spacing, Merchant prices, Treasure weights and health costs, Greedy decisions, Challenge timers, Rest recovery, and regional Boss reward.
-3. Add controller-first focus/navigation for Route, Treasure, Merchant, Rest, Event, and equipment screens. Preserve locked device ownership and the all-player voting requirement.
-4. Author a small set of non-combat camp, shrine, vault-pocket, and merchant-space presentation variants while keeping the v0.5 irregular-space and transition-path model.
-5. Improve Challenge runtime rules for survival, no-healing, priority targets, and defend-point goals; retain nonfatal failure unless explicitly authored otherwise.
-6. Use schema-5 telemetry to compare time in combat, route selection, rewards, and shops. Keep debug and normal runs separate.
-7. Do not begin all five regions until one-region pacing and economy are understandable in repeated human sessions.
+1. Human-playtest the camp in English and Simplified Chinese with keyboard and physical gamepads; record collision, prompt, camera, wrapping, and upgrade-state findings.
+2. Add controller-first focus/navigation for Camp, Route, Treasure, Merchant, Rest, Event, and equipment panels while preserving locked device ownership.
+3. Replace one complete camp slice with authored modular environment art, resource sprites, and one rigged NPC/player set through `CampHub`, `ResourceIconLibrary`, and `ActorView` seams.
+4. Move longer translated content into localized data assets and add screenshot/layout checks for common aspect ratios.
+5. Tune route economy only after the existing telemetry and human sessions provide evidence.
+6. Do not expand to all five regions or attempt a broad final-art pass until one camp and one-region loop are readable and stable.
 
 ## Initial tuning knobs
 

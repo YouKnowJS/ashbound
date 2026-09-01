@@ -87,6 +87,7 @@ namespace Ashbound
         public void Save()=>store.Save(Profile);
         public void ResetProfile(){Profile=store.Reset();RunResources=new ResourceWallet();RunOpen=false;LastSettlement=null;EnsureInitialUnlocks();store.Save(Profile);ProfileChanged?.Invoke();}
         public void DebugAdd(ExpeditionResource resource,int amount){Profile.currencies.Add(resource,amount);store.Save(Profile);ProfileChanged?.Invoke();}
+        public void DebugSet(ExpeditionResource resource,int amount){Profile.currencies.Set(resource,amount);store.Save(Profile);ProfileChanged?.Invoke();}
         public void DebugZeroCurrencies(){Profile.currencies=new ResourceWallet();store.Save(Profile);ProfileChanged?.Invoke();}
         public void DebugSetFacility(HubFacilityDefinition definition,int level){var p=Profile.Facility(definition.id);p.unlocked=true;p.level=Mathf.Clamp(level,0,definition.MaxLevel);for(int i=0;i<p.level;i++)ApplyUnlocks(definition.tiers[i]);Profile.Normalize();store.Save(Profile);FacilityLevelChanged?.Invoke(definition,p.level);ProfileChanged?.Invoke();}
         public void DebugUnlockAll()

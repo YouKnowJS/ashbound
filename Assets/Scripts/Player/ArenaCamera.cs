@@ -7,7 +7,7 @@ namespace Ashbound
 {
     public enum CameraFollowMode { Automatic, Solo, PartyCentroid }
     public enum CameraZoomOverride { Automatic, Minimum, Maximum }
-    public enum CameraContext { StandardCombat, LargeCombat, Elite, Boss, Transition, Service, FinalPvP }
+    public enum CameraContext { Camp, StandardCombat, LargeCombat, Elite, Boss, Transition, Service, FinalPvP }
 
     [RequireComponent(typeof(Camera))]
     public sealed class ArenaCamera : MonoBehaviour
@@ -20,6 +20,9 @@ namespace Ashbound
         private Vector3 focusPoint, focusVelocity, lastRawCenter;
         private float zoomVelocity, shakeTime, shakeStrength;
         private bool centerInitialized, exceededLastFrame;
+        private Transform lobbyTarget;
+        private bool lobbyFocusActive;
+        private Vector3 lobbyFocus;
 
         public static ArenaCamera Instance => instance;
         public bool FollowEnabled { get; set; } = true;
@@ -39,6 +42,9 @@ namespace Ashbound
         public float MaximumZoom => space ? Mathf.Max(MinimumZoom, space.cameraMaximumOrthographicSize) : 18;
         public Vector3 FocusPoint => focusPoint;
         public event Action<float> SoftSpreadLimitExceeded;
+
+        public void SetLobbyTarget(Transform target){lobbyTarget=target;centerInitialized=false;}
+        public void SetLobbyFocus(Vector3? target){lobbyFocusActive=target.HasValue;if(target.HasValue)lobbyFocus=target.Value;centerInitialized=false;}
 
         private void Awake()
         {
@@ -136,6 +142,10 @@ namespace Ashbound
 
         private Vector3 DetermineFramingCenter(out float framingSpread)
         {
+            if(run!=null&&run.Flow.State==RunState.Lobby&&lobbyTarget)
+            {
+                PartyCentroid=Ground(lobbyTarget.position);PartySpread=0;framingSpread=0;return lobbyFocusActive?Vector3.Lerp(PartyCentroid,Ground(lobbyFocus),.42f):PartyCentroid;
+            }
             var living = run == null ? new List<Combatant>() : run.Players.Where(x => x && x.Alive).ToList();
             if (living.Count == 0 && run != null) living = run.Players.Where(x => x).ToList();
             PartyCentroid = living.Count == 0 ? Vector3.zero : living.Aggregate(Vector3.zero, (sum, actor) => sum + actor.transform.position) / living.Count;
@@ -160,6 +170,7 @@ namespace Ashbound
 
         private float DesiredZoom(float framingSpread)
         {
+            if(Context==CameraContext.Camp)return 12.2f;
             float minimum = MinimumZoom;
             float maximum = MaximumZoom;
             float context = Context == CameraContext.Service ? -1.25f : Context == CameraContext.Transition ? .5f :
@@ -174,6 +185,7 @@ namespace Ashbound
         private void UpdateContext()
         {
             if (run == null || run.Flow == null) { Context = CameraContext.StandardCombat; return; }
+            if (run.Flow.State == RunState.Lobby) { Context = CameraContext.Camp; return; }
             if (run.Flow.State == RunState.FinalPvP) { Context = CameraContext.FinalPvP; return; }
             if (run.Flow.State == RunState.BossFight || run.CurrentNode?.Definition.nodeType == ExpeditionNodeType.Boss) { Context = CameraContext.Boss; return; }
             var type = run.CurrentNode?.Definition.nodeType;
@@ -195,6 +207,7 @@ namespace Ashbound
 
         private void UpdateClampBounds()
         {
+            if(Context==CameraContext.Camp){ClampBounds=Rect.MinMaxRect(-15,-12.5f,15,13);return;}
             Vector2 bounds = space ? space.ScaledTechnicalBounds : new Vector2(30, 24);
             float padding = space ? space.cameraClampPadding : 1.5f;
             float halfX = Mathf.Max(1, bounds.x * .5f - padding);
@@ -204,7 +217,7 @@ namespace Ashbound
 
         private void PlaceCamera(Vector3 shake)
         {
-            float height = space && space.category == CombatSpaceCategory.Large ? 31 : space && space.category == CombatSpaceCategory.Small ? 23 : 27;
+            float height = Context==CameraContext.Camp?23:space && space.category == CombatSpaceCategory.Large ? 31 : space && space.category == CombatSpaceCategory.Small ? 23 : 27;
             transform.position = focusPoint + new Vector3(0, height, -height * .8f) + shake;
             transform.rotation = Quaternion.Euler(53, 0, 0);
         }

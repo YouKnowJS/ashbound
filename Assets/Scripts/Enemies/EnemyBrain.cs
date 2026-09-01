@@ -78,6 +78,7 @@ namespace Ashbound
         private IEnumerator AttackRoutine(Combatant attackTarget)
         {
             busy = true; Actor.Motor.SetMove(Vector3.zero);
+            if(Actor.View)Actor.View.PlayAttack(.35f);
             if(Definition.attackVfxPrefab) Destroy(Instantiate(Definition.attackVfxPrefab,transform.position,transform.rotation),3);
             if(Definition.attackAudio) AudioSource.PlayClipAtPoint(Definition.attackAudio,transform.position);
             yield return behavior.Attack(this, attackTarget);

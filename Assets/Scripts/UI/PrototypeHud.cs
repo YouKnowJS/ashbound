@@ -25,7 +25,6 @@ namespace Ashbound
             if (run.Flow.State == RunState.Lobby)
             {
                 journalOpen = false;
-                if (Gamepad.all.Any(p => p.startButton.wasPressedThisFrame)) run.StartRun();
                 return;
             }
             if(run.RouteSelectionOpen&&!run.DebugOpen&&!run.ManualPaused)
@@ -67,7 +66,7 @@ namespace Ashbound
             GUI.depth = 0; Matrix4x4 old = U.Scale();
             try
             {
-                if (run.Flow.State == RunState.Lobby) { Lobby(); return; }
+                if (run.Flow.State == RunState.Lobby) return;
                 WorldLabels(); Hud();
                 if(run.RouteSelectionOpen)RouteMap();
                 else if(run.Treasure!=null&&!run.Treasure.Completed)Treasure();
@@ -130,16 +129,16 @@ namespace Ashbound
         {
             U.Panel(new Rect(18, 16, 350, 58));
             U.Label(32, 23, 320, 24, run.LocationName, U.CardTitle);
-            string stage = run.ChallengeActive?"CHALLENGE · "+run.ChallengeRemaining.ToString("0.0")+"s · "+run.Rooms.RemainingEnemies+" remaining":run.Flow.State == RunState.Combat ? run.Rooms.RemainingEnemies + " hostiles remaining" :
-                run.Flow.State == RunState.FinalPvP ? "THE INHERITANCE" : run.Flow.State == RunState.Reward ? "Choose a relic" : "The Cinder Vault";
+            string stage = run.ChallengeActive?LocalizationService.Text("hud.challenge","CHALLENGE")+" · "+run.ChallengeRemaining.ToString("0.0")+"s · "+run.Rooms.RemainingEnemies+" "+LocalizationService.Text("hud.remaining","remaining"):run.Flow.State == RunState.Combat ? run.Rooms.RemainingEnemies + " "+LocalizationService.Text("hud.hostiles","hostiles remaining") :
+                run.Flow.State == RunState.FinalPvP ? LocalizationService.Text("hud.inheritance","THE INHERITANCE") : run.Flow.State == RunState.Reward ? LocalizationService.Text("hud.chooseRelic","Choose a relic") : "The Cinder Vault";
             U.Label(32, 48, 320, 20, stage, U.Small);
             U.Panel(new Rect(1030, 16, 232, 58));
-            U.Label(1043, 25, 210, 32, TimeSpan.FromSeconds(run.Telemetry.Record?.runDuration ?? 0).ToString(@"mm\:ss") + "  ·  Esc pause", U.Text);
-            U.Label(385,75,520,23,"EXPEDITION MATERIALS · "+run.Progression.RunResources,U.Small);
+            U.Label(1043, 25, 210, 32, TimeSpan.FromSeconds(run.Telemetry.Record?.runDuration ?? 0).ToString(@"mm\:ss") + "  ·  "+LocalizationService.Text("hud.pause","Esc pause"), U.Text);
+            U.Label(385,75,520,23,LocalizationService.Text("hud.materials","EXPEDITION MATERIALS")+" · "+LocalizationService.Wallet(run.Progression.RunResources),U.Small);
             if (run.Rooms.Boss && run.Rooms.Boss.Alive)
             {
                 var boss = run.Rooms.Boss;
-                U.Label(410, 16, 570, 27, boss.DisplayName + (boss.GetComponent<CinderRegentController>().SecondPhase ? " · KINDLED" : ""), U.Center);
+                U.Label(410, 16, 570, 27, boss.DisplayName + (boss.GetComponent<CinderRegentController>().SecondPhase ? " · "+LocalizationService.Text("state.kindled","KINDLED") : ""), U.Center);
                 U.Bar(new Rect(410, 48, 570, 12), boss.Health.CurrentHealth / boss.Health.MaxHealth, Palette.Danger);
             }
             if (run.Flow.State == RunState.Exploration || run.Flow.State == RunState.FinalPvP)
@@ -149,28 +148,28 @@ namespace Ashbound
             {
                 var player = run.Players[i]; float x = 20 + i * 310;
                 U.Panel(new Rect(x, 594, 300, 104));
-                U.Label(x + 12, 602, 278, 28, player.Id + (player.Corruption ? " · ASHBOUND" : " · WANDERER"), U.CardTitle);
+                U.Label(x + 12, 602, 278, 28, player.Id + " · "+(player.Corruption ? LocalizationService.Text("state.ashbound","ASHBOUND") : LocalizationService.Text("state.wanderer","WANDERER")), U.CardTitle);
                 Color tint = player.Corruption ? Palette.Corrupted : Palette.Party[i];
                 U.Bar(new Rect(x + 12, 633, 276, 10), player.Health.CurrentHealth / player.Health.MaxHealth, tint);
-                U.Label(x + 12, 649, 279, 23, player.Alive ? Math.Ceiling(player.Health.CurrentHealth) + " / " + Math.Ceiling(player.Health.MaxHealth) + " HP" + (player.Health.Pool.Shield > 0 ? "  +" + Math.Ceiling(player.Health.Pool.Shield) + " shield" : "") : "Down · returns at the next reward", U.Small);
-                U.Label(x + 12, 674, 278, 22, player.Weapon.rarity+" "+player.Weapon.family+" · "+player.Weapon.PrimaryElement+" · Relics "+player.Inventory.Items.Count, U.Small);
+                U.Label(x + 12, 649, 279, 23, player.Alive ? Math.Ceiling(player.Health.CurrentHealth) + " / " + Math.Ceiling(player.Health.MaxHealth) + " HP" + (player.Health.Pool.Shield > 0 ? "  +" + Math.Ceiling(player.Health.Pool.Shield) + " "+LocalizationService.Text("hud.shield","shield") : "") : LocalizationService.Text("hud.down","Down · returns at the next reward"), U.Small);
+                U.Label(x + 12, 674, 278, 22, LocalizationService.Rarity(player.Weapon.rarity)+" "+LocalizationService.Weapon(player.Weapon.family)+" · "+LocalizationService.Element(player.Weapon.PrimaryElement)+" · "+LocalizationService.Text("hud.relics","Relics")+" "+player.Inventory.Items.Count, U.Small);
             }
-            if (count == 1) U.Label(345, 639, 720, 44, "LMB strike   ·   Space dash   ·   E ward / burst   ·   F interact\nTab build & fragments   ·   F1 developer tools", U.Small);
+            if (count == 1) U.Label(345, 639, 720, 44, LocalizationService.Text("hud.controls","LMB strike · Space dash · E ward / burst · F interact\nTab build & fragments · F1 developer tools"), U.Small);
         }
         private static string Ready(float seconds) => seconds <= 0 ? "ready" : seconds.ToString("0.0") + "s";
 
         private void RouteMap()
         {
-            var route=run.Route;U.Box(new Rect(0,0,1280,720),new Color(.018f,.025f,.04f,.92f));U.Label(75,40,1130,44,route.Region.displayName+" · ROUTE VOTE",U.Title);U.Label(75,91,1130,44,route.Graph.displayName+" · "+route.Graph.tieBehavior+" · "+run.GraphValidation,U.Small);
-            U.Label(75,139,1130,25,"CURRENT · "+route.Current.Definition.displayName+"  /  "+route.Current.Definition.nodeType,U.CardTitle);
+            var route=run.Route;U.Box(new Rect(0,0,1280,720),new Color(.018f,.025f,.04f,.92f));U.Label(75,40,1130,44,route.Region.displayName+" · "+LocalizationService.Text("route.vote","ROUTE VOTE"),U.Title);U.Label(75,91,1130,44,route.Graph.displayName+" · "+route.Graph.tieBehavior+" · "+run.GraphValidation,U.Small);
+            U.Label(75,139,1130,25,LocalizationService.Text("route.current","CURRENT")+" · "+route.Current.Definition.displayName+"  /  "+LocalizationService.Node(route.Current.Definition.nodeType),U.CardTitle);
             for(int i=0;i<run.Players.Count;i++){bool voted=route.Votes.ContainsKey(run.Players[i].Id);if(U.Click(new Rect(75+i*145,178,135,31),run.Players[i].Id+(voted?" ✓":"")+(i==routeVotePlayer?" *":"")))routeVotePlayer=i;}
-            U.Label(75,218,1130,25,"Choose for "+run.Players[Mathf.Clamp(routeVotePlayer,0,run.Players.Count-1)].Id+" · keys 1/2/3 or that player's gamepad A/B/Y",U.Small);
+            U.Label(75,218,1130,25,run.Players[Mathf.Clamp(routeVotePlayer,0,run.Players.Count-1)].Id+" · "+LocalizationService.Text("route.choose","keys 1/2/3 or that player's gamepad A/B/Y"),U.Small);
             for(int i=0;i<route.Available.Count;i++)
             {
-                var node=route.Available[i];float x=75+i*390;U.Panel(new Rect(x,255,365,215));U.Label(x+18,274,329,24,(i+1)+" · "+node.Definition.nodeType.ToString().ToUpperInvariant(),U.Small);U.Label(x+18,311,329,35,node.Definition.displayName,U.CardTitle);U.Label(x+18,353,329,48,node.Definition.risk+" risk · "+node.Definition.rewardCategory,U.Small);U.Label(x+18,404,329,26,route.Votes.Count(v=>v.Value==node.Definition.id)+" vote(s)",U.Small);
-                if(U.Click(new Rect(x+18,435,329,28),"Vote for this route")){run.CastRouteVote(run.Players[Mathf.Clamp(routeVotePlayer,0,run.Players.Count-1)].Id,node.Definition.id);routeVotePlayer=Mathf.Min(run.Players.Count-1,routeVotePlayer+1);}
+                var node=route.Available[i];float x=75+i*390;U.Panel(new Rect(x,255,365,215));U.Label(x+18,274,329,24,(i+1)+" · "+LocalizationService.Node(node.Definition.nodeType),U.Small);U.Label(x+18,311,329,35,node.Definition.displayName,U.CardTitle);U.Label(x+18,353,329,48,node.Definition.risk+" "+LocalizationService.Text("route.risk","risk")+" · "+node.Definition.rewardCategory,U.Small);U.Label(x+18,404,329,26,route.Votes.Count(v=>v.Value==node.Definition.id)+" "+LocalizationService.Text("route.votes","vote(s)"),U.Small);
+                if(U.Click(new Rect(x+18,435,329,28),LocalizationService.Text("route.button","Vote for this route"))){run.CastRouteVote(run.Players[Mathf.Clamp(routeVotePlayer,0,run.Players.Count-1)].Id,node.Definition.id);routeVotePlayer=Mathf.Min(run.Players.Count-1,routeVotePlayer+1);}
             }
-            U.Label(75,500,1130,26,"ROUTE INTELLIGENCE · visible one layer beyond the current decision",U.CardTitle);int shown=0;foreach(var node in route.Nodes.OrderBy(x=>x.Definition.id)){var visibility=route.Visibility(node);if(visibility==RouteVisibilityState.Hidden)continue;string text=visibility==RouteVisibilityState.Obscured?"? · "+node.Definition.risk+" risk":(node.Completed?"✓ ":node==route.Current?"◆ ":"○ ")+node.Definition.nodeType+" · "+node.Definition.displayName;U.Box(new Rect(75+(shown%4)*285,540+(shown/4)*40,270,32),node.Completed?new Color(.12f,.26f,.2f):new Color(.11f,.14f,.2f));U.Label(84+(shown%4)*285,546+(shown/4)*40,250,21,text,U.Small);shown++;}
+            U.Label(75,500,1130,26,LocalizationService.Text("route.intelligence","ROUTE INTELLIGENCE · visible one layer beyond the current decision"),U.CardTitle);int shown=0;foreach(var node in route.Nodes.OrderBy(x=>x.Definition.id)){var visibility=route.Visibility(node);if(visibility==RouteVisibilityState.Hidden)continue;string text=visibility==RouteVisibilityState.Obscured?"? · "+node.Definition.risk+" "+LocalizationService.Text("route.risk","risk"):(node.Completed?"✓ ":node==route.Current?"◆ ":"○ ")+LocalizationService.Node(node.Definition.nodeType)+" · "+node.Definition.displayName;U.Box(new Rect(75+(shown%4)*285,540+(shown/4)*40,270,32),node.Completed?new Color(.12f,.26f,.2f):new Color(.11f,.14f,.2f));U.Label(84+(shown%4)*285,546+(shown/4)*40,250,21,text,U.Small);shown++;}
         }
         private void Treasure()
         {

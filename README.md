@@ -11,7 +11,7 @@ A modular, primitive-mesh action roguelike with a persistent expedition Hub, fou
 1. In Unity Hub, **Add → Add project from disk**, and select this repository folder.
 2. Open with **Unity 6000.4.11f1** (the installed/tested editor version). An active Unity license is required.
 3. Open `Assets/Scenes/MainMenu.unity` and press **Play**.
-4. Use the Hub to spend resources and choose one preparation, then launch solo or add a second keyboard player and/or connected gamepads.
+4. Walk around the expedition camp, interact with NPCs using **F / gamepad A**, and launch from the Expedition Table after choosing a preparation and local roster.
 
 The project uses the built-in renderer, Input System 1.19.0, and Test Framework 1.6.0. Unity restores these pinned packages on import. No Asset Store assets, API keys, services, or paid plugins are required.
 
@@ -38,17 +38,17 @@ Local rewards are selected sequentially for each player. The mouse/number keys c
 
 | Scene | Entry behavior |
 |---|---|
-| `Assets/Scenes/MainMenu.unity` | Local lobby and normal run entry |
+| `Assets/Scenes/MainMenu.unity` | Walkable expedition camp, local lobby, and normal run entry |
 | `Assets/Scenes/PrototypeRun.unity` | Starts solo immediately |
 | `Assets/Scenes/TestArena.unity` | Seed 42, final boss, debug menu open |
 
 Each scene contains **one `PrototypeBootstrap`** with the catalog assigned. It creates the camera, light, room geometry, party, UI, and system components. There is no manual prefab wiring. If generated assets are missing, use **Ashbound → Create prototype content**. That command creates missing assets without replacing existing tuning. It also sets input to Both, the build scene list, window defaults, and the Mono Windows backend.
 
-The runtime factories intentionally generate primitive actors and rooms. Prefab authoring and animation are deferred; `EntityFactory`, `RoomView`, and `ActorView` are the replacement points. The actual item, weapon, boss, room, lore, and corruption data are saved ScriptableObject assets under `Assets/ScriptableObjects`.
+The runtime factories intentionally generate primitive actors, camp presentation, and rooms. Rigged prefab authoring is deferred; `CampHub`, `EntityFactory`, `RoomView`, and `ActorView` are the replacement points. Procedural motion now covers the required presentation states. The actual item, weapon, boss, room, lore, and corruption data are saved ScriptableObject assets under `Assets/ScriptableObjects`.
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
+See [presentation foundation](Docs/PRESENTATION_FOUNDATION.md), [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -68,6 +68,7 @@ F1 pauses simulation and exposes:
 - Open the Ecology page to spawn by role/element, force an Elite, load an encounter preset or combat-space size, and toggle enemy AI or telegraphs.
 - Open the Route page to regenerate/reveal the graph, add run currency, jump to any node identity, or force Treasure variants including Mimic and Cursed Chest.
 - Open the Camera page to switch follow modes, force zoom limits, display centroid/spread/clamp diagnostics, and load enlarged Medium or Large spaces.
+- Open the Camp page to set persistent resources, teleport/open each NPC, switch EN/ZH, toggle the resource HUD, and exercise gain, interaction, and camera feedback.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -96,13 +97,13 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - This is a compact gray-box loop, not the full 10–15 minute-per-map game. Expect a short, untuned run.
 - Multiplayer is local and shares one smooth centroid camera with bounded spread zoom and edge indicators. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
 - Enemies steer directly toward targets; there is no navigation mesh or sophisticated avoidance.
-- UI uses immediate-mode GUI. No animation, soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
+- UI uses immediate-mode GUI. Procedural placeholder animation is present, but there is no final rigged animation, bundled soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
 - Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the equipment architecture. Loot acquisition, equipment selection UI, inventory persistence, final models, and save/load of active runs are deferred.
 - `UnlockData` is a data structure only, with no permanent stat bonuses or unlock-grind implementation.
 - Damage, mutation, item grants, and state changes run on one local authority. The architecture exposes seams for networking; it is not network-ready synchronization code.
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.7 adds smooth solo and multiplayer party framing, spread-driven bounded zoom, edge indicators, context-aware Boss/final-PvP framing, enlarged combat and traversal spaces, and non-playable world depth. See [the v0.7 guide](Docs/V0.7_CAMERA_WORLD_SCALE.md).
+The presentation-foundation milestone adds a walkable camp, NPC-owned facilities, icon resource HUD, EN/zh-CN localization, procedural animation, lighting, particles, and audio hooks without replacing the authoritative profile. See [the milestone guide](Docs/PRESENTATION_FOUNDATION.md).
 
-Next milestone: collect repeated human solo and 2–4 player route telemetry, tune only from playtest evidence, add controller-first menu navigation, and improve non-combat location presentation before expanding to more regions.
+Next milestone: run physical-controller and bilingual camp playtests, add controller-first panel focus, then replace one complete camp slice with authored modular art and rigged characters through the existing seams.

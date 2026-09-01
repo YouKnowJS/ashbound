@@ -30,7 +30,8 @@ namespace Ashbound
             rooms.transform.SetParent(transform);
             Run = gameObject.AddComponent<RunManager>(); Run.Configure(catalog, combat, rooms, factory, camera);
             arenaCamera.Configure(Run, rooms);
-            var audio = gameObject.AddComponent<AudioDirector>(); Run.StateChanged += audio.OnState;
+            var audio = gameObject.AddComponent<AudioDirector>(); Run.StateChanged += audio.OnState; audio.OnState(Run.Flow.State);
+            var camp = gameObject.AddComponent<CampHub>(); camp.Configure(Run, rooms, camera, arenaCamera, audio);
             gameObject.AddComponent<PrototypeHud>().Configure(Run, camera);
             gameObject.AddComponent<DebugMenu>().Configure(Run);
         }
@@ -40,6 +41,6 @@ namespace Ashbound
             if (mode == PrototypeSceneMode.Run) Run.StartRun();
             if (mode == PrototypeSceneMode.TestArena) { Run.StartRun(42); Run.DebugSkipToBoss(); Run.DebugOpen = true; }
         }
-        private void OnDestroy() { PrimitiveFactory.DisposeMaterials(); }
+        private void OnDestroy() { ResourceIconLibrary.Dispose(); PrimitiveFactory.DisposeMaterials(); }
     }
 }

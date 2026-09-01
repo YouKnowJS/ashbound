@@ -35,6 +35,8 @@ flowchart TD
     Events --> Effects[UpgradeEffectController / CorruptionAbilities]
     Events --> Telemetry[MatchTelemetry]
     R --> Audio[AudioDirector events]
+    R --> Camp[CampHub + LocalizationService]
+    Camp --> Meta[MetaProgressionService]
     R --> UI[PrototypeHud / DebugMenu]
 ```
 
@@ -127,16 +129,18 @@ Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, We
 | `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, seals, and spawning |
 | `Routes/*Definition`, `ExpeditionRouteRuntime`, `RouteNodeSessions` | Seeded graph topology, visibility/voting, node services, and regional Boss rewards |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
+| `Camp/CampHub` | Walkable camp world, NPC/station interaction, camp panels and fixed resource HUD |
 | `Corruption/*`, `Solo/ReflectionController` | Boss modifiers, roster selection, solo final opponent |
-| `UI/PrototypeHud`, `Debug/DebugMenu` | Play/lobby UI and gated test controls |
-| `UI/CombatVfx`, `ActorView`, `Player/ArenaCamera` | Placeholder presentation |
+| `UI/PrototypeHud`, `Debug/DebugMenu` | Run UI and gated test controls |
+| `UI/ResourceIconLibrary`, `Data/LocalizationService` | Replaceable resource iconography and persisted EN/zh-CN text boundary |
+| `UI/CombatVfx`, `ActorView`, `Player/ArenaCamera` | Procedural placeholder presentation and damped Camp/combat framing |
 | `Audio/AudioDirector` | Optional clip slots and public audio cue events |
 | `Data/MatchTelemetry`, `UnlockData`, `LoreEntry` | Local JSON, unlock schema, story data |
 | `Editor/PrototypeContentBuilder` | Missing-content creation and development builds |
 
 ## Audio and progression seams
 
-Audio cues cover exploration/combat/boss music, boss death, music fade, silence, corruption cue, final music, and run completion. No soundtrack is bundled. Assign clips on an AudioDirector or subscribe to its `Cue` event for an audio middleware integration. The boss-death path fades out over 0.7 seconds before silence and the next cue.
+Audio cues cover camp ambience/fire, forge, map, UI, NPC and resource interactions plus exploration/combat/boss music, boss death, music fade, silence, corruption cue, final music, and run completion. No soundtrack is bundled. Assign clips on an AudioDirector or subscribe to its `Cue` event for an audio middleware integration. The boss-death path fades out over 0.7 seconds before silence and the next cue.
 
 `UnlockData` contains only content/cosmetic IDs; there are no persistent stat multipliers. `LoreEntry` and room/boss descriptions are ScriptableObjects. Collected fragments remain in the current run journal; persistent lore collection is deferred.
 
@@ -150,7 +154,7 @@ No networking library is installed. Stable IDs, input abstraction, events, and c
 
 `MetaProgressionService` is the runtime boundary between the profile and an expedition. Its `RunResources` wallet is recreated at launch, receives encounter/salvage rewards, and settles into the persistent wallet only on outcome. `ProgressionEconomy` owns retention, salvage, and merchant-price invariants. `HubFacilityDefinition`, `PreparationDefinition`, and `ProgressionTuningDefinition` keep costs, unlocks, caps, future node targets, reward quality, and Rest/Temper hooks in ScriptableObjects.
 
-The existing MainMenu lobby is now the functional Hub. It exposes the Expedition Table, Forge, Quartermaster, Infirmary, Archive, and Research Station without creating a second input authority or replacing the local roster. `EquipmentRewardDraft` runs after the relic draft, queues each combatant independently, filters the profile's unlocked pools, applies modest rarity/element weights, and lets that player equip, leave, or dismantle. Equipment remains on the combatant and disappears with the run.
+The MainMenu now enters a walkable camp presentation. Visible NPC/stations expose the Expedition Table, Forge, Quartermaster, Infirmary, Archive, and Research Station without creating a second progression authority or replacing the local roster. Camp panels call `MetaProgressionService`; `CampHub` owns no facility level or wallet. `EquipmentRewardDraft` runs after the relic draft, queues each combatant independently, filters the profile's unlocked pools, applies modest rarity/element weights, and lets that player equip, leave, or dismantle. Equipment remains on the combatant and disappears with the run.
 
 ## v0.6 route graph and node identity
 

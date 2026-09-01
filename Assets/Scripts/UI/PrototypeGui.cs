@@ -5,20 +5,22 @@ namespace Ashbound
     public static class PrototypeGui
     {
         public static GUIStyle Title, Heading, Text, Small, Button, Center, CardTitle;
+        private static Font interfaceFont;
         public static void Initialize()
         {
             if (Title != null) return;
+            interfaceFont=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei UI","Microsoft YaHei","Noto Sans CJK SC","Arial Unicode MS","Arial"},16);if(interfaceFont)GUI.skin.font=interfaceFont;
             Title = Style(40, Palette.Gold, FontStyle.Bold);
             Heading = Style(23, Color.white, FontStyle.Bold);
             Text = Style(16, new Color(.87f, .89f, .91f)); Text.wordWrap = true;
             Small = Style(12, new Color(.66f, .72f, .77f)); Small.wordWrap = true;
             Center = Style(18, Color.white); Center.alignment = TextAnchor.MiddleCenter; Center.wordWrap = true;
             CardTitle = Style(18, Palette.Gold, FontStyle.Bold); CardTitle.wordWrap = true;
-            Button = new GUIStyle(GUI.skin.button) { fontSize = 15, padding = new RectOffset(12, 12, 9, 9), wordWrap = true };
+            Button = new GUIStyle(GUI.skin.button) { font=interfaceFont,fontSize = 15, padding = new RectOffset(12, 12, 9, 9), wordWrap = true };
         }
         private static GUIStyle Style(int size, Color color, FontStyle weight = FontStyle.Normal)
         {
-            var style = new GUIStyle(GUI.skin.label) { fontSize = size, fontStyle = weight };
+            var style = new GUIStyle(GUI.skin.label) { font=interfaceFont,fontSize = size, fontStyle = weight };
             style.normal.textColor = color; return style;
         }
         public static void Box(Rect rect, Color color)
@@ -32,5 +34,6 @@ namespace Ashbound
         }
         public static void Bar(Rect rect, float fraction, Color color)
         { Box(rect, new Color(.16f, .19f, .23f)); Box(new Rect(rect.x, rect.y, rect.width * Mathf.Clamp01(fraction), rect.height), color); }
+        public static void ResetStyles(){Title=Heading=Text=Small=Button=Center=CardTitle=null;if(interfaceFont){if(Application.isPlaying)Object.Destroy(interfaceFont);else Object.DestroyImmediate(interfaceFont);}interfaceFont=null;}
     }
 }

@@ -395,5 +395,18 @@ namespace Ashbound.Tests
             var health=new HealthPool(100);health.Damage(99);Assert.That(health.SpendCurrentHealth(50),Is.Zero);Assert.That(health.Alive,Is.True);health.Reset(100);Assert.That(health.SpendCurrentHealth(1000),Is.EqualTo(99));Assert.That(health.Current,Is.EqualTo(1));
             foreach(WeaponRarity rarity in Enum.GetValues(typeof(WeaponRarity))){Assert.That(ProgressionEconomy.MerchantAlwaysExceedsSalvage(rarity,true),Is.True);Assert.That(ProgressionEconomy.MerchantAlwaysExceedsSalvage(rarity,false),Is.True);}
         }
+
+        [Test]
+        public void V08ResourceIconsAndLocalizationCoverPresentationFoundation()
+        {
+            var icons=Enum.GetValues(typeof(ExpeditionResource)).Cast<ExpeditionResource>().Select(ResourceIconLibrary.Icon).ToArray();Assert.That(icons.All(x=>x&&x.width==32&&x.height==32),Is.True);Assert.That(icons.Distinct().Count(),Is.EqualTo(4));Assert.That(icons.Select(x=>x.name).Distinct().Count(),Is.EqualTo(4));
+            var previous=LocalizationService.Current;try{LocalizationService.SetLanguage(GameLanguage.SimplifiedChinese);Assert.That(PlayerPrefs.GetInt("ashbound.language"),Is.EqualTo((int)GameLanguage.SimplifiedChinese));foreach(ExpeditionResource resource in Enum.GetValues(typeof(ExpeditionResource))){Assert.That(LocalizationService.ResourceName(resource),Is.Not.Empty);Assert.That(LocalizationService.ResourceDescription(resource),Does.Contain("主要用途"));}var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.facilities.All(x=>LocalizationService.FacilityName(x)!=x.displayName),Is.True);Assert.That(LocalizationService.Node(ExpeditionNodeType.Treasure),Is.EqualTo("宝藏"));}finally{LocalizationService.SetLanguage(previous);}
+        }
+
+        [Test]
+        public void V08ConfiguredInterfaceFontContainsSimplifiedChineseGlyphs()
+        {
+            var font=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei UI","Microsoft YaHei","Noto Sans CJK SC","Arial Unicode MS","Arial"},16);Assert.That(font,Is.Not.Null);font.RequestCharactersInTexture("灰烬余烬碎片古代合金腐化远征锻造研究档案",16);foreach(char glyph in "灰烬余碎片古代合金腐化远征锻造研究档案")Assert.That(font.HasCharacter(glyph),Is.True,"Missing glyph: "+glyph);UnityEngine.Object.DestroyImmediate(font);
+        }
     }
 }

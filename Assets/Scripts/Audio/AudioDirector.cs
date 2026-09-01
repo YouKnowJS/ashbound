@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace Ashbound
 {
-    public enum AudioCue { ExplorationMusic, CombatMusic, BossMusic, BossDeath, MusicFadeOut, Silence, CorruptionCue, FinalFightMusic, RunComplete }
+    public enum AudioCue { CampAmbience, Campfire, ForgeHammer, MapInteraction, UiConfirm, UiBack, NpcInteraction, ResourceGain, ExplorationMusic, CombatMusic, BossMusic, BossDeath, MusicFadeOut, Silence, CorruptionCue, FinalFightMusic, RunComplete }
     public sealed class AudioDirector : MonoBehaviour
     {
+        public AudioClip campAmbience, campfire, forgeHammer, mapInteraction, uiConfirm, uiBack, npcInteraction, resourceGain;
         public AudioClip explorationMusic, combatMusic, bossMusic, bossDeath, corruptionCue, finalFightMusic;
         public event Action<AudioCue> Cue;
         private AudioSource music, effects;
@@ -30,8 +31,12 @@ namespace Ashbound
                     music.Stop(); Cue?.Invoke(AudioCue.CorruptionCue); if (corruptionCue) effects.PlayOneShot(corruptionCue); break;
                 case RunState.FinalPvP: PlayMusic(AudioCue.FinalFightMusic, finalFightMusic); break;
                 case RunState.RunComplete: music.Stop(); Cue?.Invoke(AudioCue.RunComplete); break;
-                case RunState.Lobby: if (fade != null) StopCoroutine(fade); music.Stop(); break;
+                case RunState.Lobby: PlayMusic(AudioCue.CampAmbience,campAmbience); break;
             }
+        }
+        public void Emit(AudioCue cue)
+        {
+            Cue?.Invoke(cue);AudioClip clip=cue==AudioCue.Campfire?campfire:cue==AudioCue.ForgeHammer?forgeHammer:cue==AudioCue.MapInteraction?mapInteraction:cue==AudioCue.UiConfirm?uiConfirm:cue==AudioCue.UiBack?uiBack:cue==AudioCue.NpcInteraction?npcInteraction:cue==AudioCue.ResourceGain?resourceGain:null;if(clip)effects.PlayOneShot(clip);
         }
         private void PlayMusic(AudioCue cue, AudioClip clip)
         {
