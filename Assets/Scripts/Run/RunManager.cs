@@ -69,7 +69,7 @@ namespace Ashbound
 
         private IEnumerator EnterCurrentNode(bool initial=false)
         {
-            CloseNodeSessions();RouteSelectionOpen=AwaitingRouteGate=RegionCompleteAwaitingFinalGate=false;legacyDebugCombat=false;var node=CurrentNode?.Definition;if(!node)yield break;Rooms.LoadNode(node);TeleportParty(node.combatSpace?node.combatSpace.entrancePosition:new Vector3(0,0,-7));
+            CloseNodeSessions();RouteSelectionOpen=AwaitingRouteGate=RegionCompleteAwaitingFinalGate=false;legacyDebugCombat=false;var node=CurrentNode?.Definition;if(!node)yield break;Rooms.LoadNode(node);TeleportParty(Rooms.View.EntrancePosition);
             if(initial){yield return new WaitForSeconds(.25f);Flow.TryAdvance(RunState.Exploration);}nodeStartedAt=Telemetry.Record?.runDuration??0;Telemetry.NodeBegin(node);Message=node.displayName+"\n"+node.description;yield return new WaitForSeconds(.45f);
             switch(node.nodeType)
             {
@@ -236,7 +236,7 @@ namespace Ashbound
         public void DebugSpawnElementalGroup(ElementTag element){if(players.Count>0&&CombatRules.IsCombatState(Flow.State)){Rooms.DebugSpawnElementalGroup(element,players.Count);MarkDebug();}}
         public Combatant DebugSpawnEnemy(EnemyDefinition definition,bool elite=false){if(!definition)return null;if(Flow.State==RunState.Lobby)StartRun();if(!CombatRules.IsCombatState(Flow.State))Flow.DebugJumpToCombat();var enemy=Rooms.DebugSpawnEnemy(definition,Mathf.Max(1,players.Count),elite);MarkDebug();return enemy;}
         public void DebugSpawnEncounter(EncounterDefinition encounter){if(!encounter)return;if(Flow.State==RunState.Lobby)StartRun();if(!CombatRules.IsCombatState(Flow.State))Flow.DebugJumpToCombat();Rooms.DebugSpawnEncounter(encounter,Mathf.Max(1,players.Count));MarkDebug();}
-        public void DebugLoadCombatSpace(CombatSpaceDefinition space){if(!space)return;Rooms.View.Build(space,Rooms.RoomIndex);Rooms.View.SetGate(Rooms.ExitOpen);TeleportParty(space.entrancePosition);MarkDebug();}
+        public void DebugLoadCombatSpace(CombatSpaceDefinition space){if(!space)return;Rooms.View.Build(space,Rooms.RoomIndex);Rooms.View.SetGate(Rooms.ExitOpen);TeleportParty(Rooms.View.EntrancePosition);MarkDebug();}
         public void DebugForceEquipmentReward(WeaponRarity rarity){if(players.Count==0)return;if(Flow.State!=RunState.Reward)Flow.DebugJumpToCombat();Flow.TryAdvance(RunState.Reward);Draft?.Cancel();EquipmentRewards.ForcedRarity=rarity;rewardFlow=RewardFlow.DebugEquipment;EquipmentRewards.Begin(players,1,RewardQuality.Rare);DebugOpen=true;MarkDebug();}
         private void MarkDebug(){if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;}
 

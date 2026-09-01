@@ -22,7 +22,7 @@ MonoBehaviour:
   outgoingConnections:
   - route-a-challenge
   encounter: {fileID: 0}
-  combatSpace: {fileID: 0}
+  combatSpace: {fileID: 11400000, guid: ad2a34ad5b213b14284668293f23a1d4, type: 2}
   treasure: {fileID: 0}
   merchant: {fileID: 0}
   rest: {fileID: 0}

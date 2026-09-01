@@ -19,6 +19,7 @@ MonoBehaviour:
   spatialIntent: Two combat pockets connected by a wide bridge, with route-readable
     retreat and regroup space.
   technicalBounds: {x: 32, y: 25}
+  layoutScale: 1.45
   sections:
   - id: west
     center: {x: -6, y: -1}
@@ -66,9 +67,15 @@ MonoBehaviour:
   - {x: -13, y: 7}
   entrancePosition: {x: 0.5, y: 0, z: -4.5}
   exitPosition: {x: 6, y: 0, z: 11}
-  transitionLength: 6
-  cameraOrthographicSize: 14.5
-  multiplayerSeparationLimit: 19
+  transitionLength: 8.700001
+  cameraOrthographicSize: 12.2
+  cameraMaximumOrthographicSize: 18.5
+  cameraFollowSmoothTime: 0.27
+  cameraZoomSmoothTime: 0.34
+  cameraAnticipationDistance: 1.25
+  cameraClampPadding: 1.5
+  multiplayerSeparationLimit: 20
+  nonPlayableWorldDepth: 30
   distantLandmarkHooks:
   - bell-tower
   - broken-arcade

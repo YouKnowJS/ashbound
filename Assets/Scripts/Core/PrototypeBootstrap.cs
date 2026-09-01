@@ -21,7 +21,7 @@ namespace Ashbound
             sun.transform.rotation = Quaternion.Euler(48, -25, 0); sun.shadows = LightShadows.Soft;
             var camera = new GameObject("Main Camera").AddComponent<Camera>(); camera.tag = "MainCamera";
             camera.transform.SetParent(transform);
-            camera.gameObject.AddComponent<AudioListener>(); camera.gameObject.AddComponent<ArenaCamera>();
+            camera.gameObject.AddComponent<AudioListener>(); var arenaCamera = camera.gameObject.AddComponent<ArenaCamera>();
             var actorRoot = new GameObject("Actors").transform;
             actorRoot.SetParent(transform);
             var combat = gameObject.AddComponent<CombatService>();
@@ -29,6 +29,7 @@ namespace Ashbound
             var rooms = new GameObject("Rooms").AddComponent<RoomDirector>(); rooms.Configure(factory, catalog, combat);
             rooms.transform.SetParent(transform);
             Run = gameObject.AddComponent<RunManager>(); Run.Configure(catalog, combat, rooms, factory, camera);
+            arenaCamera.Configure(Run, rooms);
             var audio = gameObject.AddComponent<AudioDirector>(); Run.StateChanged += audio.OnState;
             gameObject.AddComponent<PrototypeHud>().Configure(Run, camera);
             gameObject.AddComponent<DebugMenu>().Configure(Run);

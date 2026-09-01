@@ -148,6 +148,30 @@ namespace Ashbound.Tests
         }
 
         [UnityTest]
+        public IEnumerator V07SoloCameraSmoothlyFollowsThroughCombatAndTransition()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(707);yield return State(RunState.Combat);var player=run.Players[0];var camera=ArenaCamera.Instance;
+            camera.FollowEnabled=true;camera.FollowMode=CameraFollowMode.Solo;camera.ZoomOverride=CameraZoomOverride.Minimum;camera.SnapToTargets();Vector3 before=camera.FocusPoint;
+            player.Motor.Teleport(player.transform.position+Vector3.left*6);yield return null;
+            Assert.That(Vector3.Distance(camera.FocusPoint,player.transform.position),Is.GreaterThan(.15f),"camera snapped instead of smoothing");
+            yield return new WaitForSeconds(1);Assert.That(camera.FocusPoint.x,Is.LessThan(before.x-4));Assert.That(Vector2.Distance(new Vector2(camera.FocusPoint.x,camera.FocusPoint.z),new Vector2(player.transform.position.x,player.transform.position.z)),Is.LessThan(1.2f));
+            KillHostiles();yield return State(RunState.Exploration);yield return null;Assert.That(camera.Context,Is.EqualTo(CameraContext.Transition));
+            Vector3 transitionStart=camera.FocusPoint;player.Motor.Teleport(run.Rooms.View.ExitPosition);yield return new WaitForSeconds(1);
+            Assert.That(Vector3.Distance(camera.FocusPoint,transitionStart),Is.GreaterThan(3));Assert.That(camera.FocusPoint.x,Is.InRange(camera.ClampBounds.xMin,camera.ClampBounds.xMax));Assert.That(camera.FocusPoint.z,Is.InRange(camera.ClampBounds.yMin,camera.ClampBounds.yMax));
+        }
+
+        [UnityTest]
+        public IEnumerator V07PartyCameraUsesCentroidSpreadZoomCapAndRegroupHook()
+        {
+            Assert.That(run.Lobby.TryJoin(InputKind.SecondKeyboard,-2,"Test P2"),Is.True);EnemyBrain.AiEnabled=false;run.StartRun(708);yield return State(RunState.Combat);
+            var large=run.Catalog.combatSpaces.First(x=>x.category==CombatSpaceCategory.Large);run.DebugLoadCombatSpace(large);var camera=ArenaCamera.Instance;camera.FollowEnabled=true;camera.FollowMode=CameraFollowMode.PartyCentroid;camera.ZoomOverride=CameraZoomOverride.Automatic;
+            bool regroupHook=false;camera.SoftSpreadLimitExceeded+=_=>regroupHook=true;run.Players[0].Motor.Teleport(new Vector3(-16,0,0));run.Players[1].Motor.Teleport(new Vector3(16,0,0));yield return new WaitForSeconds(1);
+            Assert.That(camera.PartyCentroid.x,Is.EqualTo(0).Within(.3f));Assert.That(camera.PartySpread,Is.EqualTo(32).Within(.5f));Assert.That(camera.PartyBeyondSoftLimit,Is.True);Assert.That(regroupHook,Is.True);Assert.That(camera.CurrentZoom,Is.GreaterThan(camera.MinimumZoom+2));Assert.That(camera.CurrentZoom,Is.LessThanOrEqualTo(camera.MaximumZoom+.05f));float separatedZoom=camera.CurrentZoom;
+            run.Players[0].Motor.Teleport(new Vector3(-1,0,0));run.Players[1].Motor.Teleport(new Vector3(1,0,0));yield return new WaitForSeconds(1.2f);
+            Assert.That(camera.PartySpread,Is.EqualTo(2).Within(.5f));Assert.That(camera.PartyBeyondSoftLimit,Is.False);Assert.That(camera.CurrentZoom,Is.LessThan(separatedZoom-1));
+        }
+
+        [UnityTest]
         public IEnumerator BleedRuptureAndLightningCannotRecursivelyProc()
         {
             run.StartRun(11); run.DebugSkipToBoss(); yield return null;
@@ -304,7 +328,7 @@ namespace Ashbound.Tests
         public IEnumerator V05EcologyTelemetryRecordsCompositionRoleKillsAndArenaContext()
         {
             EnemyBrain.AiEnabled=false;run.StartRun(306);yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Exploration);
-            Assert.That(run.Telemetry.Record.schemaVersion,Is.EqualTo(5));Assert.That(run.Telemetry.Record.encounters.Count,Is.EqualTo(1));var encounter=run.Telemetry.Record.encounters[0];Assert.That(encounter.encounterId,Is.EqualTo("frontline-pressure"));Assert.That(encounter.composition,Is.Not.Empty);Assert.That(encounter.arenaCategory,Is.EqualTo(CombatSpaceCategory.Small.ToString()));Assert.That(run.Telemetry.Record.routeNodes.Count,Is.EqualTo(1));Assert.That(run.Telemetry.Record.routeNodes[0].nodeType,Is.EqualTo(ExpeditionNodeType.NormalCombat.ToString()));
+            Assert.That(run.Telemetry.Record.schemaVersion,Is.EqualTo(5));Assert.That(run.Telemetry.Record.encounters.Count,Is.EqualTo(1));var encounter=run.Telemetry.Record.encounters[0];Assert.That(encounter.encounterId,Is.EqualTo("frontline-pressure"));Assert.That(encounter.composition,Is.Not.Empty);Assert.That(encounter.arenaCategory,Is.EqualTo(CombatSpaceCategory.Medium.ToString()));Assert.That(run.Telemetry.Record.routeNodes.Count,Is.EqualTo(1));Assert.That(run.Telemetry.Record.routeNodes[0].nodeType,Is.EqualTo(ExpeditionNodeType.NormalCombat.ToString()));
             run.Telemetry.Finish(run.Players,"Wanderers","Test");Assert.That(run.Telemetry.Record.enemyRoles.Sum(x=>x.kills),Is.GreaterThan(0));EnemyBrain.AiEnabled=true;
         }
 

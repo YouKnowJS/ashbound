@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.6 content validation additionally checks all ten implemented node identities, three valid graph variants, route constraints and visibility, six weighted Treasure variants, Common Mimic, Merchant economy, Rest/Temper bounds, Events, Challenges, regional/final-Boss gating, schema-5 telemetry, and the complete v0.5 content set.
+v0.7 validation additionally checks camera tuning and world-depth data, Medium/Large scale separation, node-to-space categories, smooth solo transition follow, multiplayer centroid framing, spread-driven zoom caps, regrouping, and the soft spread hook. It retains the complete v0.6 route and service coverage.
 
 ### Edit Mode
 
@@ -59,8 +59,22 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 8. Finish/reset a run, inspect the local telemetry JSON, and start a second run to check cleanup.
 9. Use F1 → Ecology to test every role, affinity, preset, Elite override, arena category, AI toggle, and telegraph toggle.
 10. Walk the transition paths and inspect all five spaces for square-box presentation, camera loss, blocked spawn points, and projectile/obstacle behavior.
+11. Open F1 → Camera. Test follow off/on, Solo and Party Centroid, forced min/max zoom, centroid/spread/clamp overlays, and both enlarged test spaces.
+12. In local co-op, separate beyond the shown soft limit. Confirm zoom stops at the configured maximum, edge indicators remain readable, and regrouping zooms back in without teleporting either player.
 
 ## Verification status
+
+### Camera and larger-world update — 2026-08-31
+
+Using Unity **6000.4.11f1** after implementing the v0.7 moving camera and scaled combat spaces:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **42 passed**, 0 failed, 0 skipped |
+| Play Mode | **18 passed**, 0 failed, 0 skipped |
+
+The added Edit Mode coverage validates data-driven camera ranges, world depth, node context sizing, and that Large arenas are at least 35% greater in effective area than the largest Medium arena. The added Play Mode coverage verifies damped solo follow through combat and transition, clamping, two-player centroid tracking, spread zoom, its maximum cap, regroup zoom-in, and the future soft-tether event hook.
 
 ### Floor-seam correction — 2026-08-31
 

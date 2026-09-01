@@ -23,7 +23,7 @@ MonoBehaviour:
   - route-b-rest
   - route-b-challenge
   encounter: {fileID: 11400000, guid: 05ff532371bb2804a8b240dcb7f8694b, type: 2}
-  combatSpace: {fileID: 11400000, guid: 10cb9b395a3367c4b9a3b7a08efe622b, type: 2}
+  combatSpace: {fileID: 11400000, guid: 014e7503e2d7ead42abf44d5b1e46e1c, type: 2}
   treasure: {fileID: 0}
   merchant: {fileID: 0}
   rest: {fileID: 0}

@@ -19,6 +19,7 @@ MonoBehaviour:
   spatialIntent: A split hall with parallel subspaces, cross-connectors, and a visible
     transition corridor to the next node.
   technicalBounds: {x: 37, y: 31}
+  layoutScale: 1.9
   sections:
   - id: west-hall
     center: {x: -7, y: 0}
@@ -70,9 +71,15 @@ MonoBehaviour:
   - {x: -16, y: 2}
   entrancePosition: {x: 0, y: 0, z: -6.5}
   exitPosition: {x: 4, y: 0, z: 14}
-  transitionLength: 6
-  cameraOrthographicSize: 17.2
-  multiplayerSeparationLimit: 22
+  transitionLength: 11.4
+  cameraOrthographicSize: 14.8
+  cameraMaximumOrthographicSize: 24
+  cameraFollowSmoothTime: 0.27
+  cameraZoomSmoothTime: 0.34
+  cameraAnticipationDistance: 1.6
+  cameraClampPadding: 2
+  multiplayerSeparationLimit: 28
+  nonPlayableWorldDepth: 46
   distantLandmarkHooks:
   - throne-silhouette
   - ashfall

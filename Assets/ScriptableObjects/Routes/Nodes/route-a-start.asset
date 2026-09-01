@@ -23,7 +23,7 @@ MonoBehaviour:
   - route-a-hard
   - route-a-treasure
   encounter: {fileID: 11400000, guid: 8961f5ff91a709a4d89130d14a0d165a, type: 2}
-  combatSpace: {fileID: 11400000, guid: ad2a34ad5b213b14284668293f23a1d4, type: 2}
+  combatSpace: {fileID: 11400000, guid: fe8cd230d883a4242ac3664d970d790b, type: 2}
   treasure: {fileID: 0}
   merchant: {fileID: 0}
   rest: {fileID: 0}

@@ -23,7 +23,7 @@ MonoBehaviour:
   - route-c-elite
   - route-c-merchant
   encounter: {fileID: 0}
-  combatSpace: {fileID: 0}
+  combatSpace: {fileID: 11400000, guid: ad2a34ad5b213b14284668293f23a1d4, type: 2}
   treasure: {fileID: 11400000, guid: ab6fe59cf894c5f49ab2263deb970252, type: 2}
   merchant: {fileID: 0}
   rest: {fileID: 0}

@@ -15,8 +15,8 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,560,32,"ASHBOUND v0.6 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(620,32,105,32),"Equipment"))page=0;if(U.Click(new Rect(730,32,105,32),"Meta"))page=1;if(U.Click(new Rect(840,32,105,32),"Ecology"))page=2;if(U.Click(new Rect(950,32,105,32),"Route"))page=3;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
-            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}
+            U.Label(60,34,500,32,"ASHBOUND v0.7 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(555,32,98,32),"Equipment"))page=0;if(U.Click(new Rect(658,32,92,32),"Meta"))page=1;if(U.Click(new Rect(755,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(852,32,92,32),"Route"))page=3;if(U.Click(new Rect(949,32,92,32),"Camera"))page=4;if(U.Click(new Rect(1060,32,150,32),"Close F1"))run.DebugOpen=false;
+            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}if(page==4){CameraPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
@@ -76,7 +76,7 @@ namespace Ashbound
             var candidates=run.Catalog.enemies.Where(x=>x&&x.role==roles[enemyRole]&&(elements[enemyElement]==ElementTag.None?x.element==ElementTag.None:x.element==elements[enemyElement])).ToArray();
             GUI.enabled=candidates.Length>0;if(U.Click(new Rect(985,199,195,34),"Spawn role test")){run.DebugSpawnEnemy(candidates.FirstOrDefault(),eliteEnemy);result=candidates.Length>0?"Spawned "+candidates[0].displayName:"No authored combination";Mark();}GUI.enabled=true;
             U.Label(60,260,520,24,"ENCOUNTER PRESETS",U.CardTitle);if(run.Catalog.encounters.Length>0){encounterIndex=Mathf.Clamp(encounterIndex,0,run.Catalog.encounters.Length-1);for(int i=0;i<run.Catalog.encounters.Length;i++)if(U.Click(new Rect(60+(i%3)*205,294+(i/3)*36,196,29),run.Catalog.encounters[i].displayName))encounterIndex=i;var encounter=run.Catalog.encounters[encounterIndex];U.Label(60,375,565,70,encounter.intent+"\n"+encounter.difficulty+" · "+encounter.riskTier+" · "+encounter.requiredArenaSize,U.Small);if(U.Click(new Rect(60,445,220,34),"Spawn selected preset")){run.DebugSpawnEncounter(encounter);result="Loaded "+encounter.displayName;Mark();}}
-            U.Label(650,260,520,24,"COMBAT SPACE",U.CardTitle);if(run.Catalog.combatSpaces.Length>0){spaceIndex=Mathf.Clamp(spaceIndex,0,run.Catalog.combatSpaces.Length-1);for(int i=0;i<run.Catalog.combatSpaces.Length;i++)if(U.Click(new Rect(650+(i%2)*250,294+(i/2)*36,240,29),run.Catalog.combatSpaces[i].displayName))spaceIndex=i;var space=run.Catalog.combatSpaces[spaceIndex];U.Label(650,408,520,60,space.category+" · "+space.layout+" · camera "+space.cameraOrthographicSize+"\n"+space.spatialIntent,U.Small);if(U.Click(new Rect(650,475,220,34),"Load selected space")){run.DebugLoadCombatSpace(space);result="Loaded "+space.displayName;Mark();}}
+            U.Label(650,260,520,24,"COMBAT SPACE",U.CardTitle);if(run.Catalog.combatSpaces.Length>0){spaceIndex=Mathf.Clamp(spaceIndex,0,run.Catalog.combatSpaces.Length-1);for(int i=0;i<run.Catalog.combatSpaces.Length;i++)if(U.Click(new Rect(650+(i%2)*250,294+(i/2)*36,240,29),run.Catalog.combatSpaces[i].displayName))spaceIndex=i;var space=run.Catalog.combatSpaces[spaceIndex];U.Label(650,408,520,60,space.category+" · "+space.layout+" · "+space.ScaledTechnicalBounds+"\nZoom "+space.cameraOrthographicSize.ToString("0.0")+"–"+space.cameraMaximumOrthographicSize.ToString("0.0")+" · "+space.spatialIntent,U.Small);if(U.Click(new Rect(650,475,220,34),"Load selected space")){run.DebugLoadCombatSpace(space);result="Loaded "+space.displayName;Mark();}}
             EnemyBrain.AiEnabled=GUI.Toggle(new Rect(60,525,140,26),EnemyBrain.AiEnabled,"Enemy AI");EnemyBrain.TelegraphsEnabled=GUI.Toggle(new Rect(210,525,160,26),EnemyBrain.TelegraphsEnabled,"Telegraphs");
             U.Label(60,570,1120,82,"ROLE READS\nWarrior baseline · Bruiser space control · Assassin flank · Ranger sustained shots · Mage AOE · Flyer dive windows · Burrower eruption · Bomber countdown/chain · Support capped aid · Controller short slow/pull\n"+result,U.Small);
         }
@@ -89,6 +89,27 @@ namespace Ashbound
             U.Label(60,355,1120,24,"FORCE TREASURE VARIANT",U.CardTitle);TreasureVariantKind[] variants=(TreasureVariantKind[])System.Enum.GetValues(typeof(TreasureVariantKind));for(int i=0;i<variants.Length;i++){var variant=variants[i];if(U.Click(new Rect(60+(i%3)*300,390+(i/3)*38,288,30),variant.ToString())){result=run.DebugForceTreasure(variant)?"Forced "+variant:"Treasure unavailable";Mark();}}
             U.Label(60,488,1120,24,"DIRECT NODE IDS",U.CardTitle);var nodes=run.Route.Nodes.OrderBy(x=>x.Definition.id).ToArray();for(int i=0;i<nodes.Length;i++){var node=nodes[i];string visibility=run.Route.Visibility(node).ToString();if(U.Click(new Rect(60+(i%3)*370,523+(i/3)*34,356,27),(node.Completed?"✓ ":"")+node.Definition.id+" · "+visibility)){run.DebugJumpToNode(node.Definition.id);result="Jumped to "+node.Definition.id;Mark();}}
             U.Label(60,657,1120,24,result+" · Graph variants validate on construction; debug telemetry is marked.",U.Small);
+        }
+        private void CameraPanel()
+        {
+            var camera=ArenaCamera.Instance;U.Label(60,86,1120,25,"FOLLOW CAMERA & WORLD SCALE",U.CardTitle);
+            if(!camera){U.Label(60,125,900,40,"Arena camera is not available.",U.Small);return;}
+            camera.FollowEnabled=GUI.Toggle(new Rect(60,125,190,26),camera.FollowEnabled,"Follow camera enabled");
+            U.Label(60,164,330,24,"FOLLOW TARGET",U.CardTitle);
+            CameraFollowMode[] follows=(CameraFollowMode[])System.Enum.GetValues(typeof(CameraFollowMode));for(int i=0;i<follows.Length;i++)if(U.Click(new Rect(60+i*185,198,175,31),follows[i]+(camera.FollowMode==follows[i]?" *":""))){camera.FollowMode=follows[i];Mark();}
+            U.Label(650,164,330,24,"ZOOM OVERRIDE",U.CardTitle);
+            CameraZoomOverride[] zooms=(CameraZoomOverride[])System.Enum.GetValues(typeof(CameraZoomOverride));for(int i=0;i<zooms.Length;i++)if(U.Click(new Rect(650+i*175,198,165,31),zooms[i]+(camera.ZoomOverride==zooms[i]?" *":""))){camera.ZoomOverride=zooms[i];Mark();}
+            U.Label(60,255,330,24,"OVERLAYS",U.CardTitle);
+            camera.DisplayPartyCentroid=GUI.Toggle(new Rect(60,292,190,25),camera.DisplayPartyCentroid,"Party centroid");camera.DisplayPartySpread=GUI.Toggle(new Rect(270,292,180,25),camera.DisplayPartySpread,"Party spread");camera.DisplayClampBounds=GUI.Toggle(new Rect(470,292,200,25),camera.DisplayClampBounds,"Camera clamp bounds");
+            if(U.Click(new Rect(700,285,175,34),"Snap to targets")){camera.SnapToTargets();Mark();}
+            if(run.Players.Count==0&&U.Click(new Rect(895,285,285,34),"Start camera test · seed 606")){run.StartRun(606);result="Started camera test route";Mark();}
+            U.Label(60,350,1120,25,"ENLARGED TEST SPACES",U.CardTitle);
+            var medium=run.Catalog.combatSpaces.FirstOrDefault(x=>x.category==CombatSpaceCategory.Medium);var large=run.Catalog.combatSpaces.FirstOrDefault(x=>x.category==CombatSpaceCategory.Large);
+            GUI.enabled=run.Players.Count>0&&medium;if(U.Click(new Rect(60,386,330,38),"Load enlarged Medium")){run.DebugLoadCombatSpace(medium);camera.SnapToTargets();result="Loaded "+medium.displayName;Mark();}GUI.enabled=run.Players.Count>0&&large;if(U.Click(new Rect(410,386,330,38),"Load enlarged Large")){run.DebugLoadCombatSpace(large);camera.SnapToTargets();result="Loaded "+large.displayName;Mark();}GUI.enabled=true;
+            var bounds=camera.ClampBounds;float soft=run.Rooms&&run.Rooms.ActiveCombatSpace?run.Rooms.ActiveCombatSpace.multiplayerSeparationLimit:0;
+            U.Label(60,465,550,130,"Context: "+camera.Context+"\nFollow: "+camera.FollowMode+" · Zoom: "+camera.ZoomOverride+"\nFocus: "+camera.FocusPoint.ToString("F1")+"\nCentroid: "+camera.PartyCentroid.ToString("F1")+"\nSpread: "+camera.PartySpread.ToString("0.0")+" / "+soft.ToString("0.0")+(camera.PartyBeyondSoftLimit?"  REGROUP HOOK ACTIVE":""),U.Small);
+            U.Label(650,465,530,130,"Zoom: "+camera.CurrentZoom.ToString("0.0")+"  ["+camera.MinimumZoom.ToString("0.0")+"–"+camera.MaximumZoom.ToString("0.0")+"]\nClamp: "+bounds.xMin.ToString("0.0")+","+bounds.yMin.ToString("0.0")+" → "+bounds.xMax.ToString("0.0")+","+bounds.yMax.ToString("0.0")+"\nEdge indicators: "+camera.OffscreenIndicatorCount+"\nNo hard party teleport is used; soft-spread exposes a regroup event hook.",U.Small);
+            U.Label(60,625,1120,45,result+" · Follow, centroid, spread, zoom limits, clamp bounds, Medium and Large spaces can be tested here.",U.Small);
         }
     }
 }

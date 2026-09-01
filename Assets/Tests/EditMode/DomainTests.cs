@@ -320,6 +320,32 @@ namespace Ashbound.Tests
         }
 
         [Test]
+        public void V07CameraAndWorldScaleConfigurationMeetsPartyFramingTargets()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");
+            foreach(var space in catalog.combatSpaces)
+            {
+                Assert.That(space.layoutScale,Is.GreaterThanOrEqualTo(1),space.id);
+                Assert.That(space.cameraMaximumOrthographicSize,Is.GreaterThanOrEqualTo(space.cameraOrthographicSize),space.id);
+                Assert.That(space.cameraFollowSmoothTime,Is.GreaterThan(0),space.id);
+                Assert.That(space.cameraZoomSmoothTime,Is.GreaterThan(0),space.id);
+                Assert.That(space.cameraAnticipationDistance,Is.GreaterThanOrEqualTo(0),space.id);
+                Assert.That(space.nonPlayableWorldDepth,Is.GreaterThanOrEqualTo(20),space.id);
+            }
+            var medium=catalog.combatSpaces.Where(x=>x.category==CombatSpaceCategory.Medium).ToArray();var large=catalog.combatSpaces.Where(x=>x.category==CombatSpaceCategory.Large).ToArray();
+            Assert.That(medium.All(x=>Mathf.Min(x.ScaledTechnicalBounds.x,x.ScaledTechnicalBounds.y)>=35),Is.True);
+            Assert.That(large.All(x=>Mathf.Min(x.ScaledTechnicalBounds.x,x.ScaledTechnicalBounds.y)>=55),Is.True);
+            float largestMedium=medium.Max(x=>x.ScaledTechnicalBounds.x*x.ScaledTechnicalBounds.y);float smallestLarge=large.Min(x=>x.ScaledTechnicalBounds.x*x.ScaledTechnicalBounds.y);
+            Assert.That(smallestLarge,Is.GreaterThan(largestMedium*1.35f));
+            foreach(var graph in catalog.prototypeRegion.graphVariants)
+            {
+                Assert.That(graph.nodes.Where(x=>x.nodeType==ExpeditionNodeType.NormalCombat||x.nodeType==ExpeditionNodeType.HardCombat).All(x=>x.combatSpace&&x.combatSpace.category==CombatSpaceCategory.Medium),Is.True);
+                Assert.That(graph.nodes.Where(x=>x.nodeType==ExpeditionNodeType.Elite||x.nodeType==ExpeditionNodeType.Challenge||x.nodeType==ExpeditionNodeType.Boss).All(x=>x.combatSpace&&x.combatSpace.category==CombatSpaceCategory.Large),Is.True);
+                Assert.That(graph.nodes.Where(x=>x.nodeType==ExpeditionNodeType.Treasure||x.nodeType==ExpeditionNodeType.Relic||x.nodeType==ExpeditionNodeType.Merchant||x.nodeType==ExpeditionNodeType.Rest||x.nodeType==ExpeditionNodeType.Event).All(x=>x.combatSpace&&x.combatSpace.category==CombatSpaceCategory.Small),Is.True);
+            }
+        }
+
+        [Test]
         public void V05CombatSpaceEntrancesSupportFourPlayersAndDividedHallHasNoDividerSeam()
         {
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");
@@ -332,8 +358,8 @@ namespace Ashbound.Tests
             foreach(var space in catalog.combatSpaces)
                 for(int i=0;i<4;i++)
                 {
-                    Vector2 spawn=new Vector2(space.entrancePosition.x+(i-1.5f)*1.5f,space.entrancePosition.z);
-                    Assert.That(space.sections.Any(section=>Supports(section,spawn,.45f)),Is.True,space.id+" does not safely support P"+(i+1)+" at its entrance");
+                    Vector3 entrance=space.ScalePoint(space.entrancePosition);Vector2 spawn=new Vector2(entrance.x+(i-1.5f)*1.5f,entrance.z);
+                    Assert.That(space.sections.Any(section=>Supports(new CombatSpaceSection{center=section.center*space.layoutScale,size=section.size*space.layoutScale,rotation=section.rotation},spawn,.45f)),Is.True,space.id+" does not safely support P"+(i+1)+" at its entrance");
                 }
             var divided=catalog.combatSpaces.Single(x=>x.id=="divided-hall");var west=divided.sections.Single(x=>x.id=="west-hall");var east=divided.sections.Single(x=>x.id=="east-hall");var divider=divided.obstacles.Single(x=>x.position==Vector2.zero);
             Assert.That(west.center.x+west.size.x*.5f,Is.GreaterThanOrEqualTo(divider.position.x-divider.size.x*.5f));

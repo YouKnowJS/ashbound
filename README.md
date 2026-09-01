@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), and [verification instructions](Docs/VERIFICATION.md).
+See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -67,6 +67,7 @@ F1 pauses simulation and exposes:
 - Add/zero persistent resources, set facility levels, unlock equipment, reset the profile, force preparations/reward rarity, and simulate expedition outcomes.
 - Open the Ecology page to spawn by role/element, force an Elite, load an encounter preset or combat-space size, and toggle enemy AI or telegraphs.
 - Open the Route page to regenerate/reveal the graph, add run currency, jump to any node identity, or force Treasure variants including Mimic and Cursed Chest.
+- Open the Camera page to switch follow modes, force zoom limits, display centroid/spread/clamp diagnostics, and load enlarged Medium or Large spaces.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -93,7 +94,7 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 ## Scope and known limitations
 
 - This is a compact gray-box loop, not the full 10–15 minute-per-map game. Expect a short, untuned run.
-- Multiplayer is local and shares one fixed camera. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
+- Multiplayer is local and shares one smooth centroid camera with bounded spread zoom and edge indicators. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
 - Enemies steer directly toward targets; there is no navigation mesh or sophisticated avoidance.
 - UI uses immediate-mode GUI. No animation, soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
 - Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the equipment architecture. Loot acquisition, equipment selection UI, inventory persistence, final models, and save/load of active runs are deferred.
@@ -102,6 +103,6 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.6 adds three seeded ten-node route variants, limited information, local voting, differentiated reward cadence, six Treasure variants, Merchant, Rest/Temper, Events, Challenges, and explicit regional/final-Boss gating while preserving v0.5 ecology and spaces. See [the v0.6 guide](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md).
+Ashbound v0.7 adds smooth solo and multiplayer party framing, spread-driven bounded zoom, edge indicators, context-aware Boss/final-PvP framing, enlarged combat and traversal spaces, and non-playable world depth. See [the v0.7 guide](Docs/V0.7_CAMERA_WORLD_SCALE.md).
 
 Next milestone: collect repeated human solo and 2–4 player route telemetry, tune only from playtest evidence, add controller-first menu navigation, and improve non-combat location presentation before expanding to more regions.

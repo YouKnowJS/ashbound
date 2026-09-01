@@ -19,6 +19,7 @@ MonoBehaviour:
   spatialIntent: A central hub branches into three usable lanes; obstacles block
     clean firing lines without creating dead ends.
   technicalBounds: {x: 34, y: 27}
+  layoutScale: 1.5
   sections:
   - id: hub
     center: {x: 0, y: 0}
@@ -73,9 +74,15 @@ MonoBehaviour:
   - {x: -14, y: 5}
   entrancePosition: {x: 0, y: 0, z: -5.5}
   exitPosition: {x: 0, y: 0, z: 12}
-  transitionLength: 6
-  cameraOrthographicSize: 15.2
-  multiplayerSeparationLimit: 20
+  transitionLength: 9
+  cameraOrthographicSize: 12.5
+  cameraMaximumOrthographicSize: 19.5
+  cameraFollowSmoothTime: 0.27
+  cameraZoomSmoothTime: 0.34
+  cameraAnticipationDistance: 1.25
+  cameraClampPadding: 1.5
+  multiplayerSeparationLimit: 21
+  nonPlayableWorldDepth: 32
   distantLandmarkHooks:
   - collapsed-choir
   - far-chain

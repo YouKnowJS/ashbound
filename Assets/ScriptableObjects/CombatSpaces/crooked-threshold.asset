@@ -19,6 +19,7 @@ MonoBehaviour:
   spatialIntent: An offset courtyard with a playable side pocket and a short northern
     transition path.
   technicalBounds: {x: 24, y: 24}
+  layoutScale: 1.12
   sections:
   - id: court
     center: {x: 1, y: -1}
@@ -56,9 +57,15 @@ MonoBehaviour:
   - {x: -10, y: 5}
   entrancePosition: {x: 0, y: 0, z: -7}
   exitPosition: {x: 2, y: 0, z: 10}
-  transitionLength: 6
-  cameraOrthographicSize: 12.8
-  multiplayerSeparationLimit: 15
+  transitionLength: 6.7200003
+  cameraOrthographicSize: 11.2
+  cameraMaximumOrthographicSize: 15
+  cameraFollowSmoothTime: 0.27
+  cameraZoomSmoothTime: 0.34
+  cameraAnticipationDistance: 1.25
+  cameraClampPadding: 1.5
+  multiplayerSeparationLimit: 14
+  nonPlayableWorldDepth: 22
   distantLandmarkHooks:
   - sunken-bell
   - distant-vault

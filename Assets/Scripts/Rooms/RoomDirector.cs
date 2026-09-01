@@ -111,7 +111,8 @@ namespace Ashbound
         }
         private Vector3[] ActiveSpawnPoints()
         {
-            if(routeNode&&routeNode.spawnPoints!=null&&routeNode.spawnPoints.Length>0)return routeNode.spawnPoints;if(Current&&Current.spawnPoints!=null&&Current.spawnPoints.Length>0)return Current.spawnPoints;return new[]{new Vector3(-6,0,4),new Vector3(6,0,4),new Vector3(0,0,7)};
+            Vector3[] points=routeNode&&routeNode.spawnPoints!=null&&routeNode.spawnPoints.Length>0?routeNode.spawnPoints:Current&&Current.spawnPoints!=null&&Current.spawnPoints.Length>0?Current.spawnPoints:new[]{new Vector3(-6,0,4),new Vector3(6,0,4),new Vector3(0,0,7)};
+            var active=ActiveCombatSpace;if(!active||active.layoutScale<=1)return points;var scaled=new Vector3[points.Length];for(int i=0;i<points.Length;i++)scaled[i]=active.ScalePoint(points[i]);return scaled;
         }
         private float ActiveHealthMultiplier()=>Current?Current.enemyHealthMultiplier:1;
         public Combatant DebugSpawnEnemy(EnemyDefinition definition,int partySize,bool elite=false)
