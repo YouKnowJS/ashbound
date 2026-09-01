@@ -30,9 +30,31 @@ namespace Ashbound
         public bool corrupted;
     }
     [Serializable]
+    public sealed class EnemyRoleTelemetry
+    {
+        public string role;
+        public int kills,playerDeathsCaused;
+        public float damageToPlayers;
+    }
+    [Serializable]
+    public sealed class EnemyElementTelemetry
+    {
+        public string element;
+        public float damageToPlayers;
+        public int playerDeathsCaused;
+    }
+    [Serializable]
+    public sealed class EncounterTelemetry
+    {
+        public string encounterId,arenaCategory,eliteOutcome;
+        public List<string> composition=new List<string>();
+        public float duration,playerDamageTaken,averageRemainingPlayerHp,averagePlayerSeparation;
+        public bool elitePresent;
+    }
+    [Serializable]
     public sealed class MatchRecord
     {
-        public int schemaVersion = 3;
+        public int schemaVersion = 4;
         public string runId, startedUtc, endedUtc, corruptionType, winner, outcome;
         public int seed;
         public float runDuration, finalPvPDuration;
@@ -49,18 +71,28 @@ namespace Ashbound
         public int highestRegionReached;
         public List<string> winningPlayerIds = new List<string>();
         public List<PlayerTelemetry> players = new List<PlayerTelemetry>();
+        public List<EnemyRoleTelemetry> enemyRoles = new List<EnemyRoleTelemetry>();
+        public List<EnemyElementTelemetry> enemyElements = new List<EnemyElementTelemetry>();
+        public List<EncounterTelemetry> encounters = new List<EncounterTelemetry>();
     }
     public sealed class MatchTelemetry
     {
         private readonly Dictionary<string, Dictionary<string, float>> sources = new Dictionary<string, Dictionary<string, float>>();
         private readonly Dictionary<string, Dictionary<string, float>> elements = new Dictionary<string, Dictionary<string, float>>();
         private readonly Dictionary<string, Dictionary<string, int>> procs = new Dictionary<string, Dictionary<string, int>>();
+        private readonly Dictionary<EnemyRole, EnemyRoleTelemetry> enemyRoles = new Dictionary<EnemyRole, EnemyRoleTelemetry>();
+        private readonly Dictionary<ElementTag, EnemyElementTelemetry> enemyElements = new Dictionary<ElementTag, EnemyElementTelemetry>();
+        private Combatant[] playerActors=Array.Empty<Combatant>();
+        private EncounterTelemetry activeEncounter;
+        private float encounterStart,encounterSeparationTotal;
+        private int encounterSeparationSamples;
         public MatchRecord Record { get; private set; }
         public string LastPath { get; private set; }
         public string LastError { get; private set; }
         public bool Recording { get; private set; }
         public void Begin(int seed, IEnumerable<Combatant> players, MetaProgressionService progression)
         {
+            sources.Clear();elements.Clear();procs.Clear();enemyRoles.Clear();enemyElements.Clear();activeEncounter=null;playerActors=players.ToArray();
             Record = new MatchRecord { runId = Guid.NewGuid().ToString("N"), startedUtc = DateTime.UtcNow.ToString("O"), seed = seed, debugUsed = Application.isBatchMode,
                 activePreparation=progression.ActivePreparation?progression.ActivePreparation.id:PreparationKind.None.ToString(),materialsSpentInHub=progression.ConsumeMaterialsSpent(),highestRegionReached=1 };
             Record.facilityLevels=progression.Profile.facilities.Select(x=>x.facilityId+":"+x.level).ToList();Record.bossesDefeated=progression.Profile.defeatedBosses.ToList();
@@ -77,6 +109,11 @@ namespace Ashbound
             if (!Recording) return;
             Record.runDuration += delta;
             if (state == RunState.FinalPvP) Record.finalPvPDuration += delta;
+            if(activeEncounter!=null&&CombatRules.IsCombatState(state)&&playerActors.Length>1)
+            {
+                float total=0;int pairs=0;for(int i=0;i<playerActors.Length;i++)for(int j=i+1;j<playerActors.Length;j++)if(playerActors[i]&&playerActors[j]){total+=Vector3.Distance(playerActors[i].transform.position,playerActors[j].transform.position);pairs++;}
+                if(pairs>0){encounterSeparationTotal+=total/pairs;encounterSeparationSamples++;}
+            }
         }
         public void Damage(DamageEvent damage)
         {
@@ -92,6 +129,22 @@ namespace Ashbound
                 Add(sources[attacker.playerId], damage.Info.Kind.ToString(), damage.Loss.Total); Add(elements[attacker.playerId], damage.Info.Element.ToString(), damage.Loss.Total);
             }
             if (target != null) target.damageTaken += damage.Loss.Total;
+            if(damage.Info.Source&&damage.Info.Source.EnemyDefinition&&damage.Target.IsPlayer)
+            {
+                var definition=damage.Info.Source.EnemyDefinition;var role=Role(definition.role);role.damageToPlayers+=damage.Loss.Total;var element=Element(definition.element);element.damageToPlayers+=damage.Loss.Total;if(activeEncounter!=null)activeEncounter.playerDamageTaken+=damage.Loss.Total;
+                if(!damage.Target.Alive){role.playerDeathsCaused++;element.playerDeathsCaused++;}
+            }
+            if(damage.Target.EnemyDefinition&&damage.Info.Source&&damage.Info.Source.IsPlayer&&!damage.Target.Alive)Role(damage.Target.EnemyDefinition.role).kills++;
+        }
+        private EnemyRoleTelemetry Role(EnemyRole role){if(!enemyRoles.TryGetValue(role,out var value)){value=new EnemyRoleTelemetry{role=role.ToString()};enemyRoles[role]=value;}return value;}
+        private EnemyElementTelemetry Element(ElementTag element){if(!enemyElements.TryGetValue(element,out var value)){value=new EnemyElementTelemetry{element=element.ToString()};enemyElements[element]=value;}return value;}
+        public void EncounterBegin(EncounterDefinition encounter,CombatSpaceDefinition space)
+        {
+            if(!Recording||!encounter)return;activeEncounter=new EncounterTelemetry{encounterId=encounter.id,arenaCategory=space?space.category.ToString():"Unknown",elitePresent=encounter.groups.Any(g=>g.enemy&&g.enemy.elite)};activeEncounter.composition=encounter.groups.Where(g=>g.enemy).Select(g=>g.enemy.role+":"+g.enemy.element+"x"+g.count).ToList();encounterStart=Record.runDuration;encounterSeparationTotal=0;encounterSeparationSamples=0;
+        }
+        public void EncounterEnd(EncounterDefinition encounter)
+        {
+            if(!Recording||activeEncounter==null)return;activeEncounter.duration=Mathf.Max(0,Record.runDuration-encounterStart);var party=playerActors.Where(x=>x).ToArray();int alive=party.Count(x=>x.Alive);activeEncounter.averageRemainingPlayerHp=party.Length==0?0:party.Average(x=>x.Alive?x.Health.CurrentHealth/x.Health.MaxHealth:0);activeEncounter.averagePlayerSeparation=encounterSeparationSamples==0?0:encounterSeparationTotal/encounterSeparationSamples;activeEncounter.eliteOutcome=activeEncounter.elitePresent?(alive>0?"Defeated":"PartyDefeated"):"NotPresent";Record.encounters.Add(activeEncounter);activeEncounter=null;
         }
         public void Proc(Combatant actor, string id)
         {
@@ -139,6 +192,7 @@ namespace Ashbound
             }
             Record.finalResultType = players.Count() == 1 ? (winner == "Wanderers" ? "SoloReflectionDefeated" : "SoloReflectionWon") :
                 (winner == "Corrupted" ? "CorruptedWon" : winner == "Wanderers" ? "UnboundWon" : "Draw");
+            Record.enemyRoles=enemyRoles.Values.OrderBy(x=>x.role).ToList();Record.enemyElements=enemyElements.Values.OrderBy(x=>x.element).ToList();
             try
             {
                 string directory = Path.Combine(Application.persistentDataPath, "Telemetry");

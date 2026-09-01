@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: base-ember-bomber
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: base-ember-bomber
+  displayName: Ember Bomber
+  combatRead: Bomber pressure using Detonation with Pursue movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 7
+  maxHealth: 42
+  movementSpeed: 3.7
+  attackDamage: 22
+  attackCooldown: 2.7
+  preferredDistance: 1.8
+  element: 0
+  statusResistance: 0.02
+  staggerResistance: 0.02
+  targeting: 4
+  movement: 7
+  attack: 7
+  spawnPresentation: 2
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 0.78
+  baseTint: {r: 0.68, g: 0.24, b: 0.18, a: 1}
+  telegraphLanguage: Detonation warning uses a persistent ground ring or directional
+    line before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

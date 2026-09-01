@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: base-bell-mage
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: base-bell-mage
+  displayName: Bell Mage
+  combatRead: Mage pressure using Area with Orbit movement.
+  legacyKind: 4
+  legacyFallback: 1
+  role: 4
+  maxHealth: 82
+  movementSpeed: 2.7
+  attackDamage: 15
+  attackCooldown: 2.1
+  preferredDistance: 6
+  element: 0
+  statusResistance: 0.2
+  staggerResistance: 0.18
+  targeting: 4
+  movement: 4
+  attack: 4
+  spawnPresentation: 5
+  rewardTier: 2
+  elite: 1
+  shield: 25
+  visualScale: 1.1
+  baseTint: {r: 0.75, g: 0.55, b: 0.3, a: 1}
+  telegraphLanguage: Area warning uses a persistent ground ring or directional line
+    before commitment.
+  rewardHook: Eligible for elite equipment weighting.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

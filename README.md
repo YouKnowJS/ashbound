@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors and rooms. Prefab 
 
 ## Developer guide
 
-See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), and [verification instructions](Docs/VERIFICATION.md).
+See [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), [v0.4 progression guide](Docs/V0.4_META_PROGRESSION.md), [v0.3 element/equipment guide](Docs/V0.3_ELEMENT_EQUIPMENT.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -65,6 +65,7 @@ F1 pauses simulation and exposes:
 - Force weapon family, rarity, element, and Weapon Skill; equip two or four pieces of any authored set; clear equipment.
 - Display dominant BuildAnalyzer themes, force relic themes, spawn elemental test enemies, and toggle status/VFX feedback.
 - Add/zero persistent resources, set facility levels, unlock equipment, reset the profile, force preparations/reward rarity, and simulate expedition outcomes.
+- Open the Ecology page to spawn by role/element, force an Elite, load an encounter preset or combat-space size, and toggle enemy AI or telegraphs.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -77,7 +78,7 @@ One local JSON file is written on completion, reset, or application exit, under:
 %USERPROFILE%/AppData/LocalLow/AshboundPrototype/Ashbound/Telemetry/run-<id>.json
 ```
 
-The authoritative directories are `Application.persistentDataPath/Profile` and `Application.persistentDataPath/Telemetry`. The Hub and result screen show paths and resource settlement. Records include combat/build data plus collected/retained/lost resources, Hub spending, facility levels, preparation, equipment acquisition/salvage, rerolls, progression depth, bosses, outcome, and a debug flag. Nothing is uploaded.
+The authoritative directories are `Application.persistentDataPath/Profile` and `Application.persistentDataPath/Telemetry`. The Hub and result screen show paths and resource settlement. Records include combat/build data plus collected/retained/lost resources, Hub spending, facility levels, preparation, equipment acquisition/salvage, rerolls, progression depth, enemy role/element pressure, encounter composition/duration, arena category, party separation, bosses, outcome, and a debug flag. Nothing is uploaded.
 
 ### Build / test from PowerShell
 
@@ -100,6 +101,6 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.
 - A physical multi-gamepad session still needs hardware testing; automated virtual-device coverage cannot establish controller ergonomics or real disconnect behavior.
 
-Ashbound v0.4 adds the persistent host profile, Expedition Hub, four-resource economy, preparations, data-driven facilities, unlock pools, failure retention, and personal equipment reward/salvage flow while preserving the v0.3 build systems. See [the v0.4 guide](Docs/V0.4_META_PROGRESSION.md).
+Ashbound v0.5 adds ten data-driven enemy roles, ten elemental variants, authored encounter compositions, future region-ecology pools, and five irregular Small/Medium/Large graybox spaces while preserving v0.4 progression and the final corruption flow. See [the v0.5 guide](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md).
 
-Next milestone: collect repeated human solo and 2–4 player run telemetry, tune weapon/build/boss/reflection fairness and control feel, then prototype an authoritative networking transport without adding more content.
+Next milestone: collect repeated human solo and 2–4 player ecology telemetry, tune role overlap and arena scale, then add measured navigation/avoidance and dynamic shared-camera improvements before expanding content.

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: base-grave-burrower
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: base-grave-burrower
+  displayName: Grave Burrower
+  combatRead: Burrower pressure using Eruption with Burrow movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 6
+  maxHealth: 76
+  movementSpeed: 3.15
+  attackDamage: 17
+  attackCooldown: 2.6
+  preferredDistance: 3.5
+  element: 0
+  statusResistance: 0.12
+  staggerResistance: 0.18
+  targeting: 3
+  movement: 6
+  attack: 6
+  spawnPresentation: 4
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 1
+  baseTint: {r: 0.68, g: 0.24, b: 0.18, a: 1}
+  telegraphLanguage: Eruption warning uses a persistent ground ring or directional
+    line before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

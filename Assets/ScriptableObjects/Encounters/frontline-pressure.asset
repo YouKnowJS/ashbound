@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0888064d035daad47898dcbdd0d5ab88, type: 3}
+  m_Name: frontline-pressure
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EncounterDefinition
+  id: frontline-pressure
+  displayName: Frontline Pressure
+  intent: A durable line advances while ranged pressure punishes passive retreat.
+  groups:
+  - id: line
+    enemy: {fileID: 11400000, guid: 88b9e6c28aff34741b8f54bbf28626e7, type: 2}
+    count: 2
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 1
+    reinforcement: 0
+  - id: anchor
+    enemy: {fileID: 11400000, guid: 58f88db5395095a429f547e3691c0585, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 0
+    reinforcement: 0
+  - id: backline
+    enemy: {fileID: 11400000, guid: 7b479aff04d027a46a94494b27bf39ae, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 1
+    reinforcement: 0
+  difficulty: 0
+  riskTier: 0
+  elementalPressure: 02000000
+  rewardTier: 0
+  requiredArenaSize: 0
+  preferredSpaceDiameter: 20
+  targetDurationSeconds: 105
+  allowsElite: 0
+  compositionNotes: Frontline and backline have separate reads; reinforcement timing
+    is exposed per group.

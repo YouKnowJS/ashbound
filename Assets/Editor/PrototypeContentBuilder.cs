@@ -36,12 +36,14 @@ namespace Ashbound.Editor
             string[] folders = { "Assets/Resources", "Assets/ScriptableObjects/Items", "Assets/ScriptableObjects/Bosses",
                 "Assets/ScriptableObjects/Corruption", "Assets/ScriptableObjects/Rooms", "Assets/ScriptableObjects/Lore", "Assets/ScriptableObjects/Weapons",
                 "Assets/ScriptableObjects/WeaponSkills", "Assets/ScriptableObjects/Armor", "Assets/ScriptableObjects/ArmorSets", "Assets/ScriptableObjects/Meta", "Assets/Scenes" };
+            folders = folders.Concat(new[] { "Assets/ScriptableObjects/Enemies", "Assets/ScriptableObjects/Encounters", "Assets/ScriptableObjects/CombatSpaces", "Assets/ScriptableObjects/RegionEcologies" }).ToArray();
             foreach (string folder in folders) Directory.CreateDirectory(folder);
             AssetDatabase.Refresh();
             var items = CreateItems(); var weaponSkills=CreateWeaponSkills();
             var weapons = CreateWeapons(weaponSkills); var weapon = weapons[0];
             var armorSets=CreateArmorSets(); var armor=CreateArmor(armorSets);
             var facilities=CreateFacilities();var preparations=CreatePreparations();var progressionTuning=CreateProgressionTuning();
+            var enemies=CreateEnemies();var encounters=CreateEncounters(enemies);var combatSpaces=CreateCombatSpaces();var regionEcologies=CreateRegionEcologies(enemies,encounters);
             var corruption = Asset<BossCorruptionProfile>("Assets/ScriptableObjects/Corruption/Ash.asset", x => { });
             var boss = Asset<BossDefinition>("Assets/ScriptableObjects/Bosses/CinderRegent.asset", x => x.corruption = corruption);
             var firstLore = Asset<LoreEntry>("Assets/ScriptableObjects/Lore/WatchkeepersNote.asset", x =>
@@ -49,24 +51,18 @@ namespace Ashbound.Editor
             var secondLore = Asset<LoreEntry>("Assets/ScriptableObjects/Lore/EmptyThrone.asset", x =>
             { x.id = "empty-throne"; x.title = "Inscription beneath a bell"; x.text = "The keeper is a title, not a name. The stone has been carved over many times."; });
             var points = new[] { new Vector3(-7, 0, 4), new Vector3(6, 0, 5), new Vector3(0, 0, 7), new Vector3(8, 0, -1), new Vector3(-8, 0, -1), new Vector3(3, 0, 3), new Vector3(-4, 0, 6), new Vector3(0, 0, 4) };
-            var room1 = Room("Threshold", "threshold", "01 / The Threshold", "Old bells ring beneath the stone.", points, firstLore,
-                EnemyKind.Cinderling, EnemyKind.Cinderling, EnemyKind.Lantern);
-            var room2 = Room("BellChamber", "bell-chamber", "02 / The Bell Chamber", "Fast shapes circle the old bell.", points, secondLore,
-                EnemyKind.Hound, EnemyKind.Lantern, EnemyKind.Cinderling, EnemyKind.Hound);
-            var eliteRoom = Room("WardenCrossing", "warden-crossing", "03 / Warden Crossing", "A shielded keeper bars the crossing.", points, null,
-                EnemyKind.Bulwark, EnemyKind.Elite, EnemyKind.Lantern);
-            var room4 = Room("AshGallery", "ash-gallery", "04 / The Ash Gallery", "The vault gathers its remaining guard.", points, null,
-                EnemyKind.Cinderling, EnemyKind.Hound, EnemyKind.Bulwark, EnemyKind.Lantern);
-            var miniRoom = Room("CrackedSanctum", "cracked-sanctum", "05 / The Cracked Sanctum", "A lesser keeper tests what your build has become.", points, null,
-                EnemyKind.MiniBoss);
-            var room6 = Room("LastProcession", "last-procession", "06 / The Last Procession", "One final seal stands before the throne.", points, null,
-                EnemyKind.Elite, EnemyKind.Hound, EnemyKind.Lantern, EnemyKind.Bulwark);
+            var room1 = Room("Threshold", "threshold", "01 / The Threshold", "Old bells ring beneath the stone.", points, firstLore,encounters[0],combatSpaces[0]);
+            var room2 = Room("BellChamber", "bell-chamber", "02 / The Bell Chamber", "Fast shapes circle the old bell.", points, secondLore,encounters[1],combatSpaces[1]);
+            var eliteRoom = Room("WardenCrossing", "warden-crossing", "03 / Warden Crossing", "A shielded keeper bars the crossing.", points, null,encounters[4],combatSpaces[2]);
+            var room4 = Room("AshGallery", "ash-gallery", "04 / The Ash Gallery", "The vault gathers its remaining guard.", points, null,encounters[3],combatSpaces[3]);
+            var miniRoom = Room("CrackedSanctum", "cracked-sanctum", "05 / The Cracked Sanctum", "A lesser keeper tests what your build has become.", points, null,encounters[5],combatSpaces[4]);
+            var room6 = Room("LastProcession", "last-procession", "06 / The Last Procession", "One final seal stands before the throne.", points, null,encounters[2],combatSpaces[3]);
             var bossRoom = Asset<RoomDefinition>("Assets/ScriptableObjects/Rooms/CinderThrone.asset", x =>
             {
-                x.id = "cinder-throne"; x.displayName = "07 / The Cinder Throne"; x.description = "The last keeper waits."; x.isBoss = true; x.spawnPoints = points; x.waves = Array.Empty<EnemyWave>();
+                x.id = "cinder-throne"; x.displayName = "07 / The Cinder Throne"; x.description = "The last keeper waits."; x.isBoss = true; x.spawnPoints = points; x.waves = Array.Empty<EnemyWave>();x.combatSpace=combatSpaces[4];
             });
             var catalog = Asset<PrototypeCatalog>("Assets/Resources/PrototypeCatalog.asset", x =>
-            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.weaponSkills=weaponSkills; x.armorSets=armorSets; x.armor=armor;x.facilities=facilities;x.preparations=preparations;x.progressionTuning=progressionTuning; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom }; });
+            { x.items = items; x.weapon = weapon; x.weapons = weapons; x.weaponSkills=weaponSkills; x.armorSets=armorSets; x.armor=armor;x.facilities=facilities;x.preparations=preparations;x.progressionTuning=progressionTuning; x.boss = boss; x.rooms = new[] { room1, room2, eliteRoom, room4, miniRoom, room6, bossRoom };x.enemies=enemies;x.encounters=encounters;x.combatSpaces=combatSpaces;x.regionEcologies=regionEcologies; });
             if (!File.Exists("Assets/Resources/PrototypeLit.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Standard")), "Assets/Resources/PrototypeLit.mat");
             if (!File.Exists("Assets/Resources/PrototypeLine.mat")) AssetDatabase.CreateAsset(new Material(Shader.Find("Sprites/Default")), "Assets/Resources/PrototypeLine.mat");
             ConfigureProject(); AssetDatabase.SaveAssets();
@@ -82,7 +78,82 @@ namespace Ashbound.Editor
                 else EditorSceneManager.OpenScene("Assets/Scenes/MainMenu.unity");
             }
             AssetDatabase.SaveAssets();
-            Debug.Log("Ashbound v0.4 content ready: v0.3 combat plus 6 Hub facilities, 28 upgrades, 5 preparations, resources, and equipment rewards.");
+            Debug.Log("Ashbound v0.5 content ready: 10 enemy roles, elemental variants, encounter presets, and irregular combat spaces layered over v0.4 progression.");
+        }
+
+        private static EnemyDefinition[] CreateEnemies()
+        {
+            EnemyDefinition D(string id,string name,EnemyRole role,float hp,float speed,float damage,float cooldown,float distance,EnemyMovementStyle movement,EnemyAttackBehavior attack,EnemyTargetingStyle targeting,Color tint,float scale=1,bool elite=false,float resistance=.05f,float stagger=.05f,ElementTag element=ElementTag.None,SpawnPresentation spawn=SpawnPresentation.Edge,EnemyKind legacy=EnemyKind.Cinderling,bool fallback=false,float shield=0)=>
+                Asset<EnemyDefinition>("Assets/ScriptableObjects/Enemies/"+id+".asset",x=>{x.id=id;x.displayName=name;x.role=role;x.maxHealth=hp;x.movementSpeed=speed;x.attackDamage=damage;x.attackCooldown=cooldown;x.preferredDistance=distance;x.movement=movement;x.attack=attack;x.targeting=targeting;x.baseTint=tint;x.visualScale=scale;x.elite=elite;x.statusResistance=resistance;x.staggerResistance=stagger;x.element=element;x.spawnPresentation=spawn;x.legacyKind=legacy;x.legacyFallback=fallback;x.shield=shield;x.rewardTier=elite?EnemyRewardTier.Elite:hp>=100?EnemyRewardTier.Dangerous:EnemyRewardTier.Standard;x.combatRead=role+" pressure using "+attack+" with "+movement+" movement.";x.telegraphLanguage=attack+" warning uses a persistent ground ring or directional line before commitment.";x.rewardHook=elite?"Eligible for elite equipment weighting.":"Standard encounter reward contribution.";});
+            Color ash=new Color(.68f,.24f,.18f),gold=new Color(.75f,.55f,.3f),pale=new Color(.55f,.64f,.7f);
+            var list=new System.Collections.Generic.List<EnemyDefinition>
+            {
+                D("base-cinder-warrior","Cinder Warrior",EnemyRole.Warrior,54,3.5f,11,1.25f,1.7f,EnemyMovementStyle.Advance,EnemyAttackBehavior.Melee,EnemyTargetingStyle.Nearest,ash,legacy:EnemyKind.Cinderling,fallback:true),
+                D("base-ash-bruiser","Ash Bruiser",EnemyRole.Bruiser,125,2.55f,20,2.15f,2.5f,EnemyMovementStyle.HoldGround,EnemyAttackBehavior.WideMelee,EnemyTargetingStyle.Cluster,gold,1.25f,false,.2f,.45f,legacy:EnemyKind.Bulwark,fallback:true,shield:35),
+                D("base-veil-assassin","Veil Assassin",EnemyRole.Assassin,67,4.35f,16,1.85f,4,EnemyMovementStyle.Flank,EnemyAttackBehavior.Lunge,EnemyTargetingStyle.Isolated,pale,.82f,false,.08f,.05f,spawn:SpawnPresentation.Rift,legacy:EnemyKind.Hound,fallback:true),
+                D("base-lantern-ranger","Lantern Ranger",EnemyRole.Ranger,45,2.85f,10,1.15f,7,EnemyMovementStyle.Kite,EnemyAttackBehavior.Projectile,EnemyTargetingStyle.LowestHealth,gold,.95f,false,.05f,.05f,legacy:EnemyKind.Lantern,fallback:true),
+                D("base-bell-mage","Bell Mage",EnemyRole.Mage,82,2.7f,15,2.1f,6,EnemyMovementStyle.Orbit,EnemyAttackBehavior.Area,EnemyTargetingStyle.Cluster,gold,1.1f,true,.2f,.18f,spawn:SpawnPresentation.Rift,legacy:EnemyKind.Elite,fallback:true,shield:25),
+                D("base-vault-flyer","Vault Flyer",EnemyRole.Flyer,48,4.15f,13,2,4.5f,EnemyMovementStyle.AerialOrbit,EnemyAttackBehavior.Dive,EnemyTargetingStyle.Furthest,pale,.75f,false,.05f,.02f,spawn:SpawnPresentation.Flight),
+                D("base-grave-burrower","Grave Burrower",EnemyRole.Burrower,76,3.15f,17,2.6f,3.5f,EnemyMovementStyle.Burrow,EnemyAttackBehavior.Eruption,EnemyTargetingStyle.Isolated,ash,1,false,.12f,.18f,spawn:SpawnPresentation.Burrow),
+                D("base-ember-bomber","Ember Bomber",EnemyRole.Bomber,42,3.7f,22,2.7f,1.8f,EnemyMovementStyle.Pursue,EnemyAttackBehavior.Detonation,EnemyTargetingStyle.Cluster,ash,.78f,false,.02f,.02f,spawn:SpawnPresentation.DropIn),
+                D("base-choir-support","Ash Choir",EnemyRole.Support,63,3,12,3.4f,7,EnemyMovementStyle.SupportLine,EnemyAttackBehavior.AllyAid,EnemyTargetingStyle.LowestHealth,gold,.9f,false,.18f,.1f,spawn:SpawnPresentation.Gate),
+                D("base-chain-controller","Chain Keeper",EnemyRole.Controller,92,2.6f,12,2.8f,6,EnemyMovementStyle.ZoneKeeper,EnemyAttackBehavior.ControlField,EnemyTargetingStyle.Cluster,pale,1.1f,false,.28f,.25f,spawn:SpawnPresentation.Rift),
+                D("elite-cracked-warden","The Cracked Warden",EnemyRole.Bruiser,430,2.6f,27,2.15f,2.6f,EnemyMovementStyle.HoldGround,EnemyAttackBehavior.WideMelee,EnemyTargetingStyle.Cluster,gold,1.7f,true,.45f,.65f,spawn:SpawnPresentation.Gate,legacy:EnemyKind.MiniBoss,fallback:true,shield:65)
+            };
+            list.Add(D("variant-fire-warrior","Kindled Warrior",EnemyRole.Warrior,66,3.55f,13,1.35f,1.8f,EnemyMovementStyle.Advance,EnemyAttackBehavior.Melee,EnemyTargetingStyle.Nearest,ash,1.02f,false,.08f,.08f,ElementTag.Fire));
+            list.Add(D("variant-fire-bomber","Furnace Bomber",EnemyRole.Bomber,51,3.6f,24,2.8f,1.8f,EnemyMovementStyle.Pursue,EnemyAttackBehavior.Detonation,EnemyTargetingStyle.Cluster,ash,.82f,false,.04f,.03f,ElementTag.Fire,SpawnPresentation.DropIn));
+            list.Add(D("variant-frost-ranger","Rime Ranger",EnemyRole.Ranger,53,2.8f,11,1.3f,7.5f,EnemyMovementStyle.Kite,EnemyAttackBehavior.Projectile,EnemyTargetingStyle.LowestHealth,pale,.95f,false,.22f,.08f,ElementTag.Frost));
+            list.Add(D("variant-frost-controller","Winter Chain Keeper",EnemyRole.Controller,105,2.5f,13,3,6,EnemyMovementStyle.ZoneKeeper,EnemyAttackBehavior.ControlField,EnemyTargetingStyle.Cluster,pale,1.12f,true,.45f,.3f,ElementTag.Frost,SpawnPresentation.Rift));
+            list.Add(D("variant-lightning-flyer","Stormwing",EnemyRole.Flyer,55,4.4f,14,1.9f,4.7f,EnemyMovementStyle.AerialOrbit,EnemyAttackBehavior.Dive,EnemyTargetingStyle.Furthest,pale,.78f,false,.1f,.03f,ElementTag.Lightning,SpawnPresentation.Flight));
+            list.Add(D("variant-lightning-assassin","Flash Assassin",EnemyRole.Assassin,70,4.55f,17,1.8f,4.2f,EnemyMovementStyle.Flank,EnemyAttackBehavior.Lunge,EnemyTargetingStyle.Isolated,pale,.84f,false,.08f,.04f,ElementTag.Lightning,SpawnPresentation.Rift));
+            list.Add(D("variant-poison-burrower","Rot Burrower",EnemyRole.Burrower,84,3.05f,18,2.7f,3.5f,EnemyMovementStyle.Burrow,EnemyAttackBehavior.Eruption,EnemyTargetingStyle.Isolated,ash,1.02f,false,.3f,.2f,ElementTag.Poison,SpawnPresentation.Burrow));
+            list.Add(D("variant-poison-support","Blight Choir",EnemyRole.Support,70,2.9f,13,3.5f,7,EnemyMovementStyle.SupportLine,EnemyAttackBehavior.AllyAid,EnemyTargetingStyle.LowestHealth,gold,.92f,false,.28f,.12f,ElementTag.Poison,SpawnPresentation.Gate));
+            list.Add(D("variant-void-mage","Rift Mage",EnemyRole.Mage,90,2.65f,17,2.2f,6.4f,EnemyMovementStyle.Orbit,EnemyAttackBehavior.Area,EnemyTargetingStyle.Cluster,pale,1.12f,true,.35f,.2f,ElementTag.Void,SpawnPresentation.Rift));
+            list.Add(D("variant-void-bruiser","Hollow Bruiser",EnemyRole.Bruiser,140,2.45f,22,2.25f,2.7f,EnemyMovementStyle.HoldGround,EnemyAttackBehavior.WideMelee,EnemyTargetingStyle.Cluster,gold,1.3f,true,.38f,.52f,ElementTag.Void,SpawnPresentation.Rift,shield:40));
+            return list.ToArray();
+        }
+
+        private static EncounterDefinition[] CreateEncounters(EnemyDefinition[] enemies)
+        {
+            EnemyDefinition E(string id)=>enemies.First(x=>x.id==id);
+            EnemySpawnGroup G(string id,string enemy,int count,SpawnPresentation presentation,bool reinforcement=false)=>new EnemySpawnGroup{id=id,enemy=E(enemy),count=count,presentation=presentation,reinforcement=reinforcement,startDelay=0,spawnInterval=0};
+            EncounterDefinition C(string id,string name,string intent,EncounterDifficulty difficulty,EncounterRiskTier risk,CombatSpaceCategory size,float diameter,float duration,EnemyRewardTier reward,string notes,params EnemySpawnGroup[] groups)=>Asset<EncounterDefinition>("Assets/ScriptableObjects/Encounters/"+id+".asset",x=>{x.id=id;x.displayName=name;x.intent=intent;x.difficulty=difficulty;x.riskTier=risk;x.requiredArenaSize=size;x.preferredSpaceDiameter=diameter;x.targetDurationSeconds=duration;x.rewardTier=reward;x.compositionNotes=notes;x.groups=groups;x.elementalPressure=groups.Where(g=>g.enemy&&g.enemy.element!=ElementTag.None).Select(g=>g.enemy.element).Distinct().ToArray();x.allowsElite=groups.Any(g=>g.enemy&&g.enemy.elite);});
+            return new[]
+            {
+                C("frontline-pressure","Frontline Pressure","A durable line advances while ranged pressure punishes passive retreat.",EncounterDifficulty.Introductory,EncounterRiskTier.Low,CombatSpaceCategory.Small,20,105,EnemyRewardTier.Standard,"Frontline and backline have separate reads; reinforcement timing is exposed per group.",G("line","base-cinder-warrior",2,SpawnPresentation.Edge),G("anchor","base-ash-bruiser",1,SpawnPresentation.Gate),G("backline","variant-frost-ranger",1,SpawnPresentation.Edge)),
+                C("collapse","Collapse","Flankers split the party before a readable bomber closes the safe pocket.",EncounterDifficulty.Standard,EncounterRiskTier.Medium,CombatSpaceCategory.Medium,25,125,EnemyRewardTier.Dangerous,"Assassins choose isolated targets; bomber chain reactions create player-directed risk.",G("flank","variant-lightning-assassin",2,SpawnPresentation.Rift),G("collapse","variant-fire-bomber",1,SpawnPresentation.DropIn,true),G("line","base-lantern-ranger",1,SpawnPresentation.Edge)),
+                C("vertical-threat","Vertical Threat","Aerial orbit and dives demand open sightlines while support sustains the formation.",EncounterDifficulty.Dangerous,EncounterRiskTier.High,CombatSpaceCategory.Large,31,145,EnemyRewardTier.Dangerous,"Flyers expose landing windows. Ranged and support units remain answerable from connected subspaces.",G("air","variant-lightning-flyer",2,SpawnPresentation.Flight),G("cover","base-lantern-ranger",1,SpawnPresentation.Edge),G("choir","base-choir-support",1,SpawnPresentation.Gate)),
+                C("ground-ambush","Ground Ambush","Burrow warnings displace players into controller zones without long hard control.",EncounterDifficulty.Standard,EncounterRiskTier.Medium,CombatSpaceCategory.Medium,27,130,EnemyRewardTier.Dangerous,"Eruption markers remain useful information while burrowers are untargetable.",G("burrow","variant-poison-burrower",2,SpawnPresentation.Burrow),G("keeper","base-chain-controller",1,SpawnPresentation.Rift),G("pressure","base-cinder-warrior",1,SpawnPresentation.Edge)),
+                C("control-group","Control Group","Short pull and slow effects create attack windows for a mage and guarded support.",EncounterDifficulty.Dangerous,EncounterRiskTier.High,CombatSpaceCategory.Medium,28,150,EnemyRewardTier.Elite,"Control durations are short. Support has a cooldown and cannot create recursive support loops.",G("control","variant-frost-controller",1,SpawnPresentation.Rift),G("artillery","variant-void-mage",1,SpawnPresentation.Rift),G("support","variant-poison-support",1,SpawnPresentation.Gate),G("guard","base-cinder-warrior",1,SpawnPresentation.Edge)),
+                C("cracked-trial","Cracked Trial","A single high-resistance warden checks developed builds before the throne.",EncounterDifficulty.Elite,EncounterRiskTier.High,CombatSpaceCategory.Large,30,180,EnemyRewardTier.Elite,"Mini-boss compatibility encounter; v0.4 reward and corruption sequence remains unchanged.",G("warden","elite-cracked-warden",1,SpawnPresentation.Gate))
+            };
+        }
+
+        private static RegionEnemyPoolDefinition[] CreateRegionEcologies(EnemyDefinition[] enemies,EncounterDefinition[] encounters)
+        {
+            EnemyDefinition[] Pick(params string[] ids)=>ids.Select(id=>enemies.First(x=>x.id==id)).ToArray();EncounterDefinition[] Enc(params string[] ids)=>ids.Select(id=>encounters.First(x=>x.id==id)).ToArray();
+            RegionEnemyPoolDefinition R(string id,string name,string intent,ElementTag[] elements,EnemyDefinition[] common,EnemyDefinition[] hard,EnemyDefinition[] elite,EncounterDefinition[] pool)=>Asset<RegionEnemyPoolDefinition>("Assets/ScriptableObjects/RegionEcologies/"+id+".asset",x=>{x.id=id;x.displayName=name;x.ecologyIntent=intent;x.favoredElements=elements;x.commonEnemies=common;x.hardEnemies=hard;x.eliteCandidates=elite;x.encounterPool=pool;});
+            return new[]
+            {
+                R("future-ash-ruins","Ash Ruins Ecology","Frontline and explosive Fire pressure for a future region; this is a pool hook, not a completed campaign.",new[]{ElementTag.Fire},Pick("base-cinder-warrior","base-ash-bruiser","base-lantern-ranger"),Pick("variant-fire-warrior","variant-fire-bomber","base-bell-mage"),Pick("variant-void-bruiser"),Enc("frontline-pressure","collapse")),
+                R("future-frozen-reach","Frozen Reach Ecology","Precision Chill and short control supported by durable neutral bodies.",new[]{ElementTag.Frost},Pick("base-cinder-warrior","variant-frost-ranger","base-veil-assassin"),Pick("variant-frost-controller","base-ash-bruiser"),Pick("variant-void-mage"),Enc("control-group","ground-ambush")),
+                R("future-void-depths","Void Depths Ecology","Spatial distortion combines mobile threats, controllers, and priority mages.",new[]{ElementTag.Void},Pick("base-vault-flyer","base-veil-assassin","base-chain-controller"),Pick("variant-void-mage","variant-lightning-flyer"),Pick("variant-void-bruiser"),Enc("vertical-threat","control-group"))
+            };
+        }
+
+        private static CombatSpaceDefinition[] CreateCombatSpaces()
+        {
+            CombatSpaceSection S(string id,float x,float z,float width,float depth,bool path=false,float rotation=0)=>new CombatSpaceSection{id=id,center=new Vector2(x,z),size=new Vector2(width,depth),transitionPath=path,rotation=rotation};
+            CombatSpaceObstacle O(float x,float z,float width,float depth,float height=2,float rotation=0)=>new CombatSpaceObstacle{position=new Vector2(x,z),size=new Vector2(width,depth),height=height,rotation=rotation};
+            CombatSpaceDefinition C(string id,string name,CombatSpaceCategory category,ArenaLayoutKind layout,Vector2 bounds,float camera,float separation,Vector3 exit,string intent,CombatSpaceSection[] sections,Vector2[] boundary,CombatSpaceObstacle[] obstacles,params string[] landmarks)=>Asset<CombatSpaceDefinition>("Assets/ScriptableObjects/CombatSpaces/"+id+".asset",x=>{x.id=id;x.displayName=name;x.category=category;x.layout=layout;x.technicalBounds=bounds;x.cameraOrthographicSize=camera;x.multiplayerSeparationLimit=separation;x.entrancePosition=new Vector3(0,0,-8);x.exitPosition=exit;x.transitionLength=6;x.spatialIntent=intent;x.sections=sections;x.boundaryPoints=boundary;x.obstacles=obstacles;x.distantLandmarkHooks=landmarks;});
+            return new[]
+            {
+                C("crooked-threshold","Crooked Threshold",CombatSpaceCategory.Small,ArenaLayoutKind.IrregularCourtyard,new Vector2(24,24),12.8f,15,new Vector3(2,0,10),"An offset courtyard with a playable side pocket and a short northern transition path.",new[]{S("court",1,-1,17,14),S("side-pocket",-7,1,6,8),S("north-path",2,7.5f,4,7,true)},new[]{new Vector2(-10,-8),new Vector2(8,-8),new Vector2(10,-3),new Vector2(9,5),new Vector2(4,7),new Vector2(4,11),new Vector2(0,11),new Vector2(0,7),new Vector2(-10,5)},new[]{O(-5,-1,1.4f,3,2.4f,18),O(5,2,2,1.3f,2.2f,-12)},"sunken-bell","distant-vault"),
+                C("twin-courts","Twin Courts",CombatSpaceCategory.Medium,ArenaLayoutKind.ConnectedCourtyards,new Vector2(32,25),14.5f,19,new Vector3(6,0,11),"Two combat pockets connected by a wide bridge, with route-readable retreat and regroup space.",new[]{S("west",-6,-1,14,15),S("east",7,2,14,14),S("bridge",1,0,8,5),S("north-path",6,8.5f,5,7,true)},new[]{new Vector2(-13,-9),new Vector2(1,-9),new Vector2(3,-5),new Vector2(13,-5),new Vector2(14,8),new Vector2(9,9),new Vector2(9,12),new Vector2(3,12),new Vector2(3,9),new Vector2(-13,7)},new[]{O(-7,1,1.5f,4,2.5f),O(7,1,2,2,2.8f,45),O(1,4,1,3,1.6f)},"bell-tower","broken-arcade"),
+                C("branching-ruins","Branching Ruins",CombatSpaceCategory.Medium,ArenaLayoutKind.BranchingRuins,new Vector2(34,27),15.2f,20,new Vector3(0,0,12),"A central hub branches into three usable lanes; obstacles block clean firing lines without creating dead ends.",new[]{S("hub",0,0,13,13),S("west-branch",-9,1,8,6),S("east-branch",9,1,8,6),S("south-branch",0,-8,7,7),S("north-path",0,8.5f,5,8,true)},new[]{new Vector2(-14,-4),new Vector2(-5,-5),new Vector2(-4,-12),new Vector2(4,-12),new Vector2(5,-5),new Vector2(14,-4),new Vector2(14,5),new Vector2(4,6),new Vector2(3,13),new Vector2(-3,13),new Vector2(-4,6),new Vector2(-14,5)},new[]{O(-3,0,1.4f,4,2.6f,35),O(4,2,1.5f,4,2.6f,-30),O(0,-7,2.2f,1.2f,1.8f)},"collapsed-choir","far-chain"),
+                C("broken-ring","Broken Ring",CombatSpaceCategory.Large,ArenaLayoutKind.BrokenRing,new Vector2(38,31),16.8f,23,new Vector3(-2,0,14),"A broad irregular ring supports four-player separation while broken center blocks create circular rotations.",new[]{S("ring-floor",0,0,29,22),S("west-alcove",-14,0,6,10),S("east-alcove",14,2,6,9),S("north-path",-2,11,6,8,true)},new[]{new Vector2(-18,-8),new Vector2(-10,-13),new Vector2(7,-13),new Vector2(17,-7),new Vector2(18,7),new Vector2(9,11),new Vector2(1,11),new Vector2(1,15),new Vector2(-5,15),new Vector2(-5,11),new Vector2(-16,9)},new[]{O(-4,0,3,7,2.5f,18),O(4,1,3,7,2.5f,-18),O(0,-5,4,2,1.5f),O(11,5,1.5f,4,2.2f)},"cinder-chasm","warden-statue","upper-vault"),
+                C("divided-hall","Divided Hall",CombatSpaceCategory.Large,ArenaLayoutKind.DividedHall,new Vector2(37,31),17.2f,22,new Vector3(4,0,14),"A split hall with parallel subspaces, cross-connectors, and a visible transition corridor to the next node.",new[]{S("west-hall",-7,0,13,22),S("east-hall",8,1,13,20),S("lower-crossing",0,-6,7,4),S("upper-crossing",1,6,8,4),S("north-path",4,11.5f,5,8,true)},new[]{new Vector2(-14,-12),new Vector2(15,-11),new Vector2(16,9),new Vector2(7,10),new Vector2(7,15),new Vector2(1,15),new Vector2(1,10),new Vector2(-13,11),new Vector2(-16,2)},new[]{O(0,0,2,9,3),O(-8,4,2,3,2.4f,20),O(9,-3,2,4,2.4f,-20)},"throne-silhouette","ashfall","distant-procession")
+            };
         }
 
         private static HubFacilityDefinition[] CreateFacilities()
@@ -149,10 +220,23 @@ namespace Ashbound.Editor
             x.restOptions=new[]{new RestOptionDefinition{kind=RestOptionKind.Rest,displayName="Rest",description="Recover health.",power=.3f},new RestOptionDefinition{kind=RestOptionKind.Temper,displayName="Temper",description="Skip healing and reserve a small equipment-improvement hook.",power=.05f}};
         });
 
-        private static RoomDefinition Room(string assetName, string id, string name, string description, Vector3[] points, LoreEntry lore, params EnemyKind[] enemies) =>
+        private static RoomDefinition Room(string assetName, string id, string name, string description, Vector3[] points, LoreEntry lore,EncounterDefinition encounter,CombatSpaceDefinition space) =>
             Asset<RoomDefinition>("Assets/ScriptableObjects/Rooms/" + assetName + ".asset", x =>
-            { x.id = id; x.displayName = name; x.description = description; x.isBoss = false; x.spawnPoints = points; x.fragment = lore; x.waves = new[] { new EnemyWave { enemies = enemies } };
+            { x.id = id; x.displayName = name; x.description = description; x.isBoss = false; x.spawnPoints = points; x.fragment = lore; x.combatSpace=space;x.waves = new[] { new EnemyWave { enemies = LegacyEnemies(id),encounter=encounter } };
               x.enemyHealthMultiplier = id == "cracked-sanctum" ? 1.35f : id == "last-procession" ? 1.2f : 1; x.targetEncounterSeconds = id == "cracked-sanctum" ? 180 : 145; });
+
+        private static EnemyKind[] LegacyEnemies(string id)
+        {
+            switch(id)
+            {
+                case "threshold":return new[]{EnemyKind.Cinderling,EnemyKind.Cinderling,EnemyKind.Lantern};
+                case "bell-chamber":return new[]{EnemyKind.Hound,EnemyKind.Lantern,EnemyKind.Cinderling,EnemyKind.Hound};
+                case "warden-crossing":return new[]{EnemyKind.Bulwark,EnemyKind.Elite,EnemyKind.Lantern};
+                case "ash-gallery":return new[]{EnemyKind.Cinderling,EnemyKind.Hound,EnemyKind.Bulwark,EnemyKind.Lantern};
+                case "cracked-sanctum":return new[]{EnemyKind.MiniBoss};
+                default:return new[]{EnemyKind.Elite,EnemyKind.Hound,EnemyKind.Lantern,EnemyKind.Bulwark};
+            }
+        }
 
         private static WeaponSkillDefinition[] CreateWeaponSkills()
         {

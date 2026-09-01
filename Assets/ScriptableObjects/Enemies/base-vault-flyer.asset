@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: base-vault-flyer
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: base-vault-flyer
+  displayName: Vault Flyer
+  combatRead: Flyer pressure using Dive with AerialOrbit movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 5
+  maxHealth: 48
+  movementSpeed: 4.15
+  attackDamage: 13
+  attackCooldown: 2
+  preferredDistance: 4.5
+  element: 0
+  statusResistance: 0.05
+  staggerResistance: 0.02
+  targeting: 2
+  movement: 5
+  attack: 5
+  spawnPresentation: 3
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 0.75
+  baseTint: {r: 0.55, g: 0.64, b: 0.7, a: 1}
+  telegraphLanguage: Dive warning uses a persistent ground ring or directional line
+    before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

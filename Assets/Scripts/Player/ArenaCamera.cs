@@ -9,6 +9,7 @@ namespace Ashbound
         private static ArenaCamera instance;
         private float shakeTime, shakeStrength;
         private Vector3 basePosition;
+        private float targetSize = 13.7f;
         private void Awake()
         {
             instance = this; view = GetComponent<Camera>(); view.orthographic = true;
@@ -22,9 +23,16 @@ namespace Ashbound
             instance.shakeStrength = Mathf.Max(instance.shakeStrength, strength);
             instance.shakeTime = Mathf.Max(instance.shakeTime, duration);
         }
+        public static void UseSpace(CombatSpaceDefinition space)
+        {
+            if (!instance) return;
+            instance.targetSize = space ? space.cameraOrthographicSize : 13.7f;
+            float height = space && space.category == CombatSpaceCategory.Large ? 27 : space && space.category == CombatSpaceCategory.Small ? 22 : 24;
+            instance.basePosition = new Vector3(0, height, -height * .8f);
+        }
         private void LateUpdate()
         {
-            view.orthographicSize = Mathf.Max(13.7f, 17.5f / view.aspect);
+            view.orthographicSize = Mathf.MoveTowards(view.orthographicSize, Mathf.Max(targetSize, targetSize * 1.28f / view.aspect), Time.unscaledDeltaTime * 10);
             if (shakeTime > 0) { shakeTime -= Time.unscaledDeltaTime; transform.position = basePosition + Random.insideUnitSphere * shakeStrength; }
             else { transform.position = basePosition; shakeStrength = 0; }
         }

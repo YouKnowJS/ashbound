@@ -26,7 +26,7 @@ namespace Ashbound
         public void Seed(int seed) { random = new System.Random(seed); }
         public void Register(Combatant actor) { if (!actors.Contains(actor)) actors.Add(actor); }
         public void Unregister(Combatant actor) { actors.Remove(actor); }
-        public bool AreEnemies(Combatant source, Combatant target) => source && target && target.Alive &&
+        public bool AreEnemies(Combatant source, Combatant target) => source && target && target.Alive && target.Targetable &&
             CombatRules.CanDamage(source.Id, target.Id, source.Faction, target.Faction, source.IsPlayer, target.IsPlayer, State, FriendlyFire);
         public Combatant NearestEnemy(Combatant source) => actors.Where(x => AreEnemies(source, x))
             .OrderBy(x => (x.transform.position - source.transform.position).sqrMagnitude).FirstOrDefault();
@@ -46,7 +46,7 @@ namespace Ashbound
                 amount *= 1 + info.Source.Inventory.EffectPower(TriggerKind.BleedingVulnerability);
             var loss = target.Health.TakeDamage(amount);
             if (loss.Total <= 0) return false;
-            if (target.Alive) target.Motor.Impact(info.Direction * info.Knockback, target.IsBoss ? 0 : info.Stun);
+            if (target.Alive) target.Motor.Impact(info.Direction * info.Knockback * target.StaggerFactor, target.IsBoss ? 0 : info.Stun * target.StaggerFactor);
             DamageResolved?.Invoke(new DamageEvent(info, target, loss, critical));
             return true;
         }

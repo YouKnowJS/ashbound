@@ -42,7 +42,7 @@ namespace Ashbound
             Progression = new MetaProgressionService(catalog,profilePath);
             Corruption = new CorruptionSystem(catalog, factory);
             Flow.Changed += state => { Combat.State = state; Combat.FriendlyFire = false; StateChanged?.Invoke(state); };
-            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc; Combat.ControlApplied+=Telemetry.Control;
+            Rooms.WaveCleared += OnWaveCleared; Rooms.BossDied += OnBossDied;Rooms.EncounterStarted+=encounter=>Telemetry.EncounterBegin(encounter,Rooms.Current.combatSpace);Rooms.EncounterCompleted+=Telemetry.EncounterEnd; Combat.DamageResolved += Telemetry.Damage; Combat.BuildProc += Telemetry.Proc; Combat.ControlApplied+=Telemetry.Control;
             Rooms.Load(0);
         }
 
@@ -204,6 +204,18 @@ namespace Ashbound
             Rooms.SpawnNextWave(players.Count); Message = Catalog.rooms[index].displayName; Telemetry.Record.debugUsed = true; return true;
         }
         public void DebugSpawnElementalGroup(ElementTag element){if(players.Count>0&&CombatRules.IsCombatState(Flow.State)){Rooms.DebugSpawnElementalGroup(element,players.Count);Telemetry.Record.debugUsed=true;}}
+        public Combatant DebugSpawnEnemy(EnemyDefinition definition,bool elite=false)
+        {
+            if(!definition)return null;if(Flow.State==RunState.Lobby)StartRun();if(!CombatRules.IsCombatState(Flow.State))Flow.DebugJumpToCombat();var enemy=Rooms.DebugSpawnEnemy(definition,Mathf.Max(1,players.Count),elite);if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;return enemy;
+        }
+        public void DebugSpawnEncounter(EncounterDefinition encounter)
+        {
+            if(!encounter)return;if(Flow.State==RunState.Lobby)StartRun();if(!CombatRules.IsCombatState(Flow.State))Flow.DebugJumpToCombat();Rooms.DebugSpawnEncounter(encounter,Mathf.Max(1,players.Count));if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;
+        }
+        public void DebugLoadCombatSpace(CombatSpaceDefinition space)
+        {
+            if(!space)return;Rooms.View.Build(space,Rooms.RoomIndex);Rooms.View.SetGate(Rooms.ExitOpen);for(int i=0;i<players.Count;i++)players[i].Motor.Teleport(space.entrancePosition+Vector3.right*(i-(players.Count-1)*.5f)*1.5f);if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;
+        }
         public void DebugForceEquipmentReward(WeaponRarity rarity){if(players.Count==0)return;if(Flow.State!=RunState.Reward)Flow.DebugJumpToCombat();Flow.TryAdvance(RunState.Reward);Draft?.Cancel();EquipmentRewards??=new EquipmentRewardDraft(Catalog,Progression,Seed^3187);EquipmentRewards.ForcedRarity=rarity;EquipmentRewards.Begin(players,Rooms.RoomIndex+1);DebugOpen=true;if(Telemetry.Record!=null)Telemetry.Record.debugUsed=true;}
         public void ResetRun()
         {

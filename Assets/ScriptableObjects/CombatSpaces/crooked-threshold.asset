@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8222f26978650e54aacc84de19e73861, type: 3}
+  m_Name: crooked-threshold
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.CombatSpaceDefinition
+  id: crooked-threshold
+  displayName: Crooked Threshold
+  category: 0
+  layout: 0
+  spatialIntent: An offset courtyard with a playable side pocket and a short northern
+    transition path.
+  technicalBounds: {x: 24, y: 24}
+  sections:
+  - id: court
+    center: {x: 1, y: -1}
+    size: {x: 17, y: 14}
+    rotation: 0
+    transitionPath: 0
+  - id: side-pocket
+    center: {x: -7, y: 1}
+    size: {x: 6, y: 8}
+    rotation: 0
+    transitionPath: 0
+  - id: north-path
+    center: {x: 2, y: 7.5}
+    size: {x: 4, y: 7}
+    rotation: 0
+    transitionPath: 1
+  obstacles:
+  - position: {x: -5, y: -1}
+    size: {x: 1.4, y: 3}
+    height: 2.4
+    rotation: 18
+  - position: {x: 5, y: 2}
+    size: {x: 2, y: 1.3}
+    height: 2.2
+    rotation: -12
+  boundaryPoints:
+  - {x: -10, y: -8}
+  - {x: 8, y: -8}
+  - {x: 10, y: -3}
+  - {x: 9, y: 5}
+  - {x: 4, y: 7}
+  - {x: 4, y: 11}
+  - {x: 0, y: 11}
+  - {x: 0, y: 7}
+  - {x: -10, y: 5}
+  entrancePosition: {x: 0, y: 0, z: -8}
+  exitPosition: {x: 2, y: 0, z: 10}
+  transitionLength: 6
+  cameraOrthographicSize: 12.8
+  multiplayerSeparationLimit: 15
+  distantLandmarkHooks:
+  - sunken-bell
+  - distant-vault
+  environmentPrefab: {fileID: 0}
+  boundaryPrefab: {fileID: 0}
+  distantBackgroundPrefab: {fileID: 0}

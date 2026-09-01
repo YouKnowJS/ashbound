@@ -291,5 +291,32 @@ namespace Ashbound.Tests
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.facilities.Length,Is.EqualTo(6));Assert.That(catalog.preparations.Length,Is.EqualTo(5));Assert.That(catalog.facilities.All(x=>x.MaxLevel>=4&&x.MaxLevel<=6),Is.True);Assert.That(catalog.progressionTuning.permanentHealthCap,Is.LessThanOrEqualTo(.1f));
             Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Rest));Assert.That(catalog.progressionTuning.restOptions.Select(x=>x.kind),Does.Contain(RestOptionKind.Temper));Assert.That(Enum.GetValues(typeof(ExpeditionNodeType)).Length,Is.EqualTo(10));
         }
+
+        [Test]
+        public void V05EnemyEcologyCoversEveryRoleAndTenElementalVariants()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var bases=catalog.enemies.Where(x=>x.id.StartsWith("base-")).ToArray();var variants=catalog.enemies.Where(x=>x.id.StartsWith("variant-")).ToArray();
+            Assert.That(bases.Length,Is.EqualTo(10));Assert.That(bases.Select(x=>x.role),Is.EquivalentTo(Enum.GetValues(typeof(EnemyRole))));Assert.That(variants.Length,Is.InRange(8,12));
+            foreach(ElementTag element in Enum.GetValues(typeof(ElementTag)))if(element!=ElementTag.None)Assert.That(variants.Count(x=>x.element==element),Is.EqualTo(2),element.ToString());
+            Assert.That(catalog.enemies.Where(x=>x.legacyFallback).Select(x=>x.legacyKind),Does.Contain(EnemyKind.MiniBoss));
+        }
+
+        [Test]
+        public void V05EnemyDefinitionsExposeCombatResistancePresentationAndReplacementHooks()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.enemies.Length,Is.EqualTo(21));
+            foreach(var enemy in catalog.enemies){Assert.That(enemy.id,Is.Not.Empty);Assert.That(enemy.displayName,Is.Not.Empty);Assert.That(enemy.maxHealth,Is.GreaterThan(0));Assert.That(enemy.movementSpeed,Is.GreaterThan(0));Assert.That(enemy.attackDamage,Is.GreaterThan(0));Assert.That(enemy.preferredDistance,Is.GreaterThan(0));Assert.That(enemy.telegraphLanguage,Is.Not.Empty);Assert.That(enemy.statusResistance,Is.InRange(0,.9f));Assert.That(enemy.staggerResistance,Is.InRange(0,.9f));}
+        }
+
+        [Test]
+        public void V05EncountersAndCombatSpacesAreAuthoredForCompositionAndIrregularTraversal()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");string[] examples={"Frontline Pressure","Collapse","Vertical Threat","Ground Ambush","Control Group"};Assert.That(catalog.encounters.Select(x=>x.displayName),Is.SupersetOf(examples));
+            foreach(var encounter in catalog.encounters){Assert.That(encounter.groups,Is.Not.Empty);Assert.That(encounter.groups.All(x=>x.enemy&&x.count>0),Is.True);Assert.That(encounter.preferredSpaceDiameter,Is.GreaterThan(0));}
+            Assert.That(catalog.combatSpaces.Select(x=>x.category),Does.Contain(CombatSpaceCategory.Small));Assert.That(catalog.combatSpaces.Select(x=>x.category),Does.Contain(CombatSpaceCategory.Medium));Assert.That(catalog.combatSpaces.Select(x=>x.category),Does.Contain(CombatSpaceCategory.Large));
+            foreach(var space in catalog.combatSpaces){Assert.That(space.sections.Length,Is.GreaterThanOrEqualTo(3));Assert.That(space.sections.Count(x=>!x.transitionPath),Is.GreaterThanOrEqualTo(2));Assert.That(space.sections.Any(x=>x.transitionPath),Is.True);Assert.That(space.boundaryPoints.Length,Is.GreaterThanOrEqualTo(9));Assert.That(space.distantLandmarkHooks,Is.Not.Empty);Assert.That(space.multiplayerSeparationLimit,Is.GreaterThan(0));}
+            Assert.That(catalog.rooms.Where(x=>!x.isBoss).All(x=>x.combatSpace&&x.waves.All(w=>w.encounter)),Is.True);
+            Assert.That(catalog.regionEcologies.Length,Is.EqualTo(3));Assert.That(catalog.regionEcologies.All(x=>x.commonEnemies.Length>0&&x.hardEnemies.Length>0&&x.encounterPool.Length>0),Is.True);
+        }
     }
 }

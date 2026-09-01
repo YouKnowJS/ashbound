@@ -20,17 +20,23 @@ namespace Ashbound
 
         public Combatant Enemy(EnemyKind kind, Vector3 position, int partySize)
         {
-            float health = kind == EnemyKind.Cinderling ? 52 : kind == EnemyKind.Lantern ? 42 : kind == EnemyKind.Hound ? 68 :
-                kind == EnemyKind.Bulwark ? 120 : kind == EnemyKind.MiniBoss ? 430 : 180;
-            string name = kind == EnemyKind.Cinderling ? "Cinderling" : kind == EnemyKind.Lantern ? "Lantern acolyte" : kind == EnemyKind.Hound ? "Ash hound" :
-                kind == EnemyKind.Bulwark ? "Cinder Bulwark" : kind == EnemyKind.MiniBoss ? "The Cracked Warden" : "Bell Warden";
-            var actor = Create("E" + ++sequence, name, false, Faction.Hostiles, health * (1 + .15f * (partySize - 1)), position,
-                kind == EnemyKind.Lantern ? new Color(.75f, .55f, .35f) : kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss ? Palette.Gold : Palette.Danger,
-                kind == EnemyKind.MiniBoss ? 1.7f : kind == EnemyKind.Elite ? 1.4f : kind == EnemyKind.Hound ? .8f : 1, kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Lantern);
-            actor.BaseSpeed = kind == EnemyKind.Hound ? 4.3f : kind == EnemyKind.Lantern ? 2.8f : kind == EnemyKind.Elite || kind == EnemyKind.MiniBoss || kind == EnemyKind.Bulwark ? 2.6f : 3.5f;
-            if (kind == EnemyKind.Elite || kind == EnemyKind.Bulwark) actor.Health.Shield(kind == EnemyKind.Bulwark ? 65 : 45);
-            if (kind == EnemyKind.MiniBoss) actor.IsBoss = true;
-            actor.gameObject.AddComponent<EnemyController>().Configure(actor, kind);
+            var definition = catalog.FindEnemy(kind);
+            if (definition) return Enemy(definition, position, partySize);
+            throw new System.InvalidOperationException("Missing enemy definition for legacy kind " + kind + ". Rebuild prototype content.");
+        }
+
+        public Combatant Enemy(EnemyDefinition definition, Vector3 position, int partySize)
+        {
+            float partyHealth = definition.maxHealth * (1 + .15f * (partySize - 1));
+            var actor = Create("E" + ++sequence, definition.displayName, false, Faction.Hostiles, partyHealth, position,
+                definition.element == ElementTag.None ? definition.baseTint : WeaponSkillExecutor.Tint(WeaponSkillExecutor.Element(definition.element)),
+                definition.visualScale, definition.elite || definition.role == EnemyRole.Bruiser || definition.role == EnemyRole.Mage);
+            actor.BaseSpeed = definition.movementSpeed;
+            actor.IsBoss = definition.legacyKind == EnemyKind.MiniBoss;
+            actor.ConfigureEnemy(definition);
+            if (definition.shield > 0) actor.Health.Shield(definition.shield);
+            if (definition.prefab) Object.Instantiate(definition.prefab, actor.transform);
+            actor.gameObject.AddComponent<EnemyBrain>().Configure(actor, definition);
             return actor;
         }
 

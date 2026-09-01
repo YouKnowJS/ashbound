@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0888064d035daad47898dcbdd0d5ab88, type: 3}
+  m_Name: collapse
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EncounterDefinition
+  id: collapse
+  displayName: Collapse
+  intent: Flankers split the party before a readable bomber closes the safe pocket.
+  groups:
+  - id: flank
+    enemy: {fileID: 11400000, guid: 5a6c331a4f55b734b9bef83d0f172945, type: 2}
+    count: 2
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 5
+    reinforcement: 0
+  - id: collapse
+    enemy: {fileID: 11400000, guid: f0610a9520f1c4a44ba0bec2fae94507, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 2
+    reinforcement: 1
+  - id: line
+    enemy: {fileID: 11400000, guid: 1b89ec5c4a1a6094bbc21f82a5254f62, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 1
+    reinforcement: 0
+  difficulty: 1
+  riskTier: 1
+  elementalPressure: 0300000001000000
+  rewardTier: 1
+  requiredArenaSize: 1
+  preferredSpaceDiameter: 25
+  targetDurationSeconds: 125
+  allowsElite: 0
+  compositionNotes: Assassins choose isolated targets; bomber chain reactions create
+    player-directed risk.

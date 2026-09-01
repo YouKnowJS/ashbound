@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0888064d035daad47898dcbdd0d5ab88, type: 3}
+  m_Name: cracked-trial
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EncounterDefinition
+  id: cracked-trial
+  displayName: Cracked Trial
+  intent: A single high-resistance warden checks developed builds before the throne.
+  groups:
+  - id: warden
+    enemy: {fileID: 11400000, guid: a97165841b08bbf49a9122935a51e828, type: 2}
+    count: 1
+    startDelay: 0
+    spawnInterval: 0
+    presentation: 0
+    reinforcement: 0
+  difficulty: 3
+  riskTier: 2
+  elementalPressure: 
+  rewardTier: 2
+  requiredArenaSize: 2
+  preferredSpaceDiameter: 30
+  targetDurationSeconds: 180
+  allowsElite: 1
+  compositionNotes: Mini-boss compatibility encounter; v0.4 reward and corruption
+    sequence remains unchanged.

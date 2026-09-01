@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: variant-fire-warrior
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: variant-fire-warrior
+  displayName: Kindled Warrior
+  combatRead: Warrior pressure using Melee with Advance movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 0
+  maxHealth: 66
+  movementSpeed: 3.55
+  attackDamage: 13
+  attackCooldown: 1.35
+  preferredDistance: 1.8
+  element: 1
+  statusResistance: 0.08
+  staggerResistance: 0.08
+  targeting: 0
+  movement: 0
+  attack: 0
+  spawnPresentation: 1
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 1.02
+  baseTint: {r: 0.68, g: 0.24, b: 0.18, a: 1}
+  telegraphLanguage: Melee warning uses a persistent ground ring or directional line
+    before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

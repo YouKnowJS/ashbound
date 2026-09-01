@@ -119,11 +119,12 @@ Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, We
 | `Combat/CombatService` | Central authoritative damage and faction filtering |
 | `Combat/HealthComponent`, `StatusEffectController` | Health lifecycle and source-aware statuses |
 | `Combat/CombatProjectile`, `AreaAttack` | Swept projectiles and telegraphed/lasting area damage |
-| `Enemies/EnemyController` | Melee, ranged, charging, and elite behavior |
+| `Enemies/EnemyDefinition`, `EnemyBrain`, `EnemyRoleBehaviour` | Data-driven enemy identity plus ten separated role strategies |
+| `Enemies/EnemyElementRuntime`, `RegionEnemyPoolDefinition` | Element mechanics layered over roles and future region ecology pools |
 | `Bosses/CinderRegentController` | Boss patterns and health phase |
 | `Roguelike/UpgradeDraft`, `UpgradeEffectController` | Choice lifecycle and proc interpretation |
 | `Items/*Definition`, `PlayerInventory`, `PlayerEquipment`, `WeaponSkillExecutor` | Relic/weapon/skill/armor data, ownership, set evaluation, and skill delivery |
-| `Rooms/RoomDirector`, `RoomView`, `LoreFragment` | Encounters, seals, primitive layout, collectible fragments |
+| `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, seals, and spawning |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
 | `Corruption/*`, `Solo/ReflectionController` | Boss modifiers, roster selection, solo final opponent |
 | `UI/PrototypeHud`, `Debug/DebugMenu` | Play/lobby UI and gated test controls |

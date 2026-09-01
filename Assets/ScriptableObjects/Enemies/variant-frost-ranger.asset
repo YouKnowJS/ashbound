@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: variant-frost-ranger
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: variant-frost-ranger
+  displayName: Rime Ranger
+  combatRead: Ranger pressure using Projectile with Kite movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 3
+  maxHealth: 53
+  movementSpeed: 2.8
+  attackDamage: 11
+  attackCooldown: 1.3
+  preferredDistance: 7.5
+  element: 2
+  statusResistance: 0.22
+  staggerResistance: 0.08
+  targeting: 1
+  movement: 3
+  attack: 3
+  spawnPresentation: 1
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 0.95
+  baseTint: {r: 0.55, g: 0.64, b: 0.7, a: 1}
+  telegraphLanguage: Projectile warning uses a persistent ground ring or directional
+    line before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

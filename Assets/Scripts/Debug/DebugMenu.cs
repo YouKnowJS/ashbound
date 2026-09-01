@@ -7,7 +7,7 @@ namespace Ashbound
 {
     public sealed class DebugMenu:MonoBehaviour
     {
-        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage,metaFacility;private bool metaPage;
+        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage,metaFacility,page,enemyRole,enemyElement,encounterIndex,spaceIndex;private bool eliteEnemy;
         private string result="Configure equipment, then close F1 to resume.";
         public void Configure(RunManager manager){run=manager;}
         private void Update(){if(run&&Keyboard.current!=null&&Keyboard.current.f1Key.wasPressedThisFrame)run.DebugOpen=!run.DebugOpen;}
@@ -15,8 +15,8 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,820,32,"ASHBOUND v0.4 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(900,32,170,32),metaPage?"Equipment page":"Meta page"))metaPage=!metaPage;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
-            if(metaPage){MetaPanel();GUI.matrix=old;return;}
+            U.Label(60,34,700,32,"ASHBOUND v0.5 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(730,32,105,32),"Equipment"))page=0;if(U.Click(new Rect(840,32,105,32),"Meta"))page=1;if(U.Click(new Rect(950,32,105,32),"Ecology"))page=2;if(U.Click(new Rect(1090,32,120,32),"Close F1"))run.DebugOpen=false;
+            if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(370,78,120,31),"Reset run")){run.ResetRun();run.DebugOpen=true;result="Run reset";}
@@ -65,6 +65,20 @@ namespace Ashbound
             U.Label(60,465,500,25,"OUTCOME / REWARD",U.CardTitle);if(U.Click(new Rect(60,500,205,34),"Simulate failed expedition")){var s=meta.DebugSimulateOutcome(false);result="Retained "+s.Retained;Mark();}if(U.Click(new Rect(275,500,215,34),"Simulate successful expedition")){var s=meta.DebugSimulateOutcome(true);result="Retained "+s.Retained;Mark();}
             WeaponRarity[] rarities=(WeaponRarity[])System.Enum.GetValues(typeof(WeaponRarity));for(int i=0;i<rarities.Length;i++)if(U.Click(new Rect(510+i*120,500,112,34),rarities[i].ToString()))weaponRarity=i;GUI.enabled=run.Players.Count>0;if(U.Click(new Rect(510,545,250,34),"Force equipment reward")){run.DebugForceEquipmentReward(rarities[weaponRarity]);result="Forced "+rarities[weaponRarity]+" reward";Mark();}GUI.enabled=true;
             if(U.Click(new Rect(60,605,240,38),"RESET META PROFILE")){meta.ResetProfile();result="Meta profile reset";Mark();}U.Label(330,600,850,70,result+"\nRun resources: "+meta.RunResources+"\nThe profile is host-owned; run player IDs remain separate.",U.Small);
+        }
+        private void EcologyPanel()
+        {
+            EnemyRole[] roles=(EnemyRole[])System.Enum.GetValues(typeof(EnemyRole));ElementTag[] elements=(ElementTag[])System.Enum.GetValues(typeof(ElementTag));
+            U.Label(60,88,1120,25,"ENEMY ROLE & ELEMENT TESTS",U.CardTitle);
+            for(int i=0;i<roles.Length;i++)if(U.Click(new Rect(60+(i%5)*142,125+(i/5)*36,134,29),roles[i]+(i==enemyRole?" *":"")))enemyRole=i;
+            U.Label(60,206,150,24,"Variant element",U.Small);for(int i=0;i<elements.Length;i++)if(U.Click(new Rect(205+i*103,201,96,29),elements[i]+(i==enemyElement?" *":"")))enemyElement=i;
+            eliteEnemy=GUI.Toggle(new Rect(845,205,125,24),eliteEnemy,"Elite override");
+            var candidates=run.Catalog.enemies.Where(x=>x&&x.role==roles[enemyRole]&&(elements[enemyElement]==ElementTag.None?x.element==ElementTag.None:x.element==elements[enemyElement])).ToArray();
+            GUI.enabled=candidates.Length>0;if(U.Click(new Rect(985,199,195,34),"Spawn role test")){run.DebugSpawnEnemy(candidates.FirstOrDefault(),eliteEnemy);result=candidates.Length>0?"Spawned "+candidates[0].displayName:"No authored combination";Mark();}GUI.enabled=true;
+            U.Label(60,260,520,24,"ENCOUNTER PRESETS",U.CardTitle);if(run.Catalog.encounters.Length>0){encounterIndex=Mathf.Clamp(encounterIndex,0,run.Catalog.encounters.Length-1);for(int i=0;i<run.Catalog.encounters.Length;i++)if(U.Click(new Rect(60+(i%3)*205,294+(i/3)*36,196,29),run.Catalog.encounters[i].displayName))encounterIndex=i;var encounter=run.Catalog.encounters[encounterIndex];U.Label(60,375,565,70,encounter.intent+"\n"+encounter.difficulty+" · "+encounter.riskTier+" · "+encounter.requiredArenaSize,U.Small);if(U.Click(new Rect(60,445,220,34),"Spawn selected preset")){run.DebugSpawnEncounter(encounter);result="Loaded "+encounter.displayName;Mark();}}
+            U.Label(650,260,520,24,"COMBAT SPACE",U.CardTitle);if(run.Catalog.combatSpaces.Length>0){spaceIndex=Mathf.Clamp(spaceIndex,0,run.Catalog.combatSpaces.Length-1);for(int i=0;i<run.Catalog.combatSpaces.Length;i++)if(U.Click(new Rect(650+(i%2)*250,294+(i/2)*36,240,29),run.Catalog.combatSpaces[i].displayName))spaceIndex=i;var space=run.Catalog.combatSpaces[spaceIndex];U.Label(650,408,520,60,space.category+" · "+space.layout+" · camera "+space.cameraOrthographicSize+"\n"+space.spatialIntent,U.Small);if(U.Click(new Rect(650,475,220,34),"Load selected space")){run.DebugLoadCombatSpace(space);result="Loaded "+space.displayName;Mark();}}
+            EnemyBrain.AiEnabled=GUI.Toggle(new Rect(60,525,140,26),EnemyBrain.AiEnabled,"Enemy AI");EnemyBrain.TelegraphsEnabled=GUI.Toggle(new Rect(210,525,160,26),EnemyBrain.TelegraphsEnabled,"Telegraphs");
+            U.Label(60,570,1120,82,"ROLE READS\nWarrior baseline · Bruiser space control · Assassin flank · Ranger sustained shots · Mage AOE · Flyer dive windows · Burrower eruption · Bomber countdown/chain · Support capped aid · Controller short slow/pull\n"+result,U.Small);
         }
     }
 }

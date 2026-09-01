@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8222f26978650e54aacc84de19e73861, type: 3}
+  m_Name: twin-courts
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.CombatSpaceDefinition
+  id: twin-courts
+  displayName: Twin Courts
+  category: 1
+  layout: 1
+  spatialIntent: Two combat pockets connected by a wide bridge, with route-readable
+    retreat and regroup space.
+  technicalBounds: {x: 32, y: 25}
+  sections:
+  - id: west
+    center: {x: -6, y: -1}
+    size: {x: 14, y: 15}
+    rotation: 0
+    transitionPath: 0
+  - id: east
+    center: {x: 7, y: 2}
+    size: {x: 14, y: 14}
+    rotation: 0
+    transitionPath: 0
+  - id: bridge
+    center: {x: 1, y: 0}
+    size: {x: 8, y: 5}
+    rotation: 0
+    transitionPath: 0
+  - id: north-path
+    center: {x: 6, y: 8.5}
+    size: {x: 5, y: 7}
+    rotation: 0
+    transitionPath: 1
+  obstacles:
+  - position: {x: -7, y: 1}
+    size: {x: 1.5, y: 4}
+    height: 2.5
+    rotation: 0
+  - position: {x: 7, y: 1}
+    size: {x: 2, y: 2}
+    height: 2.8
+    rotation: 45
+  - position: {x: 1, y: 4}
+    size: {x: 1, y: 3}
+    height: 1.6
+    rotation: 0
+  boundaryPoints:
+  - {x: -13, y: -9}
+  - {x: 1, y: -9}
+  - {x: 3, y: -5}
+  - {x: 13, y: -5}
+  - {x: 14, y: 8}
+  - {x: 9, y: 9}
+  - {x: 9, y: 12}
+  - {x: 3, y: 12}
+  - {x: 3, y: 9}
+  - {x: -13, y: 7}
+  entrancePosition: {x: 0, y: 0, z: -8}
+  exitPosition: {x: 6, y: 0, z: 11}
+  transitionLength: 6
+  cameraOrthographicSize: 14.5
+  multiplayerSeparationLimit: 19
+  distantLandmarkHooks:
+  - bell-tower
+  - broken-arcade
+  environmentPrefab: {fileID: 0}
+  boundaryPrefab: {fileID: 0}
+  distantBackgroundPrefab: {fileID: 0}

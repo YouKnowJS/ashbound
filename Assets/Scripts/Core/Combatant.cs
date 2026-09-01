@@ -22,6 +22,8 @@ namespace Ashbound
         public WeaponDefinition Weapon { get; set; }
         public BossCorruptionProfile Corruption { get; set; }
         public ElementTag ElementAffinity { get; set; }
+        public EnemyDefinition EnemyDefinition { get; private set; }
+        public bool Targetable { get; private set; } = true;
         public float BaseSpeed { get; set; } = 7;
         public float BaseMaxHealth { get; private set; } = 120;
         public float MetaMaxHealthBonus { get; private set; }
@@ -63,6 +65,14 @@ namespace Ashbound
         {
             BaseMaxHealth *= Mathf.Max(.1f, multiplier); Health.Resize(MaximumHealth); Health.Heal(Health.MaxHealth);
         }
+        public void ConfigureEnemy(EnemyDefinition definition)
+        {
+            EnemyDefinition = definition;
+            ElementAffinity = definition ? definition.element : ElementTag.None;
+        }
+        public void SetTargetable(bool value) { Targetable = value; }
+        public float StatusDurationFactor => EnemyDefinition ? 1 - EnemyDefinition.statusResistance : 1;
+        public float StaggerFactor => EnemyDefinition ? 1 - EnemyDefinition.staggerResistance : 1;
         public void SetMetaHealthBonus(float bonus){MetaMaxHealthBonus=Mathf.Clamp(bonus,0,.1f);Health.Resize(MaximumHealth);}
         private void OnDestroy() { if (Combat) Combat.Unregister(this); }
         public bool HasEffect(TriggerKind kind) => Inventory.HasEffect(kind) || Equipment.HasEffect(kind);

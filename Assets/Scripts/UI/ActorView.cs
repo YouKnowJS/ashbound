@@ -52,5 +52,7 @@ namespace Ashbound
         {
             normal=WeaponSkillExecutor.Tint(WeaponSkillExecutor.Element(element));if(body)body.sharedMaterial=PrimitiveFactory.Material(normal);
         }
+        public void SetElevation(float height) { if (silhouette) silhouette.localPosition = Vector3.up * height; }
+        public void SetVisible(bool visible) { if (silhouette) silhouette.gameObject.SetActive(visible); }
     }
 }

@@ -143,4 +143,43 @@ MonoBehaviour:
   - {fileID: 11400000, guid: db114e3347216ea4b92bc993de134f6d, type: 2}
   - {fileID: 11400000, guid: 941f8ae389746484ba8ba329b0d93c07, type: 2}
   - {fileID: 11400000, guid: 4d868b1dc9838684f97ac9461b347921, type: 2}
+  enemies:
+  - {fileID: 11400000, guid: 88b9e6c28aff34741b8f54bbf28626e7, type: 2}
+  - {fileID: 11400000, guid: 58f88db5395095a429f547e3691c0585, type: 2}
+  - {fileID: 11400000, guid: 99a56f60cc40cbc4a93686b70241a2fc, type: 2}
+  - {fileID: 11400000, guid: 1b89ec5c4a1a6094bbc21f82a5254f62, type: 2}
+  - {fileID: 11400000, guid: b3cd2ce229f24f04ab491ec3eb26a9f3, type: 2}
+  - {fileID: 11400000, guid: 2d728c37e30cb6d4496de4a40146e0b4, type: 2}
+  - {fileID: 11400000, guid: 62e4d8cd8bf32da4ebe32d540e71d075, type: 2}
+  - {fileID: 11400000, guid: b4d42a1b4505102419378dc73d6ce3c5, type: 2}
+  - {fileID: 11400000, guid: bd10dde9bdc09db48bc86169d8a2b878, type: 2}
+  - {fileID: 11400000, guid: 6e016f456c1822f4fb258d83cbbbadea, type: 2}
+  - {fileID: 11400000, guid: a97165841b08bbf49a9122935a51e828, type: 2}
+  - {fileID: 11400000, guid: 72896ebbae3de604fab275b1fa071ff6, type: 2}
+  - {fileID: 11400000, guid: f0610a9520f1c4a44ba0bec2fae94507, type: 2}
+  - {fileID: 11400000, guid: 7b479aff04d027a46a94494b27bf39ae, type: 2}
+  - {fileID: 11400000, guid: 705744dfc40400448af88805467361d3, type: 2}
+  - {fileID: 11400000, guid: 3a4541fd616463045be11eb79b3690cb, type: 2}
+  - {fileID: 11400000, guid: 5a6c331a4f55b734b9bef83d0f172945, type: 2}
+  - {fileID: 11400000, guid: 497fb6070bb5cc246984f78789a1782e, type: 2}
+  - {fileID: 11400000, guid: c482bf6880fe4a04d9cf8a2308dc5ab4, type: 2}
+  - {fileID: 11400000, guid: 95594166a8fd51e4b97f6c3c9750233f, type: 2}
+  - {fileID: 11400000, guid: 1eff2eadd8838cd43b8dda456fd5cdbc, type: 2}
+  encounters:
+  - {fileID: 11400000, guid: 8961f5ff91a709a4d89130d14a0d165a, type: 2}
+  - {fileID: 11400000, guid: 397d1683b2976d341adc6624709c15e8, type: 2}
+  - {fileID: 11400000, guid: 4a70f0bdfd0466b468d2fc3428f3ec59, type: 2}
+  - {fileID: 11400000, guid: 7c2ad88375a986646b53d6660ce05a9d, type: 2}
+  - {fileID: 11400000, guid: 05ff532371bb2804a8b240dcb7f8694b, type: 2}
+  - {fileID: 11400000, guid: 723966084ac158d45af92435dc53be11, type: 2}
+  combatSpaces:
+  - {fileID: 11400000, guid: ad2a34ad5b213b14284668293f23a1d4, type: 2}
+  - {fileID: 11400000, guid: fe8cd230d883a4242ac3664d970d790b, type: 2}
+  - {fileID: 11400000, guid: 10cb9b395a3367c4b9a3b7a08efe622b, type: 2}
+  - {fileID: 11400000, guid: 014e7503e2d7ead42abf44d5b1e46e1c, type: 2}
+  - {fileID: 11400000, guid: e78a6904e9e4cd44aa3f407fae90c796, type: 2}
+  regionEcologies:
+  - {fileID: 11400000, guid: aee2e4daf5ba1d442850f425a2beacc4, type: 2}
+  - {fileID: 11400000, guid: 4568f8ac39c939341a870152912dd300, type: 2}
+  - {fileID: 11400000, guid: a9acb98029ef731408967413e1878789, type: 2}
   corruptedAtFourPlayers: 2

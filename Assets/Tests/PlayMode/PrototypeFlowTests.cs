@@ -35,6 +35,7 @@ namespace Ashbound.Tests
             foreach (var vfx in Object.FindObjectsByType<CombatVfx>()) Object.Destroy(vfx.gameObject);
             foreach (var lore in Object.FindObjectsByType<LoreFragment>()) Object.Destroy(lore.gameObject);
             Time.timeScale = 1;
+            EnemyBrain.AiEnabled=true;EnemyBrain.TelegraphsEnabled=true;
             yield return null;
             inputFixture.TearDown();
         }
@@ -47,7 +48,10 @@ namespace Ashbound.Tests
         private void KillHostiles()
         {
             foreach (var actor in run.Combat.Actors.Where(x => x.Faction == Faction.Hostiles && x.Alive).ToArray())
+            {
+                actor.SetTargetable(true);
                 run.Combat.DealDamage(actor, new DamageInfo(run.Players[0], 10000, DamageKind.Weapon));
+            }
         }
 
         [UnityTest]
@@ -281,6 +285,24 @@ namespace Ashbound.Tests
             Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(0));Assert.That(run.Draft.Choose(0),Is.True);Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.EquipmentRewards.CurrentPlayer,Is.EqualTo(player));
             var option=run.EquipmentRewards.Options[0];Assert.That(run.EquipmentRewards.Dismantle(0),Is.True);Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(10));yield return State(RunState.Exploration);
             Assert.That(player.Equipment.Equipped.Count,Is.EqualTo(0));Assert.That(run.Progression.Profile.lifetime.equipmentDismantled,Is.GreaterThan(0));
+        }
+
+        [UnityTest]
+        public IEnumerator V05EncounterSpawnsDataDrivenBrainsAndBuildsIrregularSpace()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(305);yield return State(RunState.Combat);
+            var hostiles=run.Combat.Actors.Where(x=>x.Faction==Faction.Hostiles).ToArray();Assert.That(hostiles,Is.Not.Empty);Assert.That(hostiles.All(x=>x.EnemyDefinition&&x.GetComponent<EnemyBrain>()),Is.True);
+            Assert.That(run.Rooms.View.Definition,Is.Not.Null);Assert.That(run.Rooms.View.Definition.sections.Length,Is.GreaterThanOrEqualTo(3));Assert.That(GameObject.Find("Transition path"),Is.Not.Null);
+            run.DebugSpawnEncounter(run.Catalog.encounters.First(x=>x.id=="collapse"));yield return null;hostiles=run.Combat.Actors.Where(x=>x.Faction==Faction.Hostiles).ToArray();Assert.That(hostiles.Select(x=>x.EnemyDefinition.role),Does.Contain(EnemyRole.Assassin));Assert.That(hostiles.Select(x=>x.EnemyDefinition.role),Does.Contain(EnemyRole.Bomber));
+            EnemyBrain.AiEnabled=true;
+        }
+
+        [UnityTest]
+        public IEnumerator V05EcologyTelemetryRecordsCompositionRoleKillsAndArenaContext()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(306);yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Reward);
+            Assert.That(run.Telemetry.Record.schemaVersion,Is.EqualTo(4));Assert.That(run.Telemetry.Record.encounters.Count,Is.EqualTo(1));var encounter=run.Telemetry.Record.encounters[0];Assert.That(encounter.encounterId,Is.EqualTo("frontline-pressure"));Assert.That(encounter.composition,Is.Not.Empty);Assert.That(encounter.arenaCategory,Is.EqualTo(CombatSpaceCategory.Small.ToString()));
+            run.Telemetry.Finish(run.Players,"Wanderers","Test");Assert.That(run.Telemetry.Record.enemyRoles.Sum(x=>x.kills),Is.GreaterThan(0));EnemyBrain.AiEnabled=true;
         }
     }
 }

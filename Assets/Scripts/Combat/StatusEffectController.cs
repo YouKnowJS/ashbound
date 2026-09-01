@@ -38,7 +38,7 @@ namespace Ashbound
             }
             float controlBonus = effect.kind == StatusKind.Chill || effect.kind == StatusKind.Freeze || effect.kind == StatusKind.Slow || effect.kind == StatusKind.Stun || effect.kind == StatusKind.VoidMark
                 ? source.Equipment.PassivePower(ArmorPassiveKind.ControlDuration, effect.kind == StatusKind.Chill || effect.kind == StatusKind.Freeze ? ElementTag.Frost : ElementTag.None) : 0;
-            entry.Remaining = Mathf.Max(.1f, effect.duration * (1 + controlBonus));
+            entry.Remaining = Mathf.Max(.1f, effect.duration * (1 + controlBonus) * actor.StatusDurationFactor);
             entry.Power = effect.power;
             entry.Stacks = Mathf.Min(entry.Stacks + 1, Mathf.Max(1, effect.maxStacks));
             if(effect.kind==StatusKind.Chill||effect.kind==StatusKind.Freeze||effect.kind==StatusKind.Slow||effect.kind==StatusKind.Stun||effect.kind==StatusKind.VoidMark)

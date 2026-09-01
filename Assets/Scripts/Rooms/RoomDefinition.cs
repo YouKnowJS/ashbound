@@ -7,6 +7,7 @@ namespace Ashbound
     public sealed class EnemyWave
     {
         public EnemyKind[] enemies;
+        public EncounterDefinition encounter;
     }
 
     [CreateAssetMenu(menuName = "Ashbound/Room")]
@@ -18,6 +19,7 @@ namespace Ashbound
         public bool isBoss;
         public Vector3[] spawnPoints;
         public EnemyWave[] waves;
+        public CombatSpaceDefinition combatSpace;
         public LoreEntry fragment;
         [Range(.5f, 3f)] public float enemyHealthMultiplier = 1;
         [Min(30)] public float targetEncounterSeconds = 150;

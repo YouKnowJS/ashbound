@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8222f26978650e54aacc84de19e73861, type: 3}
+  m_Name: divided-hall
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.CombatSpaceDefinition
+  id: divided-hall
+  displayName: Divided Hall
+  category: 2
+  layout: 4
+  spatialIntent: A split hall with parallel subspaces, cross-connectors, and a visible
+    transition corridor to the next node.
+  technicalBounds: {x: 37, y: 31}
+  sections:
+  - id: west-hall
+    center: {x: -7, y: 0}
+    size: {x: 13, y: 22}
+    rotation: 0
+    transitionPath: 0
+  - id: east-hall
+    center: {x: 8, y: 1}
+    size: {x: 13, y: 20}
+    rotation: 0
+    transitionPath: 0
+  - id: lower-crossing
+    center: {x: 0, y: -6}
+    size: {x: 7, y: 4}
+    rotation: 0
+    transitionPath: 0
+  - id: upper-crossing
+    center: {x: 1, y: 6}
+    size: {x: 8, y: 4}
+    rotation: 0
+    transitionPath: 0
+  - id: north-path
+    center: {x: 4, y: 11.5}
+    size: {x: 5, y: 8}
+    rotation: 0
+    transitionPath: 1
+  obstacles:
+  - position: {x: 0, y: 0}
+    size: {x: 2, y: 9}
+    height: 3
+    rotation: 0
+  - position: {x: -8, y: 4}
+    size: {x: 2, y: 3}
+    height: 2.4
+    rotation: 20
+  - position: {x: 9, y: -3}
+    size: {x: 2, y: 4}
+    height: 2.4
+    rotation: -20
+  boundaryPoints:
+  - {x: -14, y: -12}
+  - {x: 15, y: -11}
+  - {x: 16, y: 9}
+  - {x: 7, y: 10}
+  - {x: 7, y: 15}
+  - {x: 1, y: 15}
+  - {x: 1, y: 10}
+  - {x: -13, y: 11}
+  - {x: -16, y: 2}
+  entrancePosition: {x: 0, y: 0, z: -8}
+  exitPosition: {x: 4, y: 0, z: 14}
+  transitionLength: 6
+  cameraOrthographicSize: 17.2
+  multiplayerSeparationLimit: 22
+  distantLandmarkHooks:
+  - throne-silhouette
+  - ashfall
+  - distant-procession
+  environmentPrefab: {fileID: 0}
+  boundaryPrefab: {fileID: 0}
+  distantBackgroundPrefab: {fileID: 0}

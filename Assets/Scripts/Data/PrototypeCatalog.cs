@@ -17,10 +17,16 @@ namespace Ashbound
         public BossDefinition boss;
         public ItemDefinition[] items;
         public RoomDefinition[] rooms;
+        public EnemyDefinition[] enemies;
+        public EncounterDefinition[] encounters;
+        public CombatSpaceDefinition[] combatSpaces;
+        public RegionEnemyPoolDefinition[] regionEcologies;
         [Range(1, 2)] public int corruptedAtFourPlayers = 2;
         public ItemDefinition FindItem(string id) => items.FirstOrDefault(x => x.id == id);
         public WeaponDefinition FindWeapon(WeaponFamily family) => weapons?.FirstOrDefault(x => x && x.family == family) ?? weapon;
         public WeaponDefinition FindWeapon(string id) => weapons?.FirstOrDefault(x=>x&&x.id==id) ?? weapon;
         public ArmorDefinition FindArmor(string id)=>armor?.FirstOrDefault(x=>x&&x.id==id);
+        public EnemyDefinition FindEnemy(string id)=>enemies?.FirstOrDefault(x=>x&&x.id==id);
+        public EnemyDefinition FindEnemy(EnemyKind kind)=>enemies?.FirstOrDefault(x=>x&&x.legacyFallback&&x.legacyKind==kind);
     }
 }

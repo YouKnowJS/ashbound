@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ca142242cc69bf478c757309d3f3510, type: 3}
+  m_Name: future-void-depths
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.RegionEnemyPoolDefinition
+  id: future-void-depths
+  displayName: Void Depths Ecology
+  ecologyIntent: Spatial distortion combines mobile threats, controllers, and priority
+    mages.
+  favoredElements: 05000000
+  commonEnemies:
+  - {fileID: 11400000, guid: 2d728c37e30cb6d4496de4a40146e0b4, type: 2}
+  - {fileID: 11400000, guid: 99a56f60cc40cbc4a93686b70241a2fc, type: 2}
+  - {fileID: 11400000, guid: 6e016f456c1822f4fb258d83cbbbadea, type: 2}
+  hardEnemies:
+  - {fileID: 11400000, guid: 95594166a8fd51e4b97f6c3c9750233f, type: 2}
+  - {fileID: 11400000, guid: 3a4541fd616463045be11eb79b3690cb, type: 2}
+  eliteCandidates:
+  - {fileID: 11400000, guid: 1eff2eadd8838cd43b8dda456fd5cdbc, type: 2}
+  encounterPool:
+  - {fileID: 11400000, guid: 4a70f0bdfd0466b468d2fc3428f3ec59, type: 2}
+  - {fileID: 11400000, guid: 05ff532371bb2804a8b240dcb7f8694b, type: 2}

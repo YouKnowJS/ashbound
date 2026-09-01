@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393feac240509fe48a50d51cad8abea8, type: 3}
+  m_Name: variant-fire-bomber
+  m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.EnemyDefinition
+  id: variant-fire-bomber
+  displayName: Furnace Bomber
+  combatRead: Bomber pressure using Detonation with Pursue movement.
+  legacyKind: 0
+  legacyFallback: 0
+  role: 7
+  maxHealth: 51
+  movementSpeed: 3.6
+  attackDamage: 24
+  attackCooldown: 2.8
+  preferredDistance: 1.8
+  element: 1
+  statusResistance: 0.04
+  staggerResistance: 0.03
+  targeting: 4
+  movement: 7
+  attack: 7
+  spawnPresentation: 2
+  rewardTier: 0
+  elite: 0
+  shield: 0
+  visualScale: 0.82
+  baseTint: {r: 0.68, g: 0.24, b: 0.18, a: 1}
+  telegraphLanguage: Detonation warning uses a persistent ground ring or directional
+    line before commitment.
+  rewardHook: Standard encounter reward contribution.
+  prefab: {fileID: 0}
+  telegraphPrefab: {fileID: 0}
+  attackVfxPrefab: {fileID: 0}
+  attackAudio: {fileID: 0}

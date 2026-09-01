@@ -10,7 +10,7 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
-v0.4 content validation additionally checks six facilities, 29 authored facility tiers, five preparations, four resources, future region/node targets, Rest/Temper definitions, unlock pools, and the complete v0.3 content set.
+v0.5 content validation additionally checks ten base enemy roles, ten elemental variants, encounter composition, future region ecology pools, Small/Medium/Large spaces, irregular connected sections, transitions, world-extension hooks, and the complete v0.4 content set.
 
 ### Edit Mode
 
@@ -39,6 +39,8 @@ v0.4 content validation additionally checks six facilities, 29 authored facility
 - Source-attributed damage over time, pause behavior, slow, and stun expiry.
 - An elemental Weapon Skill damaging/applying status in combat, four-piece equipment activation, solo reflection weapon/skill identity, and corruption layering.
 - Encounter resource collection and a per-player equipment reward dismantle flow using the real run state machine.
+- Data-driven encounter spawning with `EnemyBrain`/definition wiring and visible connected transition geometry.
+- Schema-4 encounter telemetry with composition, role kills, and arena-category context.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -52,8 +54,25 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 6. Start two local humans. Confirm P1/P2 input is separate, both select upgrades, ally hits do no damage, and final opposing teams can damage each other.
 7. With physical gamepads, verify bindings, disconnect pause, reconnect behavior, three/four-player framing, and keyboard ghosting limits.
 8. Finish/reset a run, inspect the local telemetry JSON, and start a second run to check cleanup.
+9. Use F1 → Ecology to test every role, affinity, preset, Elite override, arena category, AI toggle, and telegraph toggle.
+10. Walk the transition paths and inspect all five spaces for square-box presentation, camera loss, blocked spawn points, and projectile/obstacle behavior.
 
 ## Verification status
+
+### v0.5 verification — 2026-08-31
+
+Using Unity **6000.4.11f1** on Windows after the enemy-ecology and combat-space expansion:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **36 passed**, 0 failed, 0 skipped |
+| Play Mode | **12 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for six seconds; no managed exception signature found in the dedicated player log |
+| Human role balance, map scale, physical 2–4 player framing | Not completed |
+
+Automated checks establish content completeness, integration, and the preserved end-to-end run. They do not establish that enemy overlap, telegraph readability, combat-space scale, or multiplayer camera framing is balanced.
 
 ### v0.4 verification — 2026-08-31
 
