@@ -320,6 +320,27 @@ namespace Ashbound.Tests
         }
 
         [Test]
+        public void V05CombatSpaceEntrancesSupportFourPlayersAndDividedHallHasNoDividerSeam()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");
+            bool Supports(CombatSpaceSection section,Vector2 point,float padding)
+            {
+                Vector2 delta=point-section.center;float radians=-section.rotation*Mathf.Deg2Rad;
+                Vector2 local=new Vector2(delta.x*Mathf.Cos(radians)-delta.y*Mathf.Sin(radians),delta.x*Mathf.Sin(radians)+delta.y*Mathf.Cos(radians));
+                return Mathf.Abs(local.x)<=section.size.x*.5f-padding&&Mathf.Abs(local.y)<=section.size.y*.5f-padding;
+            }
+            foreach(var space in catalog.combatSpaces)
+                for(int i=0;i<4;i++)
+                {
+                    Vector2 spawn=new Vector2(space.entrancePosition.x+(i-1.5f)*1.5f,space.entrancePosition.z);
+                    Assert.That(space.sections.Any(section=>Supports(section,spawn,.45f)),Is.True,space.id+" does not safely support P"+(i+1)+" at its entrance");
+                }
+            var divided=catalog.combatSpaces.Single(x=>x.id=="divided-hall");var west=divided.sections.Single(x=>x.id=="west-hall");var east=divided.sections.Single(x=>x.id=="east-hall");var divider=divided.obstacles.Single(x=>x.position==Vector2.zero);
+            Assert.That(west.center.x+west.size.x*.5f,Is.GreaterThanOrEqualTo(divider.position.x-divider.size.x*.5f));
+            Assert.That(east.center.x-east.size.x*.5f,Is.LessThanOrEqualTo(divider.position.x+divider.size.x*.5f));
+        }
+
+        [Test]
         public void V06RouteVariantsValidateAndCoverEveryImplementedNodeIdentity()
         {
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");Assert.That(catalog.prototypeRegion,Is.Not.Null);Assert.That(catalog.prototypeRegion.graphVariants.Length,Is.EqualTo(3));

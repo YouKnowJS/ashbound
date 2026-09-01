@@ -137,6 +137,17 @@ namespace Ashbound.Tests
         }
 
         [UnityTest]
+        public IEnumerator ActorMotorRecoversFromMissingFloorToItsLastSafePosition()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(418);yield return State(RunState.Combat);var player=run.Players[0];player.Health.DebugInvulnerable=true;
+            yield return null;Vector3 safe=player.transform.position;var controller=player.GetComponent<CharacterController>();
+            controller.enabled=false;player.transform.position=safe+new Vector3(50,-3,50);controller.enabled=true;
+            yield return null;yield return null;
+            Assert.That(player.Motor.FallRecoveries,Is.EqualTo(1));Assert.That(player.transform.position.y,Is.GreaterThan(-.5f));
+            Assert.That(Vector2.Distance(new Vector2(player.transform.position.x,player.transform.position.z),new Vector2(safe.x,safe.z)),Is.LessThan(.2f));
+        }
+
+        [UnityTest]
         public IEnumerator BleedRuptureAndLightningCannotRecursivelyProc()
         {
             run.StartRun(11); run.DebugSkipToBoss(); yield return null;

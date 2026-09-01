@@ -62,6 +62,18 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 
 ## Verification status
 
+### Floor-seam correction — 2026-08-31
+
+Using Unity **6000.4.11f1** after correcting unsafe combat-space entrances, the Divided Hall divider seam, and missing-floor recovery:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **41 passed**, 0 failed, 0 skipped |
+| Play Mode | **16 passed**, 0 failed, 0 skipped |
+
+The added Edit Mode test checks a controller-radius-safe spawn footprint for all four local players in every combat space and verifies that the Divided Hall divider covers both adjoining floor edges. The added Play Mode test moves a live player below missing geometry and verifies one recovery to the last fully supported position.
+
 ### v0.6 verification — 2026-08-31
 
 Using Unity **6000.4.11f1** on Windows after the expedition-route and node-identity expansion:

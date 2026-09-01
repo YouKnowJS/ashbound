@@ -64,7 +64,7 @@ MonoBehaviour:
   - {x: 3, y: 12}
   - {x: 3, y: 9}
   - {x: -13, y: 7}
-  entrancePosition: {x: 0, y: 0, z: -8}
+  entrancePosition: {x: 0.5, y: 0, z: -4.5}
   exitPosition: {x: 6, y: 0, z: 11}
   transitionLength: 6
   cameraOrthographicSize: 14.5
