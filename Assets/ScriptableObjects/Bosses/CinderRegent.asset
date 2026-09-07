@@ -20,4 +20,11 @@ MonoBehaviour:
   areaDamage: 25
   areaRadius: 3.1
   telegraphDuration: 1.1
+  navigationRadius: 1.2
+  minimumObstacleClearance: 0.4
+  preferredMovementZone: 0.76
+  allowedArenaSections: []
+  stuckDetectionSeconds: 1.5
+  minimumStuckDisplacement: 0.12
+  recoveryAttemptsBeforeReposition: 3
   corruption: {fileID: 11400000, guid: 3eec06c6e29994046b131a214b9581c2, type: 2}

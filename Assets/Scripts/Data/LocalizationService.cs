@@ -55,14 +55,17 @@ namespace Ashbound
             if(Current==language)return;Current=language;PlayerPrefs.SetInt(PreferenceKey,(int)language);PlayerPrefs.Save();PrototypeGui.ResetStyles();Changed?.Invoke();
         }
         public static string Text(string key,string fallback=null)
+            =>TextFor(Current,key,fallback);
+        public static string TextFor(GameLanguage language,string key,string fallback=null)
         {
-            if(IsChinese&&Chinese.TryGetValue(key,out string translated))return translated;if(English.TryGetValue(key,out string english))return english;return fallback??key;
+            if(language==GameLanguage.SimplifiedChinese&&Chinese.TryGetValue(key,out string translated))return translated;if(English.TryGetValue(key,out string english))return english;return fallback??key;
         }
         public static string FacilityName(HubFacilityDefinition value)=>value?Text("facility."+value.id+".name",value.displayName):"";
         public static string FacilityDescription(HubFacilityDefinition value)=>value?Text("facility."+value.id+".description",value.description):"";
         public static string TierName(FacilityUpgradeTier value)=>IsChinese?TranslateTier(value.id,value.displayName):value.displayName;
         public static string TierDescription(FacilityUpgradeTier value)=>IsChinese?TranslateEffect(value):value.description;
         public static string PreparationName(PreparationDefinition value)=>value?Text("prep."+value.id,value.displayName):"";
+        public static string PreparationNameFor(GameLanguage language,PreparationDefinition value)=>value?TextFor(language,"prep."+value.id,value.displayName):"";
         public static string Node(ExpeditionNodeType value)=>Text("node."+value,value.ToString());
         public static string Rarity(WeaponRarity value)=>Text("rarity."+value,value.ToString());
         public static string Element(ElementTag value)=>Text("element."+value,value.ToString());

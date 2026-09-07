@@ -36,6 +36,8 @@ namespace Ashbound
             actor.ConfigureEnemy(definition);
             if (definition.shield > 0) actor.Health.Shield(definition.shield);
             if (definition.prefab) Object.Instantiate(definition.prefab, actor.transform);
+            if(definition.useLargeBodyNavigation)
+                actor.gameObject.AddComponent<LargeBodyNavigationSafety>().Configure(actor,definition.navigationRadius,definition.minimumObstacleClearance,definition.preferredMovementZone,definition.allowedArenaSections,definition.stuckDetectionSeconds,definition.minimumStuckDisplacement,definition.recoveryAttemptsBeforeReposition);
             actor.gameObject.AddComponent<EnemyBrain>().Configure(actor, definition);
             return actor;
         }
@@ -45,6 +47,7 @@ namespace Ashbound
             var actor = Create("B" + ++sequence, catalog.boss.displayName, false, Faction.Hostiles,
                 catalog.boss.health * (1 + .65f * (partySize - 1)), position, new Color(.65f, .32f, .23f), 2.1f, true);
             actor.BaseSpeed = 3; actor.IsBoss = true;
+            actor.gameObject.AddComponent<LargeBodyNavigationSafety>().Configure(actor,catalog.boss.navigationRadius,catalog.boss.minimumObstacleClearance,catalog.boss.preferredMovementZone,catalog.boss.allowedArenaSections,catalog.boss.stuckDetectionSeconds,catalog.boss.minimumStuckDisplacement,catalog.boss.recoveryAttemptsBeforeReposition);
             actor.gameObject.AddComponent<CinderRegentController>().Configure(actor, catalog.boss);
             return actor;
         }

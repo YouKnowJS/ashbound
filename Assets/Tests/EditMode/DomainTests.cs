@@ -320,6 +320,25 @@ namespace Ashbound.Tests
         }
 
         [Test]
+        public void TypographyAuditPassesTargetResolutionsAndLanguages()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");
+            foreach(var resolution in UILayoutAudit.TargetResolutions)foreach(GameLanguage language in System.Enum.GetValues(typeof(GameLanguage)))
+            {
+                var audit=UILayoutAudit.Validate(resolution,language,catalog);Assert.That(audit.Passed,Is.True,audit.Summary);
+            }
+            Assert.That(PrototypeGui.Button.wordWrap,Is.True);Assert.That(PrototypeGui.PreparationButtonHeight,Is.GreaterThanOrEqualTo(40));Assert.That(PrototypeGui.Tooltip,Is.Not.Null);Assert.That(PrototypeGui.Resource,Is.Not.Null);Assert.That(PrototypeGui.Metadata,Is.Not.Null);
+        }
+
+        [Test]
+        public void BossAndLargeEnemyNavigationDataHasClearanceAndRecoveryLimits()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var boss=catalog.boss;
+            Assert.That(boss.navigationRadius,Is.GreaterThan(1));Assert.That(boss.minimumObstacleClearance,Is.GreaterThan(0));Assert.That(boss.preferredMovementZone,Is.InRange(.25f,1));Assert.That(boss.stuckDetectionSeconds,Is.InRange(.5f,3));Assert.That(boss.recoveryAttemptsBeforeReposition,Is.GreaterThanOrEqualTo(2));
+            var large=catalog.enemies.Where(x=>x.useLargeBodyNavigation).ToArray();Assert.That(large,Is.Not.Empty);Assert.That(large.Any(x=>x.legacyKind==EnemyKind.MiniBoss),Is.True);Assert.That(large.Any(x=>x.role==EnemyRole.Bruiser),Is.True);Assert.That(large.All(x=>x.navigationRadius>=.55f&&x.minimumObstacleClearance>0&&x.stuckDetectionSeconds>=.5f),Is.True);
+        }
+
+        [Test]
         public void V07CameraAndWorldScaleConfigurationMeetsPartyFramingTargets()
         {
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");

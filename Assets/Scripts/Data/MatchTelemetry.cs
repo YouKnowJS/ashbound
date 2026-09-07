@@ -64,6 +64,13 @@ namespace Ashbound
         public string chosenRoute;
     }
     [Serializable]
+    public sealed class NavigationSafetyTelemetry
+    {
+        public string actorId,actorName,arena;
+        public int stuckEvents,recoveryAttempts,emergencyRepositions;
+        public float timeStuck;
+    }
+    [Serializable]
     public sealed class MatchRecord
     {
         public int schemaVersion = 5;
@@ -87,6 +94,7 @@ namespace Ashbound
         public List<EnemyElementTelemetry> enemyElements = new List<EnemyElementTelemetry>();
         public List<EncounterTelemetry> encounters = new List<EncounterTelemetry>();
         public List<RouteNodeTelemetry> routeNodes = new List<RouteNodeTelemetry>();
+        public List<NavigationSafetyTelemetry> navigationSafety = new List<NavigationSafetyTelemetry>();
         public float routeMenuSeconds,treasureMenuSeconds,merchantMenuSeconds,restMenuSeconds,eventMenuSeconds,rewardMenuSeconds;
         public bool trueFinalBossEntered;
     }
@@ -207,6 +215,18 @@ namespace Ashbound
         public void ChallengeResult(ChallengeDefinition challenge,bool success){if(!Recording||activeNode==null)return;activeNode.challengeId=challenge?challenge.id:"";activeNode.challengeSuccess=success;}
         public void BossReward(BossRewardDefinition reward){if(Recording&&activeNode!=null)activeNode.bossReward=reward?reward.id:"";}
         public void TrueFinalBossEntered(){if(Recording)Record.trueFinalBossEntered=true;}
+        public void NavigationStuck(Combatant actor,string arena,float seconds)
+        {
+            if(!Recording||!actor)return;var entry=NavigationEntry(actor,arena);entry.stuckEvents++;entry.timeStuck+=Mathf.Max(0,seconds);
+        }
+        public void NavigationRecovery(Combatant actor,string arena,bool emergency)
+        {
+            if(!Recording||!actor)return;var entry=NavigationEntry(actor,arena);entry.recoveryAttempts++;if(emergency)entry.emergencyRepositions++;
+        }
+        private NavigationSafetyTelemetry NavigationEntry(Combatant actor,string arena)
+        {
+            string location=string.IsNullOrEmpty(arena)?"Unknown":arena;var entry=Record.navigationSafety.FirstOrDefault(x=>x.actorId==actor.Id&&x.arena==location);if(entry!=null)return entry;entry=new NavigationSafetyTelemetry{actorId=actor.Id,actorName=actor.DisplayName,arena=location};Record.navigationSafety.Add(entry);return entry;
+        }
         public void MenuTime(string key,float delta)
         {
             if(!Recording||delta<=0||string.IsNullOrEmpty(key))return;switch(key){case "Route":Record.routeMenuSeconds+=delta;break;case "Treasure":Record.treasureMenuSeconds+=delta;break;case "Merchant":Record.merchantMenuSeconds+=delta;break;case "Rest":Record.restMenuSeconds+=delta;break;case "Event":Record.eventMenuSeconds+=delta;break;case "Reward":case "RelicReward":case "EquipmentReward":Record.rewardMenuSeconds+=delta;break;}

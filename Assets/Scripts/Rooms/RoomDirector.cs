@@ -96,6 +96,7 @@ namespace Ashbound
             if (presentation == SpawnPresentation.Flight) position += Vector3.right * 1.2f;
             else if (presentation == SpawnPresentation.Burrow) position += Vector3.back * .7f;
             else if (presentation == SpawnPresentation.Rift) position += Vector3.forward * .7f;
+            if(definition.useLargeBodyNavigation)position=View.FindNearestNavigationPoint(position,definition.navigationRadius+definition.minimumObstacleClearance,definition.allowedArenaSections);
             var enemy = factory.Enemy(definition, position, partySize); enemy.ScaleHealth(ActiveHealthMultiplier()); enemies.Add(enemy);
             PresentSpawn(enemy, presentation);
         }
@@ -126,7 +127,8 @@ namespace Ashbound
         public void SpawnBoss(int partySize)
         {
             ClearEnemies();
-            Boss = factory.Boss(new Vector3(0, 0, 4.5f), partySize); enemies.Add(Boss);
+            Vector3 position=View.FindNearestNavigationPoint(new Vector3(0,0,4.5f),catalog.boss.navigationRadius+catalog.boss.minimumObstacleClearance,catalog.boss.allowedArenaSections);
+            Boss = factory.Boss(position, partySize); enemies.Add(Boss);
             Boss.Health.Died += () => { if (Boss && combat.State == RunState.BossFight) BossDied?.Invoke(); };
         }
         public bool HasMoreWaves => !routeNode&&Current&&!Current.isBoss&&WaveIndex + 1 < Current.waves.Length;

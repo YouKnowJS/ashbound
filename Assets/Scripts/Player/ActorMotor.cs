@@ -7,6 +7,7 @@ namespace Ashbound
     {
         private Combatant actor;
         private CharacterController controller;
+        private LargeBodyNavigationSafety navigationSafety;
         private Vector3 desired, impulse, dashDirection;
         private Vector3 lastSafePosition;
         private float stunUntil, dashUntil, dashSpeed, dashReadyAt;
@@ -36,7 +37,11 @@ namespace Ashbound
             controller.stepOffset = .25f; controller.minMoveDistance = 0;
             lastSafePosition = transform.position;
         }
-        public void SetMove(Vector3 direction) { direction.y = 0; desired = Vector3.ClampMagnitude(direction, 1); }
+        public void SetMove(Vector3 direction) { direction.y = 0;if(navigationSafety)direction=navigationSafety.FilterDirection(direction);desired = Vector3.ClampMagnitude(direction, 1); }
+        public void SetNavigationSafety(LargeBodyNavigationSafety safety,float bodyRadius)
+        {
+            navigationSafety=safety;if(!controller)return;controller.radius=Mathf.Max(.4f,bodyRadius);controller.height=Mathf.Max(1.7f,bodyRadius*2.15f);controller.center=new Vector3(0,controller.height*.5f+.05f,0);controller.stepOffset=Mathf.Min(.35f,controller.height*.2f);
+        }
         public void SetFacing(Vector3 direction)
         {
             direction.y = 0;
@@ -55,7 +60,7 @@ namespace Ashbound
             return true;
         }
         public void Lunge(Vector3 direction, float speed, float duration)
-        { dashDirection = direction.normalized; dashSpeed = speed; dashUntil = Time.time + duration; }
+        { if(navigationSafety)direction=navigationSafety.FilterBurstDirection(direction,speed*duration);if(direction.sqrMagnitude<.01f){dashUntil=0;return;}dashDirection = direction.normalized; dashSpeed = speed; dashUntil = Time.time + duration; }
         public void Impact(Vector3 velocity, float stun)
         {
             if (actor.IsBoss) velocity *= .15f;
@@ -64,7 +69,7 @@ namespace Ashbound
         }
         public void CommitAttack(float duration, float movementMultiplier)
         { attackCommitUntil = Time.time + Mathf.Max(0, duration); attackMoveMultiplier = Mathf.Clamp(movementMultiplier, .2f, 1.25f); }
-        public void Stop() { desired = impulse = Vector3.zero; dashUntil = dashReadyAt = stunUntil = 0; }
+        public void Stop() { desired = impulse = Vector3.zero; dashUntil = dashReadyAt = stunUntil = 0;if(navigationSafety)navigationSafety.ClearIntent(); }
         public void Teleport(Vector3 position)
         {
             controller.enabled = false; transform.position = position; controller.enabled = true; Stop();

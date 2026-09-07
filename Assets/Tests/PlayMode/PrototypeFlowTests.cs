@@ -203,6 +203,36 @@ namespace Ashbound.Tests
         }
 
         [UnityTest]
+        public IEnumerator BossCompatibleLargeSpacesExposeSafeAnchorsWithoutRemovingTerrain()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(908);yield return State(RunState.Combat);float clearance=run.Catalog.boss.navigationRadius+run.Catalog.boss.minimumObstacleClearance;
+            foreach(var space in run.Catalog.combatSpaces.Where(x=>x.category==CombatSpaceCategory.Large))
+            {
+                run.DebugLoadCombatSpace(space);yield return null;Physics.SyncTransforms();var anchors=run.Rooms.View.NavigationAnchors(clearance,run.Catalog.boss.allowedArenaSections);
+                Assert.That(anchors.Count,Is.GreaterThanOrEqualTo(4),space.id+" lacks Boss recovery anchors");Assert.That(anchors.All(x=>run.Rooms.View.IsNavigationPointValid(x,clearance,run.Catalog.boss.allowedArenaSections)),Is.True,space.id+" has an unsafe Boss anchor");Assert.That(space.boundaryPoints.Length,Is.GreaterThanOrEqualTo(9),space.id+" lost its irregular boundary");Assert.That(space.obstacles,Is.Not.Empty,space.id+" removed all terrain structure");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator BossNavigationUsesLargeBodyClearanceAndEmergencySafeAnchor()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(909);Assert.That(run.DebugSkipToBoss(),Is.True);yield return null;Physics.SyncTransforms();var boss=run.Rooms.Boss;var navigation=boss.GetComponent<LargeBodyNavigationSafety>();var controller=boss.GetComponent<CharacterController>();
+            float bodyClearance=navigation.NavigationRadius+navigation.Clearance;
+            Assert.That(navigation,Is.Not.Null);Assert.That(controller.radius,Is.EqualTo(run.Catalog.boss.navigationRadius).Within(.01f));Assert.That(run.Rooms.View.IsNavigationPointValid(boss.transform.position,bodyClearance),Is.True,"Boss spawned without body clearance at "+boss.transform.position);
+            boss.GetComponent<CinderRegentController>().enabled=false;boss.Motor.enabled=false;navigation.FilterDirection(Vector3.forward);yield return new WaitForSeconds(run.Catalog.boss.stuckDetectionSeconds+.4f);Assert.That(navigation.RecoveryAttempts,Is.GreaterThanOrEqualTo(1),"Prolonged movement intent did not trigger stuck recovery");boss.Motor.enabled=true;
+            for(int i=0;i<run.Catalog.boss.recoveryAttemptsBeforeReposition+2&&navigation.EmergencyRepositions==0;i++)navigation.ForceRecovery();yield return null;Physics.SyncTransforms();
+            Assert.That(navigation.EmergencyRepositions,Is.EqualTo(1));Assert.That(run.Rooms.View.IsNavigationPointValid(boss.transform.position,navigation.NavigationRadius+navigation.Clearance),Is.True,"Emergency recovery overlapped arena terrain");Assert.That(run.Players.All(x=>Vector3.Distance(x.transform.position,boss.transform.position)>navigation.NavigationRadius+2),Is.True);
+            var telemetry=run.Telemetry.Record.navigationSafety.Single(x=>x.actorId==boss.Id);Assert.That(telemetry.stuckEvents,Is.GreaterThanOrEqualTo(1));Assert.That(telemetry.recoveryAttempts,Is.GreaterThanOrEqualTo(run.Catalog.boss.recoveryAttemptsBeforeReposition));Assert.That(telemetry.emergencyRepositions,Is.EqualTo(1));Assert.That(telemetry.arena,Is.Not.Empty);
+        }
+
+        [UnityTest]
+        public IEnumerator BruiserReusesLargeBodyNavigationSafety()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(910);yield return State(RunState.Combat);var definition=run.Catalog.enemies.First(x=>x.role==EnemyRole.Bruiser&&!x.elite);var bruiser=run.DebugSpawnEnemy(definition);yield return null;var navigation=bruiser.GetComponent<LargeBodyNavigationSafety>();
+            Assert.That(navigation,Is.Not.Null);Assert.That(bruiser.GetComponent<CharacterController>().radius,Is.EqualTo(definition.navigationRadius).Within(.01f));Assert.That(run.Rooms.View.IsNavigationPointValid(bruiser.transform.position,navigation.NavigationRadius+navigation.Clearance),Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator BossPhaseAndTransitionCancelHazardsAndResetUnlocksRoster()
         {
             run.StartRun(19); run.DebugSkipToBoss(); yield return null;

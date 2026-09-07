@@ -27,6 +27,15 @@ namespace Ashbound
         public bool elite;
         public float shield;
         public float visualScale = 1;
+        [Header("Large-body navigation")]
+        public bool useLargeBodyNavigation;
+        [Min(.4f)] public float navigationRadius = .4f;
+        [Min(0)] public float minimumObstacleClearance = .2f;
+        [Range(.25f,1)] public float preferredMovementZone = .85f;
+        public string[] allowedArenaSections = System.Array.Empty<string>();
+        [Min(.5f)] public float stuckDetectionSeconds = 1.6f;
+        [Min(.01f)] public float minimumStuckDisplacement = .1f;
+        [Min(1)] public int recoveryAttemptsBeforeReposition = 3;
         public Color baseTint = new Color(.68f, .24f, .18f);
         [TextArea] public string telegraphLanguage;
         [TextArea] public string rewardHook;

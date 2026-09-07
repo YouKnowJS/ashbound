@@ -34,6 +34,14 @@ MonoBehaviour:
   elite: 0
   shield: 0
   visualScale: 1.22
+  useLargeBodyNavigation: 0
+  navigationRadius: 0.4
+  minimumObstacleClearance: 0.2
+  preferredMovementZone: 0.88
+  allowedArenaSections: []
+  stuckDetectionSeconds: 1.8
+  minimumStuckDisplacement: 0.08
+  recoveryAttemptsBeforeReposition: 3
   baseTint: {r: 0.75, g: 0.55, b: 0.3, a: 1}
   telegraphLanguage: Lunge warning uses a persistent ground ring or directional line
     before commitment.

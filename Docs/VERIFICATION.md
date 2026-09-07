@@ -12,6 +12,8 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 The presentation-foundation validation additionally checks four distinct resource icons, Simplified Chinese terminology coverage, a six-station walkable Camp, fixed resource HUD state, resource feedback, NPC-specific panels, Camp camera focus, room-root handoff, and launch through the Expedition Table. It retains all v0.7 camera and earlier gameplay coverage.
 
+The v0.8.1 hotfix validation checks the shared English/zh-CN typography system at 1920×1080, 2560×1440, and 3440×1440; preparation labels and representative major-panel content; data-driven body radius and recovery limits; safe anchors in every Large space; true-Boss spawn clearance; automatic stuck detection; staged recovery; emergency repositioning; telemetry; and reuse by Bruisers.
+
 ### Edit Mode
 
 - Co-op friendly-fire rejection in every pre-final state, even if a caller requests friendly fire.
@@ -66,8 +68,25 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 13. Walk through the Camp with keyboard and a physical gamepad. Check all six prompts, NPC facing/gesture/highlight, camera damping/focus, fire/smoke/embers, warm/cool lighting, and station layout.
 14. For each facility, inspect available, unaffordable, prerequisite-locked, and complete states. Confirm icon costs match the persistent wallet and remain after restart.
 15. Switch between English and Simplified Chinese, restart the build, and inspect camp/settings/tooltips/route/HUD text for missing glyphs, wrapping, or clipping.
+16. Open F1 → Camp → UI Layout Test. Cycle all panels, both languages, and all three target resolutions; inspect narrow labels, disabled controls, the resource line, and every preparation button.
+17. Open F1 → Ecology and enable large-body navigation diagnostics. Watch the Cinder Regent near the Divided Hall divider and obstacles, then use Force stuck and Force recovery to inspect steering candidates, safe anchors, staged recovery, and the emergency destination.
 
 ## Verification status
+
+### v0.8.1 UI and boss-navigation hotfix — 2026-09-06
+
+Using Unity **6000.4.11f1** after centralizing bilingual typography and adding large-body navigation safety:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **46 passed**, 0 failed, 0 skipped |
+| Play Mode | **23 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained responsive for ten seconds; fresh player log had no exception, error, crash, assertion, or abort signature |
+| Human bilingual, physical-controller, and visual-quality pass | Still required |
+
+The automated UI audit proves configured controls fit their rectangles with the selected dynamic font and scaling rules. It cannot judge visual balance on every OS/font setup. Navigation tests prove spawn clearance, obstacle-aware direction filtering, automatic detection, recovery escalation, and safe relocation in authored graybox spaces; they do not replace extended human combat and movement testing.
 
 ### Presentation foundation — 2026-09-01
 

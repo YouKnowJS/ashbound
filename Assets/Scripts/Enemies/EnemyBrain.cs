@@ -11,6 +11,7 @@ namespace Ashbound
         private Combatant target;
         private float nextAttack, nextTargetScan;
         private bool busy, aerial, burrowed;
+        private LargeBodyNavigationSafety navigationSafety;
         public Combatant Actor { get; private set; }
         public EnemyDefinition Definition { get; private set; }
         public bool Busy => busy;
@@ -19,6 +20,7 @@ namespace Ashbound
         {
             Actor = owner; Definition = definition;
             behavior = CreateBehavior(definition.role);
+            navigationSafety=GetComponent<LargeBodyNavigationSafety>();
             owner.Health.Died += OnDeath;
             owner.Combat.DamageResolved += OnDamageResolved;
         }
@@ -48,6 +50,7 @@ namespace Ashbound
                 target = SelectTarget(); nextTargetScan = Time.time + .25f;
             }
             if (!target) { Actor.Motor.SetMove(Vector3.zero); return; }
+            if(navigationSafety)navigationSafety.SetTarget(target);
             Vector3 offset = target.transform.position - transform.position; offset.y = 0;
             float distance = offset.magnitude; Vector3 direction = distance > .01f ? offset / distance : Actor.Motor.Facing;
             Actor.Motor.SetFacing(direction);

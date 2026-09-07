@@ -34,6 +34,14 @@ MonoBehaviour:
   elite: 1
   shield: 65
   visualScale: 1.7
+  useLargeBodyNavigation: 1
+  navigationRadius: 0.884
+  minimumObstacleClearance: 0.28
+  preferredMovementZone: 0.8
+  allowedArenaSections: []
+  stuckDetectionSeconds: 1.5
+  minimumStuckDisplacement: 0.1
+  recoveryAttemptsBeforeReposition: 3
   baseTint: {r: 0.75, g: 0.55, b: 0.3, a: 1}
   telegraphLanguage: WideMelee warning uses a persistent ground ring or directional
     line before commitment.

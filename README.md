@@ -48,7 +48,7 @@ The runtime factories intentionally generate primitive actors, camp presentation
 
 ## Developer guide
 
-See [presentation foundation](Docs/PRESENTATION_FOUNDATION.md), [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
+See [v0.8.1 UI and boss-navigation hotfix](Docs/UI_BOSS_NAVIGATION_HOTFIX.md), [presentation foundation](Docs/PRESENTATION_FOUNDATION.md), [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -66,9 +66,10 @@ F1 pauses simulation and exposes:
 - Display dominant BuildAnalyzer themes, force relic themes, spawn elemental test enemies, and toggle status/VFX feedback.
 - Add/zero persistent resources, set facility levels, unlock equipment, reset the profile, force preparations/reward rarity, and simulate expedition outcomes.
 - Open the Ecology page to spawn by role/element, force an Elite, load an encounter preset or combat-space size, and toggle enemy AI or telegraphs.
+- On the Ecology page, show large-body clearance/stuck diagnostics and force either a stuck event or a recovery stage.
 - Open the Route page to regenerate/reveal the graph, add run currency, jump to any node identity, or force Treasure variants including Mimic and Cursed Chest.
 - Open the Camera page to switch follow modes, force zoom limits, display centroid/spread/clamp diagnostics, and load enlarged Medium or Large spaces.
-- Open the Camp page to set persistent resources, teleport/open each NPC, switch EN/ZH, toggle the resource HUD, and exercise gain, interaction, and camera feedback.
+- Open the Camp page to set persistent resources, teleport/open each NPC, switch EN/ZH, toggle the resource HUD, exercise gain/interaction/camera feedback, and open the three-resolution UI Layout Test.
 - Reset the run and unlock the roster.
 
 Close F1 to let timers and transitions continue. Debug-modified runs are marked in telemetry. Item prerequisites and duplicate prevention apply to debug grants too. Clear invulnerability before balancing combat.
@@ -96,7 +97,7 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 
 - This is a compact gray-box loop, not the full 10–15 minute-per-map game. Expect a short, untuned run.
 - Multiplayer is local and shares one smooth centroid camera with bounded spread zoom and edge indicators. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
-- Enemies steer directly toward targets; there is no navigation mesh or sophisticated avoidance.
+- Normal enemies retain lightweight direct steering. Bosses, Mini-Bosses, Elites, and Bruisers use configurable body-clearance probes, safe anchors, stuck detection, and staged recovery; there is still no navigation mesh or full path planner.
 - UI uses immediate-mode GUI. Procedural placeholder animation is present, but there is no final rigged animation, bundled soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
 - Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the equipment architecture. Loot acquisition, equipment selection UI, inventory persistence, final models, and save/load of active runs are deferred.
 - `UnlockData` is a data structure only, with no permanent stat bonuses or unlock-grind implementation.

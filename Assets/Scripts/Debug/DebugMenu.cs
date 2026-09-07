@@ -7,7 +7,7 @@ namespace Ashbound
 {
     public sealed class DebugMenu:MonoBehaviour
     {
-        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage,metaFacility,page,enemyRole,enemyElement,encounterIndex,spaceIndex;private bool eliteEnemy;
+        private RunManager run;private int selectedPlayer,weaponFamily,weaponRarity,weaponElement,skillIndex,setIndex,relicPage,metaFacility,page,enemyRole,enemyElement,encounterIndex,spaceIndex,uiTestPanel,uiTestResolution;private bool eliteEnemy,uiLayoutTest;
         private string result="Configure equipment, then close F1 to resume.";
         public void Configure(RunManager manager){run=manager;}
         private void Update(){if(run&&Keyboard.current!=null&&Keyboard.current.f1Key.wasPressedThisFrame)run.DebugOpen=!run.DebugOpen;}
@@ -15,7 +15,7 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,410,32,"ASHBOUND v0.8 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(470,32,112,32),"Equipment"))page=0;if(U.Click(new Rect(587,32,82,32),"Meta"))page=1;if(U.Click(new Rect(674,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(771,32,82,32),"Route"))page=3;if(U.Click(new Rect(858,32,92,32),"Camera"))page=4;if(U.Click(new Rect(955,32,82,32),"Camp"))page=5;if(U.Click(new Rect(1047,32,163,32),"Close F1"))run.DebugOpen=false;
+            U.Label(60,34,410,32,"ASHBOUND v0.8.1 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(470,32,112,32),"Equipment"))page=0;if(U.Click(new Rect(587,32,82,32),"Meta"))page=1;if(U.Click(new Rect(674,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(771,32,82,32),"Route"))page=3;if(U.Click(new Rect(858,32,92,32),"Camera"))page=4;if(U.Click(new Rect(955,32,82,32),"Camp"))page=5;if(U.Click(new Rect(1047,32,163,32),"Close F1"))run.DebugOpen=false;
             if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}if(page==4){CameraPanel();GUI.matrix=old;return;}if(page==5){CampPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}
@@ -77,8 +77,8 @@ namespace Ashbound
             GUI.enabled=candidates.Length>0;if(U.Click(new Rect(985,199,195,34),"Spawn role test")){run.DebugSpawnEnemy(candidates.FirstOrDefault(),eliteEnemy);result=candidates.Length>0?"Spawned "+candidates[0].displayName:"No authored combination";Mark();}GUI.enabled=true;
             U.Label(60,260,520,24,"ENCOUNTER PRESETS",U.CardTitle);if(run.Catalog.encounters.Length>0){encounterIndex=Mathf.Clamp(encounterIndex,0,run.Catalog.encounters.Length-1);for(int i=0;i<run.Catalog.encounters.Length;i++)if(U.Click(new Rect(60+(i%3)*205,294+(i/3)*36,196,29),run.Catalog.encounters[i].displayName))encounterIndex=i;var encounter=run.Catalog.encounters[encounterIndex];U.Label(60,375,565,70,encounter.intent+"\n"+encounter.difficulty+" · "+encounter.riskTier+" · "+encounter.requiredArenaSize,U.Small);if(U.Click(new Rect(60,445,220,34),"Spawn selected preset")){run.DebugSpawnEncounter(encounter);result="Loaded "+encounter.displayName;Mark();}}
             U.Label(650,260,520,24,"COMBAT SPACE",U.CardTitle);if(run.Catalog.combatSpaces.Length>0){spaceIndex=Mathf.Clamp(spaceIndex,0,run.Catalog.combatSpaces.Length-1);for(int i=0;i<run.Catalog.combatSpaces.Length;i++)if(U.Click(new Rect(650+(i%2)*250,294+(i/2)*36,240,29),run.Catalog.combatSpaces[i].displayName))spaceIndex=i;var space=run.Catalog.combatSpaces[spaceIndex];U.Label(650,408,520,60,space.category+" · "+space.layout+" · "+space.ScaledTechnicalBounds+"\nZoom "+space.cameraOrthographicSize.ToString("0.0")+"–"+space.cameraMaximumOrthographicSize.ToString("0.0")+" · "+space.spatialIntent,U.Small);if(U.Click(new Rect(650,475,220,34),"Load selected space")){run.DebugLoadCombatSpace(space);result="Loaded "+space.displayName;Mark();}}
-            EnemyBrain.AiEnabled=GUI.Toggle(new Rect(60,525,140,26),EnemyBrain.AiEnabled,"Enemy AI");EnemyBrain.TelegraphsEnabled=GUI.Toggle(new Rect(210,525,160,26),EnemyBrain.TelegraphsEnabled,"Telegraphs");
-            U.Label(60,570,1120,82,"ROLE READS\nWarrior baseline · Bruiser space control · Assassin flank · Ranger sustained shots · Mage AOE · Flyer dive windows · Burrower eruption · Bomber countdown/chain · Support capped aid · Controller short slow/pull\n"+result,U.Small);
+            EnemyBrain.AiEnabled=GUI.Toggle(new Rect(60,525,140,26),EnemyBrain.AiEnabled,"Enemy AI");EnemyBrain.TelegraphsEnabled=GUI.Toggle(new Rect(210,525,160,26),EnemyBrain.TelegraphsEnabled,"Telegraphs");LargeBodyNavigationSafety.DebugVisible=GUI.Toggle(new Rect(385,525,175,26),LargeBodyNavigationSafety.DebugVisible,"Boss nav overlay");var navigation=LargeBodyNavigationSafety.ActiveBoss??LargeBodyNavigationSafety.Instances.FirstOrDefault();GUI.enabled=navigation;if(U.Click(new Rect(575,518,175,34),"Force stuck")){navigation.ForceStuckSimulation();result="Forced stuck detection";Mark();}if(U.Click(new Rect(765,518,175,34),"Force recovery")){navigation.ForceRecovery();result="Forced navigation recovery";Mark();}GUI.enabled=true;
+            string navigationState=navigation?"NAV · radius "+navigation.NavigationRadius.ToString("0.00")+" + clearance "+navigation.Clearance.ToString("0.00")+" · stuck "+navigation.StuckSeconds.ToString("0.00")+"s · attempts "+navigation.RecoveryAttempts+" · emergency "+navigation.EmergencyRepositions:"NAV · spawn a Boss, Mini-boss, Elite, or Bruiser to inspect";U.Label(60,570,1120,82,navigationState+"\nOverlay: body radius, desired/applied steering, obstacle candidates, safe anchors, and stuck timer.\n"+result,U.Small);
         }
         private void RoutePanel()
         {
@@ -113,12 +113,24 @@ namespace Ashbound
         }
         private void CampPanel()
         {
-            var camp=CampHub.Instance;U.Label(60,86,1120,25,"CAMP PRESENTATION & INTERACTION",U.CardTitle);if(!camp){U.Label(60,125,900,40,"Camp runtime is unavailable in this scene.",U.Small);return;}
+            var camp=CampHub.Instance;U.Label(60,86,1120,25,"CAMP PRESENTATION & INTERACTION",U.CardTitle);if(!camp){U.Label(60,125,900,40,"Camp runtime is unavailable in this scene.",U.Small);return;}if(uiLayoutTest){UILayoutTestPanel();return;}
             U.Label(60,125,1120,44,"Active: "+camp.Active+" · Stations: "+camp.Stations.Count+" · Resource HUD: "+camp.ResourceHudVisible+" · Language: "+LocalizationService.Current,U.Small);
             U.Label(60,180,1120,24,"TELEPORT / OPEN NPC",U.CardTitle);HubFacilityKind[] kinds=(HubFacilityKind[])System.Enum.GetValues(typeof(HubFacilityKind));for(int i=0;i<kinds.Length;i++){var kind=kinds[i];if(U.Click(new Rect(60+(i%3)*370,215+(i/3)*42,355,34),kind.ToString())){camp.TeleportTo(kind);camp.Open(kind);result="Opened "+kind;Mark();}}
             U.Label(60,325,1120,24,"PRESENTATION CHECKS",U.CardTitle);if(U.Click(new Rect(60,365,210,36),"Add resource feedback")){camp.TestResourceGain();result="Resource gain feedback fired";Mark();}if(U.Click(new Rect(285,365,190,36),"Toggle resource HUD")){camp.ToggleResourceHud();Mark();}if(U.Click(new Rect(490,365,190,36),"Switch EN / 中文")){camp.SwitchLanguage();Mark();}if(U.Click(new Rect(695,365,200,36),"NPC interaction")){camp.TestNpcInteraction();Mark();}if(U.Click(new Rect(910,365,200,36),"Camera focus")){camp.TestCamera();Mark();}
             U.Label(60,435,1120,24,"SET PERSISTENT RESOURCES",U.CardTitle);ExpeditionResource[] resources=(ExpeditionResource[])System.Enum.GetValues(typeof(ExpeditionResource));for(int i=0;i<resources.Length;i++)if(U.Click(new Rect(60+i*275,470,260,36),"Set 500 · "+resources[i])){run.Progression.DebugSet(resources[i],500);Mark();}
-            U.Label(60,545,1120,75,result+"\nCamp tools use the authoritative MetaProgressionService and mark active expedition telemetry when one exists.",U.Small);
+            if(U.Click(new Rect(60,530,260,38),"UI Layout Test")){uiLayoutTest=true;uiTestPanel=0;uiTestResolution=0;Mark();}U.Label(345,530,835,65,result+"\nCamp tools use the authoritative MetaProgressionService and mark active expedition telemetry when one exists.",U.Small);
+        }
+        private void UILayoutTestPanel()
+        {
+            if(U.Click(new Rect(965,84,215,34),"Exit UI Layout Test")){uiLayoutTest=false;return;}U.Label(60,125,700,30,"UI LAYOUT TEST · "+UILayoutAudit.MajorPanels[uiTestPanel],U.Heading);
+            for(int i=0;i<UILayoutAudit.TargetResolutions.Length;i++){var resolution=UILayoutAudit.TargetResolutions[i];if(U.Click(new Rect(60+i*180,170,170,34),resolution.x+"×"+resolution.y+(i==uiTestResolution?" *":"")))uiTestResolution=i;}
+            if(U.Click(new Rect(650,170,170,34),"English"))LocalizationService.SetLanguage(GameLanguage.English);if(U.Click(new Rect(835,170,170,34),"简体中文"))LocalizationService.SetLanguage(GameLanguage.SimplifiedChinese);
+            if(U.Click(new Rect(1020,170,160,34),"Next panel")){uiTestPanel++;if(uiTestPanel>=UILayoutAudit.MajorPanels.Length){uiTestPanel=0;LocalizationService.SetLanguage(LocalizationService.IsChinese?GameLanguage.English:GameLanguage.SimplifiedChinese);}}
+            var audit=UILayoutAudit.Validate(UILayoutAudit.TargetResolutions[uiTestResolution],LocalizationService.Current,run.Catalog);U.Label(60,220,1120,42,"Font: "+U.FontName+" · EN glyphs "+U.SupportsEnglish+" · 中文 glyphs "+U.SupportsSimplifiedChinese+"\n"+audit.Summary,audit.Passed?U.Small:U.CardTitle);
+            U.Panel(new Rect(210,285,860,275));string panel=UILayoutAudit.MajorPanels[uiTestPanel];U.Label(245,310,790,36,panel,U.Heading);U.Label(245,352,790,54,LocalizationService.IsChinese?"检查文字基线、换行、边距与禁用状态。所有内容必须保持在控件内部。":"Check baselines, wrapping, padding, and disabled states. Every label must remain inside its control.",U.Text);
+            if(panel=="Preparations")for(int i=0;i<run.Catalog.preparations.Length;i++){var prep=run.Catalog.preparations[i];U.Click(new Rect(245+(i%2)*390,420+(i/2)*44,370,U.PreparationButtonHeight),(i==0?"✓ ":"")+LocalizationService.PreparationName(prep));}
+            else{U.Click(new Rect(245,430,370,42),LocalizationService.IsChinese?"主要操作按钮 · 完整本地化标签":"Primary action · full localized label");GUI.enabled=false;U.Click(new Rect(635,430,370,42),LocalizationService.IsChinese?"锁定状态仍清晰可读":"Locked state remains legible");GUI.enabled=true;U.Label(245,490,760,45,LocalizationService.IsChinese?"辅助信息使用统一的小型元数据样式，不触碰边框。":"Supporting copy uses the shared metadata style and does not touch its border.",U.Metadata);}
+            U.Label(60,600,1120,48,"Next panel cycles all major UI surfaces; wrapping from Pause to Camp automatically switches language. Resolution presets validate the centered 1280×720 logical canvas.",U.Small);
         }
     }
 }

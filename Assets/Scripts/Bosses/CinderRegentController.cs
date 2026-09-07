@@ -12,9 +12,10 @@ namespace Ashbound
         private bool busy;
         private int pattern;
         private float nextAttack;
+        private LargeBodyNavigationSafety navigationSafety;
         public bool SecondPhase { get; private set; }
         public event Action PhaseChanged;
-        public void Configure(Combatant owner, BossDefinition data) { actor = owner; definition = data; }
+        public void Configure(Combatant owner, BossDefinition data) { actor = owner; definition = data; navigationSafety=GetComponent<LargeBodyNavigationSafety>(); }
         private void Update()
         {
             if (!actor.Alive || !actor.Combat.Active) return;
@@ -23,6 +24,7 @@ namespace Ashbound
             if (busy) return;
             var target = actor.Combat.NearestEnemy(actor);
             if (!target) return;
+            if(navigationSafety)navigationSafety.SetTarget(target);
             Vector3 offset = target.transform.position - transform.position;
             actor.Motor.SetFacing(offset);
             actor.Motor.SetMove(offset.magnitude > 5 ? offset.normalized * .5f : Vector3.zero);
