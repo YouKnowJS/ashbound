@@ -423,6 +423,12 @@ namespace Ashbound.Tests
         }
 
         [Test]
+        public void DashCollisionLayersAreDedicatedAndMutuallyDistinct()
+        {
+            Assert.That(LayerMask.LayerToName(CollisionLayers.Actor),Is.EqualTo("Actor"));Assert.That(LayerMask.LayerToName(CollisionLayers.InternalObstacle),Is.EqualTo(CollisionLayers.InternalObstacleName));Assert.That(LayerMask.LayerToName(CollisionLayers.WorldBoundary),Is.EqualTo(CollisionLayers.WorldBoundaryName));Assert.That(CollisionLayers.InternalObstacle,Is.Not.EqualTo(CollisionLayers.WorldBoundary));Assert.That((CollisionLayers.DashEndpointMask&CollisionLayers.InternalObstacleMask)!=0,Is.True);Assert.That((CollisionLayers.DashEndpointMask&CollisionLayers.WorldBoundaryMask)!=0,Is.True);
+        }
+
+        [Test]
         public void V08ConfiguredInterfaceFontContainsSimplifiedChineseGlyphs()
         {
             var font=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei UI","Microsoft YaHei","Noto Sans CJK SC","Arial Unicode MS","Arial"},16);Assert.That(font,Is.Not.Null);font.RequestCharactersInTexture("灰烬余烬碎片古代合金腐化远征锻造研究档案",16);foreach(char glyph in "灰烬余碎片古代合金腐化远征锻造研究档案")Assert.That(font.HasCharacter(glyph),Is.True,"Missing glyph: "+glyph);UnityEngine.Object.DestroyImmediate(font);

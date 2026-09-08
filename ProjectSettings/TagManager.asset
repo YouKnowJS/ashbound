@@ -13,9 +13,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Actor
+  - InternalObstacle
+  - WorldBoundary
   - 
   - 
   - 

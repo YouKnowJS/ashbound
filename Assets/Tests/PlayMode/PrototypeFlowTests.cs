@@ -54,6 +54,14 @@ namespace Ashbound.Tests
             }
         }
 
+        private static CombatSpaceDefinition DashCollisionSpace()
+        {
+            var space=ScriptableObject.CreateInstance<CombatSpaceDefinition>();space.id="dash-collision-test";space.displayName="Dash Collision Test";space.layoutScale=1;space.technicalBounds=new Vector2(16,18);space.entrancePosition=new Vector3(-4,0,-4);space.exitPosition=new Vector3(4,0,8);
+            space.sections=new[]{new CombatSpaceSection{id="left",center=new Vector2(-4,0),size=new Vector2(6,10)},new CombatSpaceSection{id="right",center=new Vector2(4,0),size=new Vector2(6,10)},new CombatSpaceSection{id="connector",center=Vector2.zero,size=new Vector2(4,2)},new CombatSpaceSection{id="north-path",center=new Vector2(4,6.8f),size=new Vector2(3,4),transitionPath=true}};
+            space.obstacles=new[]{new CombatSpaceObstacle{position=Vector2.zero,size=new Vector2(.6f,3),height=2.6f},new CombatSpaceObstacle{position=new Vector2(3,3),size=new Vector2(1.2f,1.2f),height=2.4f}};
+            space.boundaryPoints=new[]{new Vector2(-8,-6),new Vector2(8,-6),new Vector2(8,6),new Vector2(6,6),new Vector2(6,9),new Vector2(2,9),new Vector2(2,6),new Vector2(-8,6)};return space;
+        }
+
         [UnityTest]
         public IEnumerator V08CampCreatesWalkableHubNpcStationsResourceHudAndLaunchGate()
         {
@@ -68,6 +76,34 @@ namespace Ashbound.Tests
         {
             var camp=CampHub.Instance;var camera=ArenaCamera.Instance;Assert.That(camera.Context,Is.EqualTo(CameraContext.Camp));camp.TeleportTo(HubFacilityKind.Archive);camp.Open(HubFacilityKind.Archive);yield return new WaitForSeconds(.2f);Assert.That(camera.FocusPoint.z,Is.LessThan(0));
             var previous=LocalizationService.Current;LocalizationService.SetLanguage(GameLanguage.SimplifiedChinese);Assert.That(LocalizationService.ResourceName(ExpeditionResource.Ash),Is.EqualTo("灰烬"));LocalizationService.SetLanguage(GameLanguage.English);Assert.That(LocalizationService.ResourceName(ExpeditionResource.Ash),Is.EqualTo("Ash"));LocalizationService.SetLanguage(previous);
+        }
+
+        [UnityTest]
+        public IEnumerator PlayerDashPassesThroughInternalWallAndPillarThenRestoresCollision()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(901);yield return State(RunState.Combat);var space=DashCollisionSpace();run.DebugLoadCombatSpace(space);Physics.SyncTransforms();var player=run.Players[0];player.Health.DebugInvulnerable=true;var controller=player.GetComponent<CharacterController>();var wall=run.Rooms.View.InternalObstacleColliders[0];var pillar=run.Rooms.View.InternalObstacleColliders[1];
+            player.Motor.Teleport(new Vector3(-3,0,0));player.Motor.SetMove(Vector3.right);Assert.That(player.Motor.TryDash(),Is.True);Assert.That(player.Motor.DashCollisionOverrideActive,Is.True);Assert.That(Physics.GetIgnoreCollision(controller,wall),Is.True);Assert.That(Physics.GetIgnoreCollision(controller,run.Rooms.View.WorldBoundaryColliders[0]),Is.False);yield return new WaitForSeconds(.3f);player.Motor.SetMove(Vector3.zero);Assert.That(player.transform.position.x,Is.GreaterThan(1.2f),"player did not cross the interior wall");Assert.That(Physics.GetIgnoreCollision(controller,wall),Is.False,"wall collision was not restored");
+            player.Motor.Teleport(new Vector3(1.6f,0,3));player.Motor.SetMove(Vector3.right);Assert.That(player.Motor.TryDash(),Is.True);Assert.That(Physics.GetIgnoreCollision(controller,pillar),Is.True);yield return new WaitForSeconds(.3f);player.Motor.SetMove(Vector3.zero);Assert.That(player.transform.position.x,Is.GreaterThan(4.2f),"player did not cross the pillar");Assert.That(Physics.GetIgnoreCollision(controller,pillar),Is.False);Object.Destroy(space);
+        }
+
+        [UnityTest]
+        public IEnumerator NormalWalkingRemainsBlockedByTheSameInternalWall()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(902);yield return State(RunState.Combat);var space=DashCollisionSpace();run.DebugLoadCombatSpace(space);Physics.SyncTransforms();var player=run.Players[0];player.Health.DebugInvulnerable=true;player.Motor.Teleport(new Vector3(-2,0,0));player.Motor.SetMove(Vector3.right);yield return new WaitForSeconds(.65f);player.Motor.SetMove(Vector3.zero);Assert.That(player.transform.position.x,Is.LessThan(-.55f));Assert.That(Physics.GetIgnoreCollision(player.GetComponent<CharacterController>(),run.Rooms.View.InternalObstacleColliders[0]),Is.False);Object.Destroy(space);
+        }
+
+        [UnityTest]
+        public IEnumerator DashStopsAtWorldBoundaryAndCannotLeaveIrregularArena()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(903);yield return State(RunState.Combat);var space=DashCollisionSpace();run.DebugLoadCombatSpace(space);Physics.SyncTransforms();var player=run.Players[0];player.Health.DebugInvulnerable=true;player.Motor.Teleport(new Vector3(6.1f,0,0));player.Motor.SetMove(Vector3.right);Assert.That(player.Motor.TryDash(),Is.True);Assert.That(player.Motor.LastDashRequestedEndpoint.x,Is.GreaterThan(8));Assert.That(player.Motor.LastDashResolvedEndpoint.x,Is.LessThan(6.7f));yield return new WaitForSeconds(.3f);player.Motor.SetMove(Vector3.zero);Assert.That(run.Rooms.View.IsPlayablePoint(player.transform.position,.4f),Is.True);Assert.That(player.transform.position.x,Is.LessThan(6.75f));Object.Destroy(space);
+        }
+
+        [UnityTest]
+        public IEnumerator DashCannotCrossVoidButTraversesAuthoredConnectedSubspaces()
+        {
+            EnemyBrain.AiEnabled=false;run.StartRun(904);yield return State(RunState.Combat);var space=DashCollisionSpace();run.DebugLoadCombatSpace(space);Physics.SyncTransforms();var player=run.Players[0];player.Health.DebugInvulnerable=true;
+            player.Motor.Teleport(new Vector3(-3,0,3));player.Motor.SetMove(Vector3.right);Assert.That(run.Rooms.View.IsPlayablePoint(new Vector3(0,0,3),.4f),Is.False,"test gap is not void");Assert.That(run.Rooms.View.IsPlayablePoint(new Vector3(1.8f,0,3),.4f),Is.True,"requested landing section is missing");Assert.That(player.Motor.TryDash(),Is.True);yield return new WaitForSeconds(.3f);player.Motor.SetMove(Vector3.zero);Assert.That(player.transform.position.x,Is.LessThan(-1.35f),"dash crossed unauthored void between sections");
+            player.Motor.Teleport(new Vector3(-3,0,0));player.Motor.SetMove(Vector3.right);Assert.That(run.Rooms.View.IsPlayablePoint(Vector3.zero,.4f),Is.True,"connector should be playable");Assert.That(player.Motor.TryDash(),Is.True);yield return new WaitForSeconds(.3f);player.Motor.SetMove(Vector3.zero);Assert.That(player.transform.position.x,Is.GreaterThan(1.2f),"dash failed across connected sections");Assert.That(run.Rooms.View.IsPlayablePoint(player.transform.position,.4f),Is.True);Object.Destroy(space);
         }
 
         [UnityTest]

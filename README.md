@@ -32,6 +32,8 @@ The project uses the built-in renderer, Input System 1.19.0, and Test Framework 
 
 Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Complete a node, follow the playable transition to the cyan exit, interact, and choose among 2–3 visible routes. Rewards now follow node identity instead of stacking relic and equipment drafts after every combat.
 
+Player Dash passes through authored internal obstacles such as walls and pillars, while normal walking still collides. Authored world boundaries and the playable-section union always constrain the dash endpoint, including irregular arenas, void gaps, and connected subspaces. See [dash collision rules](Docs/DASH_COLLISION_RULES.md).
+
 Local rewards are selected sequentially for each player. The mouse/number keys can choose for any player. Downed allies return with 45% health at the next reward; surviving players heal 25%. The party loses if everyone falls during combat. Gamepad disconnection pauses the whole run; reconnect the same device or return to the lobby. There is no join-in-progress.
 
 ## Scenes and setup
@@ -69,6 +71,7 @@ F1 pauses simulation and exposes:
 - On the Ecology page, show large-body clearance/stuck diagnostics and force either a stuck event or a recovery stage.
 - Open the Route page to regenerate/reveal the graph, add run currency, jump to any node identity, or force Treasure variants including Mimic and Cursed Chest.
 - Open the Camera page to switch follow modes, force zoom limits, display centroid/spread/clamp diagnostics, and load enlarged Medium or Large spaces.
+- On the Camera page, enable the Dash collision overlay to distinguish internal obstacles, world boundaries, requested paths, and resolved endpoints.
 - Open the Camp page to set persistent resources, teleport/open each NPC, switch EN/ZH, toggle the resource HUD, exercise gain/interaction/camera feedback, and open the three-resolution UI Layout Test.
 - Reset the run and unlock the roster.
 

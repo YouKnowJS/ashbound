@@ -77,6 +77,8 @@ Each regular room has two waves, each with a reward. After the last reward, the 
 
 Dash is 0.22 seconds at speed 22, with 0.15 seconds of invulnerability and a 1.15-second cooldown. Player hit stun is capped at 0.15 seconds. The common active ability has a seven-second cooldown, grants 20 shield, and deals a radial hit with knockback. Shields cap at half maximum health and absorb until consumed or the actor is restored.
 
+Player Dash collision is resolved separately from ordinary movement. `RoomView` categorizes local obstacles on layer 9 (`InternalObstacle`) and outer/cliff/void blockers on layer 10 (`WorldBoundary`). `ActorMotor` temporarily ignores only the active internal colliders for its own `CharacterController`; it never changes the global layer matrix. Before moving, the room samples the requested path against the authored irregular polygon and continuous union of playable sections, then clamps to the last legal, unoccupied point. This lets Dash cross an interior wall without crossing a void gap or leaving the authored arena. See [DASH_COLLISION_RULES.md](DASH_COLLISION_RULES.md).
+
 ## Data and upgrades
 
 `ItemDefinition` includes ID, display name, description, rarity, tags, stat modifiers, triggered effects, optional on-hit statuses, and an optional prerequisite. Each relic is unique per actor. Drafts shuffle eligible relics without replacement and offer up to three; exhausted debug inventories are safely skipped.
@@ -126,7 +128,7 @@ Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, We
 | `Bosses/CinderRegentController` | Boss patterns and health phase |
 | `Roguelike/UpgradeDraft`, `UpgradeEffectController` | Choice lifecycle and proc interpretation |
 | `Items/*Definition`, `PlayerInventory`, `PlayerEquipment`, `WeaponSkillExecutor` | Relic/weapon/skill/armor data, ownership, set evaluation, and skill delivery |
-| `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, seals, and spawning |
+| `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, collision categories, dash endpoint resolution, seals, and spawning |
 | `Routes/*Definition`, `ExpeditionRouteRuntime`, `RouteNodeSessions` | Seeded graph topology, visibility/voting, node services, and regional Boss rewards |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
 | `Camp/CampHub` | Walkable camp world, NPC/station interaction, camp panels and fixed resource HUD |

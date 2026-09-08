@@ -13,7 +13,7 @@ namespace Ashbound
             if (!catalog) catalog = Resources.Load<PrototypeCatalog>("PrototypeCatalog");
             if (!catalog) { Debug.LogError("Missing PrototypeCatalog. Use Ashbound > Create prototype content in the Editor."); enabled = false; return; }
             Application.targetFrameRate = 120;
-            Physics.IgnoreLayerCollision(8, 8, true);
+            Physics.IgnoreLayerCollision(CollisionLayers.Actor, CollisionLayers.Actor, true);
             RenderSettings.ambientLight = new Color(.48f, .49f, .55f);
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             var sun = new GameObject("Vault light").AddComponent<Light>(); sun.type = LightType.Directional; sun.intensity = 1.1f;

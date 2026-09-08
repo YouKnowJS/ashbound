@@ -67,7 +67,7 @@ namespace Ashbound
 
         private bool ProbeClear(Vector3 direction,float distance)
         {
-            int mask=Physics.DefaultRaycastLayers&~(1<<8);float probeRadius=radius+clearance;Vector3 origin=new Vector3(transform.position.x,probeRadius+.25f,transform.position.z);
+            int mask=Physics.DefaultRaycastLayers&~(1<<CollisionLayers.Actor);float probeRadius=radius+clearance;Vector3 origin=new Vector3(transform.position.x,probeRadius+.25f,transform.position.z);
             return !Physics.SphereCast(origin,probeRadius,direction,out _,distance,mask,QueryTriggerInteraction.Ignore);
         }
 

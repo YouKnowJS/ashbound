@@ -61,7 +61,7 @@ namespace Ashbound
 
         private Combatant Create(string id, string name, bool player, Faction faction, float hp, Vector3 position, Color tint, float scale, bool angular = false)
         {
-            var obj = new GameObject(name) { layer = 8 };
+            var obj = new GameObject(name) { layer = CollisionLayers.Actor };
             obj.transform.SetParent(root); obj.transform.position = position;
             var actor = obj.AddComponent<Combatant>(); actor.Initialize(id, name, player, faction, hp, combat, catalog.weapon);
             actor.View = obj.AddComponent<ActorView>(); actor.View.Build(actor, tint, scale, angular);
