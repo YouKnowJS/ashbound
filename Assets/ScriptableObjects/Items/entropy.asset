@@ -15,7 +15,7 @@ MonoBehaviour:
   id: entropy
   displayName: Entropy
   description: Trade a little health for attack speed and damage.
-  rarity: 1
+  rarity: 3
   tags: 0b0000000d000000
   statModifiers:
     damage: 0.1

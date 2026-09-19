@@ -62,3 +62,42 @@ MonoBehaviour:
     displayName: Temper
     description: Skip healing and reserve a small equipment-improvement hook.
     power: 0.05
+  rarity:
+    early:
+      common: 62
+      advanced: 30
+      rare: 8
+      epic: 0
+      legendary: 0
+    mid:
+      common: 18
+      advanced: 44
+      rare: 31
+      epic: 7
+      legendary: 0
+    late:
+      common: 3
+      advanced: 17
+      rare: 56
+      epic: 23
+      legendary: 1
+    boss:
+      common: 0
+      advanced: 4
+      rare: 56
+      epic: 37
+      legendary: 3
+    regionRareStep: 0.08
+    riskRareStep: 0.12
+    eliteRareMultiplier: 1.45
+    qualityStepMultiplier: 1.18
+    metaRareMultiplier: 1
+    preparationRareMultiplier: 1.25
+  threatBudget:
+    baseDensityMultiplier: 1.2
+    depthMultiplier: 0.35
+    riskStep: 0.12
+    eliteBonus: 0.28
+    playerBonusPerExtraPlayer: 0.48
+    reinforcementDelay: 0.8
+    maximumEnemies: 18

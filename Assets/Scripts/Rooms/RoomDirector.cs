@@ -26,6 +26,7 @@ namespace Ashbound
         public string ActiveDisplayName=>routeNode?routeNode.displayName:Current?Current.displayName:"Unknown location";
         public Combatant Boss { get; private set; }
         public EncounterDefinition CurrentEncounter { get; private set; }
+        public ThreatBudgetPlan LastThreatPlan { get; private set; }
         public event Action WaveCleared;
         public event Action BossDied;
         public event Action<EncounterDefinition> EncounterStarted;
@@ -42,10 +43,10 @@ namespace Ashbound
         {
             if(!node)throw new ArgumentNullException(nameof(node));Clear();routeNode=node;RoomIndex=-1;WaveIndex=-1;ExitOpen=false;View.Build(node.combatSpace,0);View.SetGate(false);
         }
-        public void SpawnNextWave(int partySize)
+        public void SpawnNextWave(int partySize,int depth=1,int totalDepth=8)
         {
             StopAllCoroutines(); ClearEnemies(); WaveIndex++;
-            if(routeNode){SpawnEncounterData(routeNode.encounter,partySize);return;}
+            if(routeNode){SpawnEncounterData(routeNode.encounter,partySize,depth,totalDepth);return;}
             var wave = Current.waves[WaveIndex];
             int index = 0;
             CurrentEncounter = wave.encounter;
@@ -66,14 +67,19 @@ namespace Ashbound
             watching = true;
             EncounterStarted?.Invoke(CurrentEncounter);
         }
-        private void SpawnEncounterData(EncounterDefinition encounter,int partySize)
+        private void SpawnEncounterData(EncounterDefinition encounter,int partySize,int depth,int totalDepth)
         {
-            CurrentEncounter=encounter;int index=0;if(encounter&&encounter.groups!=null)foreach(var group in encounter.groups)
+            CurrentEncounter=encounter;int index=0;float progress=totalDepth<=1?0:Mathf.Clamp01((depth-1f)/(totalDepth-1f));bool elite=routeNode&&(routeNode.nodeType==ExpeditionNodeType.Elite||routeNode.nodeType==ExpeditionNodeType.Boss||routeNode.nodeType==ExpeditionNodeType.Challenge);LastThreatPlan=ThreatBudget.Plan(encounter,partySize,progress,routeNode?routeNode.risk:NodeRiskRating.Low,elite,catalog.progressionTuning.threatBudget);if(encounter&&encounter.groups!=null)foreach(var group in encounter.groups)
             {
                 if(!group.enemy)continue;pendingSpawns+=Mathf.Max(1,group.count);if(group.startDelay<=0&&group.spawnInterval<=0)for(int i=0;i<Mathf.Max(1,group.count);i++){Spawn(group.enemy,index++,partySize,group.presentation);pendingSpawns--;}else{StartCoroutine(SpawnGroup(group,index,partySize));index+=Mathf.Max(1,group.count);}
             }
+            if(LastThreatPlan!=null)for(int i=0;i<LastThreatPlan.Reinforcements.Count;i++)
+            {
+                var enemy=LastThreatPlan.Reinforcements[i];pendingSpawns++;if(Application.isBatchMode){Spawn(enemy,index++,partySize,SpawnPresentation.Reinforcement);pendingSpawns--;}else StartCoroutine(SpawnReinforcement(enemy,index++,partySize,catalog.progressionTuning.threatBudget.reinforcementDelay*(1+i/3)));
+            }
             watching=true;EncounterStarted?.Invoke(encounter);
         }
+        private IEnumerator SpawnReinforcement(EnemyDefinition enemy,int index,int partySize,float delay){yield return new WaitForSeconds(delay);Spawn(enemy,index,partySize,SpawnPresentation.Reinforcement);pendingSpawns--;}
         private IEnumerator SpawnGroup(EnemySpawnGroup group, int startIndex, int partySize)
         {
             if (group.startDelay > 0) yield return new WaitForSeconds(group.startDelay);
@@ -145,10 +151,10 @@ namespace Ashbound
         }
         public void ClearEnemies()
         {
-            watching = false; pendingSpawns = 0;
+            StopAllCoroutines();watching = false; pendingSpawns = 0;
             foreach (var enemy in enemies) if (enemy) { combat.Unregister(enemy); enemy.gameObject.SetActive(false); Destroy(enemy.gameObject); }
             enemies.Clear(); Boss = null; CurrentEncounter = null;
         }
-        public void Clear() { watching = false; ClearTransientCombat(); ClearEnemies(); ExitOpen = false;routeNode=null; }
+        public void Clear() { watching = false; ClearTransientCombat(); ClearEnemies(); ExitOpen = false;routeNode=null;LastThreatPlan=null; }
     }
 }

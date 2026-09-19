@@ -11,6 +11,7 @@ namespace Ashbound
         private readonly MetaProgressionService progression;
         private readonly Queue<Combatant> queue = new Queue<Combatant>();
         private readonly System.Random random;
+        private RewardRarityContext rarityContext;
         public Combatant CurrentPlayer { get; private set; }
         public ItemDefinition[] Options { get; private set; } = Array.Empty<ItemDefinition>();
         public bool Active => CurrentPlayer;
@@ -19,9 +20,11 @@ namespace Ashbound
         public event Action<Combatant, ItemDefinition> Selected;
         public event Action<Combatant> Rerolled;
         public UpgradeDraft(PrototypeCatalog catalog, MetaProgressionService progression, int seed) { this.catalog = catalog; this.progression=progression; random = new System.Random(seed); }
-        public void Begin(IEnumerable<Combatant> players)
+        public RewardRarityContext RarityContext=>rarityContext;
+        public void Begin(IEnumerable<Combatant> players)=>Begin(players,new RewardRarityContext(1,1,8,NodeRiskRating.Low,RewardQuality.Common,false,false,false));
+        public void Begin(IEnumerable<Combatant> players,RewardRarityContext context)
         {
-            queue.Clear(); foreach (var player in players) queue.Enqueue(player); NextPlayer();
+            rarityContext=context;queue.Clear(); foreach (var player in players) queue.Enqueue(player); NextPlayer();
         }
         public bool Choose(int index)
         {
@@ -46,10 +49,10 @@ namespace Ashbound
         }
         private void RollOptions()
         {
-            var candidates = catalog.items.Where(x=>progression.Profile.unlockedRelics.Contains(x.id)).Where(CurrentPlayer.Inventory.CanAdd).ToList();
-            for (int i = candidates.Count - 1; i > 0; i--) { int j = random.Next(i + 1); var temp = candidates[i]; candidates[i] = candidates[j]; candidates[j] = temp; }
-            Options = candidates.Take(3).ToArray();
+            var candidates = catalog.items.Where(x=>progression.Profile.unlockedRelics.Contains(x.id)).Where(CurrentPlayer.Inventory.CanAdd).ToList();var selected=new List<ItemDefinition>();
+            while(selected.Count<3&&candidates.Count>0){var item=Weighted(candidates);candidates.Remove(item);selected.Add(item);}Options=selected.ToArray();
         }
+        private ItemDefinition Weighted(IList<ItemDefinition> values){float total=values.Sum(x=>RewardRarityPolicy.Weight(catalog.progressionTuning,x.rarity,rarityContext));if(total<=0)return values[random.Next(values.Count)];double roll=random.NextDouble()*total;foreach(var value in values){roll-=RewardRarityPolicy.Weight(catalog.progressionTuning,value.rarity,rarityContext);if(roll<=0)return value;}return values[values.Count-1];}
         public void Cancel() { queue.Clear(); CurrentPlayer = null; Options = Array.Empty<ItemDefinition>(); }
     }
 }

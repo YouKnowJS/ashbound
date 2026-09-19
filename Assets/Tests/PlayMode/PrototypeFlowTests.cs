@@ -53,6 +53,16 @@ namespace Ashbound.Tests
                 run.Combat.DealDamage(actor, new DamageInfo(run.Players[0], 10000, DamageKind.Weapon));
             }
         }
+        private IEnumerator ClaimActiveRewards()
+        {
+            yield return null;
+            while(run.Draft!=null&&run.Draft.Active){Assert.That(run.Draft.Options,Is.Not.Empty);Assert.That(run.Draft.Choose(0),Is.True);yield return null;}
+            while(run.EquipmentRewards!=null&&run.EquipmentRewards.Active){Assert.That(run.EquipmentRewards.Options,Is.Not.Empty);Assert.That(run.EquipmentRewards.Leave(),Is.True);yield return null;}
+        }
+        private IEnumerator ClaimCombatRewards()
+        {
+            yield return State(RunState.Reward);Assert.That(run.Draft.Active,Is.True);yield return ClaimActiveRewards();yield return State(RunState.Exploration);
+        }
 
         private static CombatSpaceDefinition DashCollisionSpace()
         {
@@ -60,6 +70,19 @@ namespace Ashbound.Tests
             space.sections=new[]{new CombatSpaceSection{id="left",center=new Vector2(-4,0),size=new Vector2(6,10)},new CombatSpaceSection{id="right",center=new Vector2(4,0),size=new Vector2(6,10)},new CombatSpaceSection{id="connector",center=Vector2.zero,size=new Vector2(4,2)},new CombatSpaceSection{id="north-path",center=new Vector2(4,6.8f),size=new Vector2(3,4),transitionPath=true}};
             space.obstacles=new[]{new CombatSpaceObstacle{position=Vector2.zero,size=new Vector2(.6f,3),height=2.6f},new CombatSpaceObstacle{position=new Vector2(3,3),size=new Vector2(1.2f,1.2f),height=2.4f}};
             space.boundaryPoints=new[]{new Vector2(-8,-6),new Vector2(8,-6),new Vector2(8,6),new Vector2(6,6),new Vector2(6,9),new Vector2(2,9),new Vector2(2,6),new Vector2(-8,6)};return space;
+        }
+
+        [UnityTest]
+        public IEnumerator CampStarterWeaponsAreCommonIndependentAndPersistUntilReplaced()
+        {
+            Assert.That(run.Lobby.TryJoin(InputKind.SecondKeyboard,-2,"Starter P2"),Is.True);Assert.That(run.SetStarterWeapon("P1",WeaponFamily.Bow),Is.True);Assert.That(run.SetStarterWeapon("P2",WeaponFamily.Greatsword),Is.True);Assert.That(run.StarterWeapon("P1"),Is.EqualTo(WeaponFamily.Bow));Assert.That(run.StarterWeapon("P2"),Is.EqualTo(WeaponFamily.Greatsword));Assert.That(run.StartRun(811),Is.True);yield return State(RunState.Combat);
+            Assert.That(run.Players[0].Weapon.family,Is.EqualTo(WeaponFamily.Bow));Assert.That(run.Players[1].Weapon.family,Is.EqualTo(WeaponFamily.Greatsword));Assert.That(run.Players.All(x=>x.Weapon.rarity==WeaponRarity.Common&&!x.Weapon.skill&&x.Weapon.PrimaryElement==ElementTag.None),Is.True);var replacement=run.Catalog.weapons.First(x=>x.rarity==WeaponRarity.Rare);run.Players[0].Attacks.SetWeapon(replacement);Assert.That(run.Players[0].Weapon,Is.EqualTo(replacement));Assert.That(run.Players[1].Weapon.family,Is.EqualTo(WeaponFamily.Greatsword));
+        }
+
+        [UnityTest]
+        public IEnumerator RuntimeThreatBudgetAddsEnemiesAndScalesForMultiplayer()
+        {
+            EnemyBrain.AiEnabled=false;Assert.That(run.Lobby.TryJoin(InputKind.SecondKeyboard,-2,"Density P2"),Is.True);Assert.That(run.StartRun(812),Is.True);yield return State(RunState.Combat);var plan=run.Rooms.LastThreatPlan;Assert.That(plan,Is.Not.Null);Assert.That(plan.TotalCount,Is.GreaterThan(plan.BaseCount));Assert.That(plan.ReinforcementCount,Is.GreaterThan(0));Assert.That(run.Rooms.RemainingEnemies,Is.EqualTo(plan.TotalCount));
         }
 
         [UnityTest]
@@ -113,18 +136,18 @@ namespace Ashbound.Tests
             Assert.That(run.Players.Count, Is.EqualTo(1));
             run.Players[0].Health.DebugInvulnerable = true;
             Assert.That(run.TryBeginCorruption(), Is.False);
-            yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Exploration);Assert.That(run.Draft.Active||run.EquipmentRewards.Active,Is.False,"normal combat has no automatic dual draft");
+            yield return State(RunState.Combat);KillHostiles();yield return ClaimCombatRewards();
             run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);Assert.That(run.RouteSelectionOpen,Is.True);var hard=run.Route.Available.Single(x=>x.Definition.nodeType==ExpeditionNodeType.HardCombat);Assert.That(run.CastRouteVote("P1",hard.Definition.id),Is.True);
-            yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Reward);Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.Draft.Active,Is.False);Assert.That(run.EquipmentRewards.Leave(),Is.True);yield return State(RunState.Exploration);
+            yield return State(RunState.Combat);KillHostiles();yield return ClaimCombatRewards();
             run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);var relic=run.Route.Available.Single(x=>x.Definition.nodeType==ExpeditionNodeType.Relic);run.CastRouteVote("P1",relic.Definition.id);yield return State(RunState.Reward);Assert.That(run.Draft.Choose(0),Is.True);yield return State(RunState.Exploration);
             run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);var rest=run.Route.Available.Single(x=>x.Definition.nodeType==ExpeditionNodeType.Rest);run.CastRouteVote("P1",rest.Definition.id);yield return new WaitUntil(()=>run.Rest!=null);Assert.That(run.ChooseRest(RestNodeChoice.Rest),Is.True);yield return State(RunState.Exploration);
-            run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);run.CastRouteVote("P1",run.Route.Available.Single().Definition.id);yield return State(RunState.Combat);Assert.That(run.ChallengeActive,Is.True);KillHostiles();yield return State(RunState.Exploration);
-            run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);run.CastRouteVote("P1",run.Route.Available.Single().Definition.id);yield return State(RunState.Combat);Assert.That(run.CurrentNode.Definition.nodeType,Is.EqualTo(ExpeditionNodeType.Boss));KillHostiles();yield return State(RunState.Reward);Assert.That(run.EquipmentRewards.Leave(),Is.True);yield return State(RunState.Exploration);Assert.That(run.RegionCompleteAwaitingFinalGate,Is.True);
+            run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);run.CastRouteVote("P1",run.Route.Available.Single().Definition.id);yield return State(RunState.Combat);Assert.That(run.ChallengeActive,Is.True);KillHostiles();yield return ClaimCombatRewards();
+            run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);run.CastRouteVote("P1",run.Route.Available.Single().Definition.id);yield return State(RunState.Combat);Assert.That(run.CurrentNode.Definition.nodeType,Is.EqualTo(ExpeditionNodeType.Boss));KillHostiles();yield return ClaimCombatRewards();Assert.That(run.RegionCompleteAwaitingFinalGate,Is.True);
             run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);
             yield return State(RunState.BossFight);
-            Assert.That(run.Players[0].Inventory.Items.Count, Is.EqualTo(1));
+            Assert.That(run.Players[0].Inventory.Items.Count, Is.GreaterThanOrEqualTo(4));
             Assert.That(run.Corruption.Reflection, Is.Null);
-            KillHostiles(); yield return State(RunState.BossDefeated);
+            KillHostiles(); yield return State(RunState.BossDefeated);yield return ClaimActiveRewards();
             Assert.That(run.Combat.PvPEnabled, Is.False);
             yield return State(RunState.FinalPvP);
             var reflection = run.Corruption.Reflection;
@@ -138,7 +161,7 @@ namespace Ashbound.Tests
             yield return State(RunState.RunComplete);
             Assert.That(run.Telemetry.Record.winner, Is.EqualTo("Wanderers"));
             Assert.That(run.Telemetry.Record.players[0].bossDamage, Is.GreaterThan(0));
-            Assert.That(run.Telemetry.Record.players[0].upgradesSelected.Count, Is.EqualTo(1));
+            Assert.That(run.Telemetry.Record.players[0].upgradesSelected.Count, Is.GreaterThanOrEqualTo(4));
             Assert.That(run.Telemetry.Record.routeNodes.Count,Is.EqualTo(6));Assert.That(run.Telemetry.Record.trueFinalBossEntered,Is.True);
             Assert.That(System.IO.File.Exists(run.Telemetry.LastPath), Is.True);
             var saved = JsonUtility.FromJson<MatchRecord>(System.IO.File.ReadAllText(run.Telemetry.LastPath));
@@ -155,7 +178,7 @@ namespace Ashbound.Tests
             Assert.That(run.TryBeginCorruption(), Is.False);
             run.Corruption.ForcedPlayerIds.Add(second.Id);
             run.Rooms.Boss.Health.DebugKill();
-            yield return State(RunState.FinalPvP);
+            yield return State(RunState.BossDefeated);yield return ClaimActiveRewards();yield return State(RunState.FinalPvP);
             Assert.That(second.Corruption, Is.Not.Null); Assert.That(first.Corruption, Is.Null);
             Assert.That(run.Corruption.Reflection, Is.Null);
             Assert.That(run.Lobby.TryJoin(InputKind.Gamepad, 90, "Late"), Is.False);
@@ -207,7 +230,7 @@ namespace Ashbound.Tests
             player.Motor.Teleport(player.transform.position+Vector3.left*6);yield return null;
             Assert.That(Vector3.Distance(camera.FocusPoint,player.transform.position),Is.GreaterThan(.15f),"camera snapped instead of smoothing");
             yield return new WaitForSeconds(1);Assert.That(camera.FocusPoint.x,Is.LessThan(before.x-4));Assert.That(Vector2.Distance(new Vector2(camera.FocusPoint.x,camera.FocusPoint.z),new Vector2(player.transform.position.x,player.transform.position.z)),Is.LessThan(1.2f));
-            KillHostiles();yield return State(RunState.Exploration);yield return null;Assert.That(camera.Context,Is.EqualTo(CameraContext.Transition));
+            KillHostiles();yield return ClaimCombatRewards();yield return null;Assert.That(camera.Context,Is.EqualTo(CameraContext.Transition));
             Vector3 transitionStart=camera.FocusPoint;player.Motor.Teleport(run.Rooms.View.ExitPosition);yield return new WaitForSeconds(1);
             Assert.That(Vector3.Distance(camera.FocusPoint,transitionStart),Is.GreaterThan(3));Assert.That(camera.FocusPoint.x,Is.InRange(camera.ClampBounds.xMin,camera.ClampBounds.xMax));Assert.That(camera.FocusPoint.z,Is.InRange(camera.ClampBounds.yMin,camera.ClampBounds.yMax));
         }
@@ -275,7 +298,7 @@ namespace Ashbound.Tests
             var boss = run.Rooms.Boss;
             run.Combat.DealDamage(boss, new DamageInfo(run.Players[0], boss.Health.MaxHealth * .65f, DamageKind.Weapon));
             yield return null;
-            Assert.That(boss.GetComponent<CinderRegentController>().SecondPhase, Is.True);
+            var regent=boss.GetComponent<CinderRegentController>();Assert.That(regent.SecondPhase, Is.True);Assert.That(regent.PhaseTransitionCount,Is.EqualTo(1));Assert.That(regent.DistinctAttackCount,Is.GreaterThanOrEqualTo(5));
             AreaAttack.Spawn(boss, Vector3.zero, 3, 10, 10);
             CombatProjectile.Spawn(boss, Vector3.back, 1, 1, Color.red);
             boss.Health.DebugKill(); yield return null;
@@ -301,7 +324,7 @@ namespace Ashbound.Tests
             Assert.That(run.Players.Count, Is.EqualTo(4)); Assert.That(run.Combat.Paused, Is.False);
             run.Corruption.FourPlayerCount = 2;
             run.Corruption.ForcedPlayerIds.AddRange(new[] { "P2", "P3" });
-            run.Rooms.Boss.Health.DebugKill(); yield return State(RunState.FinalPvP);
+            run.Rooms.Boss.Health.DebugKill();yield return State(RunState.BossDefeated);yield return ClaimActiveRewards();yield return State(RunState.FinalPvP);
             yield return new WaitForSeconds(1.3f);
             Assert.That(run.Corruption.CorruptedPlayerIds, Is.EquivalentTo(new[] { "P2", "P3" }));
             Assert.That(run.Combat.DealDamage(run.Players[2], new DamageInfo(run.Players[1], 10, DamageKind.Weapon)), Is.False);
@@ -379,7 +402,7 @@ namespace Ashbound.Tests
             Assert.That(boss.Health.CurrentHealth, Is.LessThan(before));
             Assert.That(boss.Statuses.StackCount(StatusKind.Chill), Is.GreaterThan(0));
 
-            boss.Health.DebugKill(); yield return State(RunState.FinalPvP);
+            boss.Health.DebugKill();yield return State(RunState.BossDefeated);yield return ClaimActiveRewards();yield return State(RunState.FinalPvP);
             var reflection = run.Corruption.Reflection;
             Assert.That(reflection, Is.Not.Null);
             Assert.That(reflection.Weapon.id, Is.EqualTo("moonfrost"));
@@ -391,9 +414,9 @@ namespace Ashbound.Tests
         [UnityTest]
         public IEnumerator V06NodeIdentityControlsRewardCadence()
         {
-            run.StartRun(204);yield return State(RunState.Combat);var player=run.Players[0];KillHostiles();yield return State(RunState.Exploration);
-            Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(0));Assert.That(run.Draft.Active||run.EquipmentRewards.Active,Is.False);run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(player);var hard=run.Route.Available.Single(x=>x.Definition.nodeType==ExpeditionNodeType.HardCombat);run.CastRouteVote(player.Id,hard.Definition.id);yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Reward);
-            Assert.That(run.Draft.Active,Is.False);Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.EquipmentRewards.CurrentPlayer,Is.EqualTo(player));var option=run.EquipmentRewards.Options[0];Assert.That(run.EquipmentRewards.Dismantle(0),Is.True);yield return State(RunState.Exploration);Assert.That(player.Equipment.Equipped.Count,Is.EqualTo(0));Assert.That(run.Progression.Profile.lifetime.equipmentDismantled,Is.GreaterThan(0));
+            run.StartRun(204);yield return State(RunState.Combat);var player=run.Players[0];KillHostiles();yield return State(RunState.Reward);Assert.That(run.Draft.Active,Is.True);Assert.That(run.Draft.Choose(0),Is.True);yield return null;Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.EquipmentRewards.Leave(),Is.True);yield return State(RunState.Exploration);
+            Assert.That(run.Progression.RunResources.ash,Is.GreaterThan(0));run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(player);var hard=run.Route.Available.Single(x=>x.Definition.nodeType==ExpeditionNodeType.HardCombat);run.CastRouteVote(player.Id,hard.Definition.id);yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Reward);Assert.That(run.Draft.Active,Is.True);Assert.That(run.Draft.Choose(0),Is.True);yield return null;
+            Assert.That(run.EquipmentRewards.Active,Is.True);Assert.That(run.EquipmentRewards.CurrentPlayer,Is.EqualTo(player));Assert.That(run.EquipmentRewards.Dismantle(0),Is.True);yield return State(RunState.Exploration);Assert.That(player.Equipment.Equipped.Count,Is.EqualTo(0));Assert.That(run.Progression.Profile.lifetime.equipmentDismantled,Is.GreaterThan(0));
         }
 
         [UnityTest]
@@ -409,7 +432,7 @@ namespace Ashbound.Tests
         [UnityTest]
         public IEnumerator V05EcologyTelemetryRecordsCompositionRoleKillsAndArenaContext()
         {
-            EnemyBrain.AiEnabled=false;run.StartRun(306);yield return State(RunState.Combat);KillHostiles();yield return State(RunState.Exploration);
+            EnemyBrain.AiEnabled=false;run.StartRun(306);yield return State(RunState.Combat);KillHostiles();yield return ClaimCombatRewards();
             Assert.That(run.Telemetry.Record.schemaVersion,Is.EqualTo(5));Assert.That(run.Telemetry.Record.encounters.Count,Is.EqualTo(1));var encounter=run.Telemetry.Record.encounters[0];Assert.That(encounter.encounterId,Is.EqualTo("frontline-pressure"));Assert.That(encounter.composition,Is.Not.Empty);Assert.That(encounter.arenaCategory,Is.EqualTo(CombatSpaceCategory.Medium.ToString()));Assert.That(run.Telemetry.Record.routeNodes.Count,Is.EqualTo(1));Assert.That(run.Telemetry.Record.routeNodes[0].nodeType,Is.EqualTo(ExpeditionNodeType.NormalCombat.ToString()));
             run.Telemetry.Finish(run.Players,"Wanderers","Test");Assert.That(run.Telemetry.Record.enemyRoles.Sum(x=>x.kills),Is.GreaterThan(0));EnemyBrain.AiEnabled=true;
         }
@@ -417,7 +440,7 @@ namespace Ashbound.Tests
         [UnityTest]
         public IEnumerator V06LocalRouteVotesWaitForEveryoneAndHostBreaksTie()
         {
-            Assert.That(run.Lobby.TryJoin(InputKind.SecondKeyboard,-2,"Test P2"),Is.True);run.StartRun(606);yield return State(RunState.Combat);run.Players[0].Health.DebugInvulnerable=true;run.Players[1].Health.DebugInvulnerable=true;KillHostiles();yield return State(RunState.Exploration);run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);Assert.That(run.RouteSelectionOpen,Is.True);var options=run.Route.Available.ToArray();Assert.That(options.Length,Is.EqualTo(2));Assert.That(run.CastRouteVote("P1",options[0].Definition.id),Is.True);Assert.That(run.RouteSelectionOpen,Is.True);Assert.That(run.CastRouteVote("P2",options[1].Definition.id),Is.True);Assert.That(run.RouteSelectionOpen,Is.False);Assert.That(run.Route.Current.Definition.id,Is.EqualTo(options[0].Definition.id));Assert.That(run.Telemetry.Record.routeNodes[0].routeVotes.Count,Is.EqualTo(2));
+            Assert.That(run.Lobby.TryJoin(InputKind.SecondKeyboard,-2,"Test P2"),Is.True);run.StartRun(606);yield return State(RunState.Combat);run.Players[0].Health.DebugInvulnerable=true;run.Players[1].Health.DebugInvulnerable=true;KillHostiles();yield return ClaimCombatRewards();run.Players[0].Motor.Teleport(run.Rooms.View.ExitPosition);run.Interact(run.Players[0]);Assert.That(run.RouteSelectionOpen,Is.True);var options=run.Route.Available.ToArray();Assert.That(options.Length,Is.EqualTo(2));Assert.That(run.CastRouteVote("P1",options[0].Definition.id),Is.True);Assert.That(run.RouteSelectionOpen,Is.True);Assert.That(run.CastRouteVote("P2",options[1].Definition.id),Is.True);Assert.That(run.RouteSelectionOpen,Is.False);Assert.That(run.Route.Current.Definition.id,Is.EqualTo(options[0].Definition.id));Assert.That(run.Telemetry.Record.routeNodes[0].routeVotes.Count,Is.EqualTo(2));
         }
 
         [UnityTest]
@@ -431,7 +454,7 @@ namespace Ashbound.Tests
         [UnityTest]
         public IEnumerator V06NoHealingChallengeBlocksRecoveryOnlyDuringChallenge()
         {
-            EnemyBrain.AiEnabled=false;run.StartRun(611);yield return State(RunState.Combat);Assert.That(run.DebugForceNodeType(ExpeditionNodeType.Challenge),Is.True);yield return State(RunState.Combat);Assert.That(run.CurrentNode.Definition.challenge.noHealing,Is.True);var player=run.Players[0];player.Health.Pool.Damage(20);float damaged=player.Health.CurrentHealth;player.Health.Heal(10);Assert.That(player.Health.CurrentHealth,Is.EqualTo(damaged));KillHostiles();yield return State(RunState.Exploration);player.Health.Heal(10);Assert.That(player.Health.CurrentHealth,Is.GreaterThan(damaged));EnemyBrain.AiEnabled=true;
+            EnemyBrain.AiEnabled=false;run.StartRun(611);yield return State(RunState.Combat);Assert.That(run.DebugForceNodeType(ExpeditionNodeType.Challenge),Is.True);yield return State(RunState.Combat);Assert.That(run.CurrentNode.Definition.challenge.noHealing,Is.True);var player=run.Players[0];player.Health.Pool.Damage(20);float damaged=player.Health.CurrentHealth;player.Health.Heal(10);Assert.That(player.Health.CurrentHealth,Is.EqualTo(damaged));KillHostiles();yield return ClaimCombatRewards();player.Health.Heal(10);Assert.That(player.Health.CurrentHealth,Is.GreaterThan(damaged));EnemyBrain.AiEnabled=true;
         }
     }
 }

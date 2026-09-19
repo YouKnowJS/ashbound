@@ -11,7 +11,7 @@ A modular, primitive-mesh action roguelike with a persistent expedition Hub, fou
 1. In Unity Hub, **Add → Add project from disk**, and select this repository folder.
 2. Open with **Unity 6000.4.11f1** (the installed/tested editor version). An active Unity license is required.
 3. Open `Assets/Scenes/MainMenu.unity` and press **Play**.
-4. Walk around the expedition camp, interact with NPCs using **F / gamepad A**, and launch from the Expedition Table after choosing a preparation and local roster.
+4. Walk around the expedition camp, interact with NPCs using **F / gamepad A**, and launch from the Expedition Table after choosing a preparation, local roster, and one Common starter weapon for each player.
 
 The project uses the built-in renderer, Input System 1.19.0, and Test Framework 1.6.0. Unity restores these pinned packages on import. No Asset Store assets, API keys, services, or paid plugins are required.
 
@@ -30,7 +30,7 @@ The project uses the built-in renderer, Input System 1.19.0, and Test Framework 
 | Build and fragments | Tab | Shared | Keyboard Tab |
 | Debug menu | F1 | Shared | Keyboard F1 |
 
-Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Complete a node, follow the playable transition to the cyan exit, interact, and choose among 2–3 visible routes. Rewards now follow node identity instead of stacking relic and equipment drafts after every combat.
+Rare-or-higher elemental weapons replace the common shield burst with their data-driven Weapon Skill. Dash protects you for the first 0.15 seconds of its 0.22-second duration. Every completed combat room grants each player a Relic draft followed by an Equipment draft; room identity, depth, risk, preparation, and progression change reward quality rather than removing either reward. Complete a node, follow the playable transition to the cyan exit, interact, and choose among 2–3 visible routes.
 
 Player Dash passes through authored internal obstacles such as walls and pillars, while normal walking still collides. Authored world boundaries and the playable-section union always constrain the dash endpoint, including irregular arenas, void gaps, and connected subspaces. See [dash collision rules](Docs/DASH_COLLISION_RULES.md).
 
@@ -50,7 +50,7 @@ The runtime factories intentionally generate primitive actors, camp presentation
 
 ## Developer guide
 
-See [v0.8.1 UI and boss-navigation hotfix](Docs/UI_BOSS_NAVIGATION_HOTFIX.md), [presentation foundation](Docs/PRESENTATION_FOUNDATION.md), [architecture and important scripts](Docs/ARCHITECTURE.md), [v0.7 camera and world scale](Docs/V0.7_CAMERA_WORLD_SCALE.md), [v0.6 route graph and node identity](Docs/V0.6_EXPEDITION_ROUTE_GRAPH.md), [v0.5 enemy ecology and combat spaces](Docs/V0.5_ENEMY_ECOLOGY_COMBAT_SPACES.md), and [verification instructions](Docs/VERIFICATION.md).
+See [reward pace, density, Boss, and starter rules](Docs/REWARD_PACE_COMBAT_BOSS_STARTERS.md), [dash collision rules](Docs/DASH_COLLISION_RULES.md), [v0.8.1 UI and boss-navigation hotfix](Docs/UI_BOSS_NAVIGATION_HOTFIX.md), [presentation foundation](Docs/PRESENTATION_FOUNDATION.md), [architecture and important scripts](Docs/ARCHITECTURE.md), and [verification instructions](Docs/VERIFICATION.md).
 
 For the original design brief, complete user prompt history, and a suggested prompt for working from another device, see [project prompts and continuation guide](Docs/Prompts/README.md).
 
@@ -102,7 +102,7 @@ Close this project in the Editor before running batch commands. Set `-UnityPath`
 - Multiplayer is local and shares one smooth centroid camera with bounded spread zoom and edge indicators. Player 1 uses mouse/keyboard; up to three additional seats use a second keyboard layout and/or gamepads. No transport, matchmaking, public/private online lobbies, rollback, reconnect identity service, or late join.
 - Normal enemies retain lightweight direct steering. Bosses, Mini-Bosses, Elites, and Bruisers use configurable body-clearance probes, safe anchors, stuck detection, and staged recovery; there is still no navigation mesh or full path planner.
 - UI uses immediate-mode GUI. Procedural placeholder animation is present, but there is no final rigged animation, bundled soundtrack, gamepad-only menu navigation, accessibility remapping, or polished controller feedback.
-- Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the equipment architecture. Loot acquisition, equipment selection UI, inventory persistence, final models, and save/load of active runs are deferred.
+- Twenty prototype weapons, 12 Weapon Skills, four armor slots, and five armor sets prove the runtime loot and equipment architecture. Final models, persistent active-run saves, and final reward balance are deferred.
 - `UnlockData` is a data structure only, with no permanent stat bonuses or unlock-grind implementation.
 - Damage, mutation, item grants, and state changes run on one local authority. The architecture exposes seams for networking; it is not network-ready synchronization code.
 - Four-player corruption balance, weapon tuning, and reflection difficulty require human playtests. Shared keyboards may ghost certain simultaneous key combinations.

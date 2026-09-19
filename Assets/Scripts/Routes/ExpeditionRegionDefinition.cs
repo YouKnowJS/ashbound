@@ -8,6 +8,7 @@ namespace Ashbound
     {
         public string id;
         public string displayName;
+        [Min(1)] public int regionIndex=1;
         [TextArea] public string regionIntent;
         public ExpeditionRouteGraphDefinition[] graphVariants=Array.Empty<ExpeditionRouteGraphDefinition>();
         [Min(1)] public int eventualRegionCount=5;

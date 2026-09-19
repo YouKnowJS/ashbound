@@ -15,7 +15,7 @@ MonoBehaviour:
   id: thunderhead
   displayName: Thunderhead
   description: 'A rare storm capstone: larger proc damage.'
-  rarity: 2
+  rarity: 3
   tags: 020000000c000000
   statModifiers:
     damage: 0.14

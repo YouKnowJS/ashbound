@@ -18,7 +18,7 @@ MonoBehaviour:
   nodeType: 0
   risk: 0
   rewardCategory: 0
-  rewardQuality: 1
+  rewardQuality: 0
   outgoingConnections:
   - route-a-hard
   - route-a-treasure
@@ -32,8 +32,8 @@ MonoBehaviour:
   finalBoss: {fileID: 0}
   bossReward: {fileID: 0}
   isTrueFinalBoss: 0
-  grantEquipment: 0
-  grantRelic: 0
+  grantEquipment: 1
+  grantRelic: 1
   resourceReward:
     ash: 10
     emberShards: 0

@@ -160,7 +160,7 @@ namespace Ashbound.Tests
             var elemental = catalog.weapons.Where(x => x.PrimaryElement != ElementTag.None).ToArray();
             Assert.That(catalog.weapons.Length, Is.EqualTo(20));
             Assert.That(elemental.Length, Is.EqualTo(12));
-            Assert.That(catalog.weapons.Select(x => x.rarity).Distinct(), Is.EquivalentTo(Enum.GetValues(typeof(WeaponRarity)).Cast<WeaponRarity>()));
+            Assert.That(catalog.weapons.Select(x => x.rarity), Does.Contain(WeaponRarity.Common));Assert.That(catalog.weapons.Select(x => x.rarity), Does.Contain(WeaponRarity.Rare));Assert.That(catalog.weapons.Select(x => x.rarity), Does.Contain(WeaponRarity.Epic));Assert.That(catalog.weapons.Select(x => x.rarity), Does.Contain(WeaponRarity.Legendary));
             Assert.That(elemental.Count(x => x.rarity == WeaponRarity.Legendary), Is.EqualTo(2));
             Assert.That(elemental.Where(x => x.rarity >= WeaponRarity.Rare).All(x => x.skill), Is.True);
             Assert.That(catalog.weapons.Where(x => x.rarity < WeaponRarity.Rare).All(x => !x.skill), Is.True);
@@ -405,7 +405,32 @@ namespace Ashbound.Tests
         public void V06TreasureWeightsMimicAndNodeRewardCadenceAreAuthored()
         {
             var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var variants=catalog.treasures.Single().variants;Assert.That(variants.Select(x=>x.kind),Is.EquivalentTo(Enum.GetValues(typeof(TreasureVariantKind)).Cast<TreasureVariantKind>()));Assert.That(variants.Sum(x=>x.weight),Is.EqualTo(100).Within(.001));Assert.That(variants.Single(x=>x.kind==TreasureVariantKind.Mimic).weight,Is.InRange(5,10));Assert.That(variants.Single(x=>x.kind==TreasureVariantKind.Mimic).mimicEncounter.id,Is.EqualTo("mimic-reveal"));Assert.That(catalog.FindEnemy("common-vault-mimic"),Is.Not.Null);
-            var nodes=catalog.prototypeRegion.graphVariants[0].nodes;var normal=nodes.Single(x=>x.nodeType==ExpeditionNodeType.NormalCombat);var hard=nodes.Single(x=>x.nodeType==ExpeditionNodeType.HardCombat);Assert.That(normal.grantRelic||normal.grantEquipment,Is.False);Assert.That(hard.grantEquipment,Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Relic).grantRelic,Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Boss).isTrueFinalBoss,Is.False);
+            var nodes=catalog.prototypeRegion.graphVariants[0].nodes;var combat=nodes.Where(x=>x.nodeType==ExpeditionNodeType.NormalCombat||x.nodeType==ExpeditionNodeType.HardCombat||x.nodeType==ExpeditionNodeType.Elite||x.nodeType==ExpeditionNodeType.Challenge||x.nodeType==ExpeditionNodeType.Boss).ToArray();Assert.That(combat.All(x=>x.grantRelic&&x.grantEquipment),Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Relic).grantRelic,Is.True);Assert.That(nodes.Single(x=>x.nodeType==ExpeditionNodeType.Boss).isTrueFinalBoss,Is.False);
+        }
+
+        [Test]
+        public void RewardRarityCurveScalesWithDepthRiskEliteBossMetaAndPreparation()
+        {
+            var tuning=Resources.Load<PrototypeCatalog>("PrototypeCatalog").progressionTuning;var early=new RewardRarityContext(1,1,10,NodeRiskRating.Low,RewardQuality.Common,false,false,true);var late=new RewardRarityContext(3,9,10,NodeRiskRating.Severe,RewardQuality.Rare,true,false,true,.1f,.05f);var boss=new RewardRarityContext(5,10,10,NodeRiskRating.Severe,RewardQuality.Epic,true,true,true,.1f,.05f);
+            Assert.That(RewardRarityPolicy.Weight(tuning,WeaponRarity.Common,early),Is.GreaterThan(RewardRarityPolicy.Weight(tuning,WeaponRarity.Rare,early)));Assert.That(RewardRarityPolicy.Weight(tuning,WeaponRarity.Rare,late),Is.GreaterThan(RewardRarityPolicy.Weight(tuning,WeaponRarity.Advanced,late)));Assert.That(RewardRarityPolicy.Weight(tuning,WeaponRarity.Epic,boss),Is.GreaterThan(0));Assert.That(RewardRarityPolicy.Weight(tuning,WeaponRarity.Legendary,boss),Is.GreaterThan(0));var locked=new RewardRarityContext(5,10,10,NodeRiskRating.Severe,RewardQuality.Epic,true,true,false);Assert.That(RewardRarityPolicy.Weight(tuning,WeaponRarity.Legendary,locked),Is.Zero);
+        }
+
+        [Test]
+        public void ThreatBudgetRaisesDensityAndMultiplayerCount()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var encounter=catalog.encounters.First(x=>x.id=="collapse");var solo=ThreatBudget.Plan(encounter,1,.2f,NodeRiskRating.Moderate,false,catalog.progressionTuning.threatBudget);var lateCoop=ThreatBudget.Plan(encounter,4,.9f,NodeRiskRating.Severe,true,catalog.progressionTuning.threatBudget);Assert.That(solo.TotalCount,Is.GreaterThan(solo.BaseCount));Assert.That(lateCoop.TotalCount,Is.GreaterThan(solo.TotalCount));Assert.That(lateCoop.ReinforcementCount,Is.GreaterThan(0));Assert.That(lateCoop.TotalCount,Is.LessThanOrEqualTo(catalog.progressionTuning.threatBudget.maximumEnemies));
+        }
+
+        [Test]
+        public void CommonStarterCatalogCoversEveryWeaponFamilyWithoutSkillsOrElements()
+        {
+            var catalog=Resources.Load<PrototypeCatalog>("PrototypeCatalog");var starters=Enum.GetValues(typeof(WeaponFamily)).Cast<WeaponFamily>().Select(catalog.FindWeapon).ToArray();Assert.That(starters.Length,Is.EqualTo(8));Assert.That(starters.All(x=>x&&x.rarity==WeaponRarity.Common&&!x.skill&&x.PrimaryElement==ElementTag.None),Is.True);Assert.That(starters.Select(x=>x.family),Is.EquivalentTo(Enum.GetValues(typeof(WeaponFamily)).Cast<WeaponFamily>()));
+        }
+
+        [Test]
+        public void CinderRegentHasDedicatedFiveAttackPhaseKitAndRecoveryData()
+        {
+            var boss=Resources.Load<PrototypeCatalog>("PrototypeCatalog").boss;Assert.That(Enum.GetValues(typeof(CinderRegentAttack)).Length,Is.GreaterThanOrEqualTo(4));Assert.That(boss.secondPhaseThreshold,Is.InRange(.2f,.7f));Assert.That(boss.recoveryDuration,Is.GreaterThan(0));Assert.That(boss.phaseTwoRecovery,Is.GreaterThan(0));Assert.That(boss.phaseTwoRecovery,Is.LessThan(boss.recoveryDuration));Assert.That(boss.sweepRadius,Is.GreaterThan(boss.areaRadius));Assert.That(boss.flameRingRadius,Is.GreaterThan(boss.sweepRadius));Assert.That(boss.hazardDuration,Is.GreaterThan(1));
         }
 
         [Test]

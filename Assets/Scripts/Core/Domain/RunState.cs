@@ -12,7 +12,7 @@ namespace Ashbound
         Critical, Bleed, Lightning, Fire, Frost, Mobility, Shield, Sustain, Summon, Curse,
         Poison, Void, Heavy, Combo, DashPrecision, Utility, Control, Area, DamageOverTime
     }
-    public enum Rarity { Common, Uncommon, Rare }
+    public enum Rarity { Common, Advanced, Rare, Epic, Legendary }
     public enum WeaponFamily { Sword, Spear, Greatsword, Katana, DualBlades, Bow, Staff, Spellblade }
     public enum ElementTag { None, Fire, Frost, Lightning, Poison, Void }
     public enum WeaponRarity { Common, Advanced, Rare, Epic, Legendary }

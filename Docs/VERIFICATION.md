@@ -10,6 +10,8 @@ Artifacts (git-ignored) are under `TestResults/`: `editmode.xml`, `playmode.xml`
 
 ## Automated coverage
 
+The v1.0 reward/combat validation checks guaranteed Relic-plus-Equipment drafts for every combat identity, depth/risk/Elite/Boss/meta/preparation rarity inputs, locked Legendary exclusion, threat-budget density and multiplayer count scaling, eight Common skill-free starter families, independent multiplayer starter persistence, and the Cinder Regent's five-attack phase kit.
+
 Dash-collision validation additionally checks explicit Actor/InternalObstacle/WorldBoundary layers, per-controller collision overrides, wall and pillar traversal, normal walking obstruction, collision restoration, world-edge stopping, irregular arena containment, void rejection, and connected-subspace traversal. It retains presentation, camera, and all earlier gameplay coverage.
 
 The v0.8.1 hotfix validation checks the shared English/zh-CN typography system at 1920×1080, 2560×1440, and 3440×1440; preparation labels and representative major-panel content; data-driven body radius and recovery limits; safe anchors in every Large space; true-Boss spawn clearance; automatic stuck detection; staged recovery; emergency repositioning; telemetry; and reuse by Bruisers.
@@ -50,6 +52,7 @@ The v0.8.1 hotfix validation checks the shared English/zh-CN typography system a
 - Schema-5 node, route-choice, vote, service, and menu-duration telemetry.
 - Camp startup, hidden combat room, six NPC/station mappings, avatar and fixed resource HUD, station panel opening, resource feedback, Camp camera focus, bilingual switching, and real expedition launch handoff.
 - Dash through internal wall and pillar, normal walking blocked by that wall, collision restoration, boundary clamp, irregular polygon safety, void-gap rejection, and connected-section traversal.
+- Normal and Hard combat dual-draft sequencing, final-Boss rewards before corruption, independent two-player starter weapons, and live multiplayer threat-budget spawning.
 
 Runtime tests accelerate combat with large damage or debug death calls where they are testing progression. They do **not** prove a human can beat an untuned boss or that the combat feels good. Virtual-device tests do not replace a physical controller session.
 
@@ -73,8 +76,26 @@ Runtime tests accelerate combat with large damage or debug death calls where the
 16. Open F1 → Camp → UI Layout Test. Cycle all panels, both languages, and all three target resolutions; inspect narrow labels, disabled controls, the resource line, and every preparation button.
 17. Open F1 → Ecology and enable large-body navigation diagnostics. Watch the Cinder Regent near the Divided Hall divider and obstacles, then use Force stuck and Force recovery to inspect steering candidates, safe anchors, staged recovery, and the emergency destination.
 18. Open F1 → Camera and enable Dash collision overlay. Walk into orange geometry, dash through it, then dash toward cyan boundaries, section gaps, cliffs, and transition corridors; compare yellow requested and green resolved paths.
+19. At the Expedition Table, select each local player tab and choose a different starter family. Launch and confirm each Common weapon remains equipped until that player's later Equipment replacement.
+20. Compare the same encounter solo and with four players. Confirm the larger composition and delayed reinforcement reads remain legible without crowd overlap hiding telegraphs.
+21. Fight the Cinder Regent through both phases. Confirm Sweep, Eruption, Charge, Flame Ring, and phase-two Hazards have distinct tells and usable recovery windows.
 
 ## Verification status
+
+### Reward pace, combat density, Boss kit, and starters — 2026-09-19
+
+Using Unity **6000.4.11f1** after the v1.0 progression/combat update:
+
+| Check | Result |
+|---|---|
+| Unity content generation and script compilation | Passed |
+| Edit Mode | **51 passed**, 0 failed, 0 skipped |
+| Play Mode | **29 passed**, 0 failed, 0 skipped |
+| Windows x64 development build | **Succeeded**, Mono backend |
+| Executable smoke launch | Process remained running for ten seconds; no exception, assertion, crash, or error signature found in the smoke log |
+| Human balance/readability pass | Not completed |
+
+Automated checks prove the required flows and constraints. Human testing remains necessary for reward pacing, crowd readability, Boss recovery timing, and final audio/VFX asset choices.
 
 ### Dash collision rules — 2026-09-08
 

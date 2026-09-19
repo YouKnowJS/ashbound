@@ -33,7 +33,7 @@ MonoBehaviour:
   impactPrefab: {fileID: 0}
   lightAttackSound: {fileID: 0}
   heavyAttackSound: {fileID: 0}
-  rarity: 1
+  rarity: 0
   elements: 
   skill: {fileID: 0}
   basicAttackDescription: 

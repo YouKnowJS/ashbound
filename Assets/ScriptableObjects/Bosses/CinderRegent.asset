@@ -20,6 +20,32 @@ MonoBehaviour:
   areaDamage: 25
   areaRadius: 3.1
   telegraphDuration: 1.1
+  preferredAttackDistance: 4.5
+  recoveryDuration: 1.35
+  phaseTwoRecovery: 0.82
+  sweepRadius: 5.2
+  sweepDamage: 28
+  chargeDistance: 11
+  chargeSpeed: 15
+  chargeDuration: 0.65
+  chargeDamage: 24
+  flameRingRadius: 7.2
+  flameRingWidth: 1.35
+  flameRingDamage: 22
+  hazardDamage: 13
+  hazardDuration: 4.5
+  sweepVfx: {fileID: 0}
+  eruptionVfx: {fileID: 0}
+  chargeVfx: {fileID: 0}
+  flameRingVfx: {fileID: 0}
+  summonVfx: {fileID: 0}
+  phaseTransitionVfx: {fileID: 0}
+  sweepAudio: {fileID: 0}
+  eruptionAudio: {fileID: 0}
+  chargeAudio: {fileID: 0}
+  flameRingAudio: {fileID: 0}
+  summonAudio: {fileID: 0}
+  phaseTransitionAudio: {fileID: 0}
   navigationRadius: 1.2
   minimumObstacleClearance: 0.4
   preferredMovementZone: 0.76

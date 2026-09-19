@@ -15,7 +15,7 @@ namespace Ashbound
         private void OnGUI()
         {
             if(!run||!run.DebugOpen)return;GUI.depth=-20;var old=U.Scale();U.Box(new Rect(0,0,1280,720),new Color(0,0,0,.72f));U.Panel(new Rect(35,20,1210,680));
-            U.Label(60,34,410,32,"ASHBOUND v0.9 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(470,32,112,32),"Equipment"))page=0;if(U.Click(new Rect(587,32,82,32),"Meta"))page=1;if(U.Click(new Rect(674,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(771,32,82,32),"Route"))page=3;if(U.Click(new Rect(858,32,92,32),"Camera"))page=4;if(U.Click(new Rect(955,32,82,32),"Camp"))page=5;if(U.Click(new Rect(1047,32,163,32),"Close F1"))run.DebugOpen=false;
+            U.Label(60,34,410,32,"ASHBOUND v1.0 · DEVELOPMENT LAB",U.Heading);if(U.Click(new Rect(470,32,112,32),"Equipment"))page=0;if(U.Click(new Rect(587,32,82,32),"Meta"))page=1;if(U.Click(new Rect(674,32,92,32),"Ecology"))page=2;if(U.Click(new Rect(771,32,82,32),"Route"))page=3;if(U.Click(new Rect(858,32,92,32),"Camera"))page=4;if(U.Click(new Rect(955,32,82,32),"Camp"))page=5;if(U.Click(new Rect(1047,32,163,32),"Close F1"))run.DebugOpen=false;
             if(page==1){MetaPanel();GUI.matrix=old;return;}if(page==2){EcologyPanel();GUI.matrix=old;return;}if(page==3){RoutePanel();GUI.matrix=old;return;}if(page==4){CameraPanel();GUI.matrix=old;return;}if(page==5){CampPanel();GUI.matrix=old;return;}
             if(U.Click(new Rect(60,78,145,31),"Mini-Boss")){result=run.DebugJumpToRoom(4)?"Mini-Boss ready":"Reset first";Mark();}
             if(U.Click(new Rect(215,78,145,31),"Final Boss")){result=run.DebugSkipToBoss()?"Final boss ready":"Reset first";Mark();}

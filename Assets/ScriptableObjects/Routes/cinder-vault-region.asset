@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionRegionDefinition
   id: cinder-vault-region
   displayName: The Cinder Vault
+  regionIndex: 1
   regionIntent: One complete branching 10-node region proving route identity, limited
     information, local voting, and regional-boss gating while reusing v0.5 combat
     spaces.

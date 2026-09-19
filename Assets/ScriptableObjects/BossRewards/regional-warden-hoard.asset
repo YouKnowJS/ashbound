@@ -21,6 +21,6 @@ MonoBehaviour:
     corruptionFragments: 0
   equipmentQuality: 3
   grantEquipment: 1
-  grantRelic: 0
-  futureRegionTransitionHook: Advance to a future region selector; v0.6 routes this
-    prototype through the explicit final-area gate.
+  grantRelic: 1
+  futureRegionTransitionHook: Advance to a future region selector after guaranteed
+    relic, premium equipment, and major resources.

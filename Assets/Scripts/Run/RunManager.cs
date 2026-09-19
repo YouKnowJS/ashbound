@@ -10,10 +10,11 @@ namespace Ashbound
 {
     public sealed class RunManager:MonoBehaviour
     {
-        private enum RewardFlow { None,NodeRelic,NodeEquipment,NodeRelicThenEquipment,TreasureEquipment,MimicEquipment,EventEquipment,EventRelic,BossEquipment,BossRelic,BossRelicThenEquipment,DebugEquipment }
+        private enum RewardFlow { None,NodeRelic,NodeEquipment,NodeRelicThenEquipment,TreasureEquipment,MimicEquipment,EventEquipment,EventRelic,BossEquipment,BossRelic,BossRelicThenEquipment,FinalBossRelicThenEquipment,FinalBossEquipment,DebugEquipment }
         public RunStateMachine Flow { get; }=new RunStateMachine();
         public LobbySession Lobby { get; }=new LobbySession();
         private readonly List<Combatant> players=new List<Combatant>();
+        private readonly Dictionary<string,WeaponFamily> starterWeapons=new Dictionary<string,WeaponFamily>();
         public IReadOnlyList<Combatant> Players=>players;
         public List<LoreEntry> Journal { get; }=new List<LoreEntry>();
         public PrototypeCatalog Catalog { get; private set; }
@@ -43,6 +44,11 @@ namespace Ashbound
         public int Seed { get; private set; }
         public string LocationName=>Route?.Current?.Definition?.displayName??Rooms.ActiveDisplayName;
         public ExpeditionNodeRuntime CurrentNode=>Route?.Current;
+        public WeaponFamily StarterWeapon(string playerId)=>starterWeapons.TryGetValue(playerId,out var family)?family:WeaponFamily.Sword;
+        public bool SetStarterWeapon(string playerId,WeaponFamily family)
+        {
+            if(Flow.State!=RunState.Lobby||!Lobby.Slots.Any(x=>x.PlayerId==playerId))return false;var weapon=Catalog.FindWeapon(family);if(!weapon||weapon.rarity!=WeaponRarity.Common||weapon.skill||weapon.PrimaryElement!=ElementTag.None)return false;starterWeapons[playerId]=family;return true;
+        }
         public string GraphValidation=>Route?.Validation?.Summary??"No active route graph.";
         public string ActiveMenuTelemetryKey=>RouteSelectionOpen?"Route":Draft!=null&&Draft.Active?"RelicReward":EquipmentRewards!=null&&EquipmentRewards.Active?"EquipmentReward":Treasure!=null&&!Treasure.Completed?"Treasure":Merchant!=null&&!Merchant.Closed?"Merchant":Rest!=null&&!Rest.Completed?"Rest":Event!=null&&!Event.Completed?"Event":"";
         private EntityFactory factory;private Camera view;private System.Random corruptionRandom;private LoreFragment fragment;private RewardFlow rewardFlow;private float nodeStartedAt;private bool eventCombat;private TreasureVariantKind? forcedTreasure;private bool legacyDebugCombat;
@@ -60,7 +66,7 @@ namespace Ashbound
         public bool StartRun(int seed=0)
         {
             if(Flow.State!=RunState.Lobby||!Catalog.prototypeRegion)return false;Seed=seed==0?Environment.TickCount&int.MaxValue:seed;corruptionRandom=new System.Random(Seed^7243);Combat.Seed(Seed);Lobby.Lock();Journal.Clear();Outcome=null;RouteModifiers=new RouteRunModifiers();Progression.BeginExpedition();Progression.RecordProgress(1,1);
-            for(int i=0;i<Lobby.Slots.Count;i++){var player=factory.Player(Lobby.Slots[i],i,new Vector3((i-(Lobby.Slots.Count-1)*.5f)*2,0,-6),view);players.Add(player);player.GetComponent<PlayerController>().Interacted+=Interact;player.Inventory.Added+=item=>Telemetry.Item(player,item,false);Progression.ApplyRunStart(player);}
+            for(int i=0;i<Lobby.Slots.Count;i++){var slot=Lobby.Slots[i];var player=factory.Player(slot,i,new Vector3((i-(Lobby.Slots.Count-1)*.5f)*2,0,-6),view);players.Add(player);player.GetComponent<PlayerController>().Interacted+=Interact;player.Inventory.Added+=item=>Telemetry.Item(player,item,false);Progression.ApplyRunStart(player);player.Attacks.SetWeapon(Catalog.FindWeapon(StarterWeapon(slot.PlayerId)));}
             Telemetry.Begin(Seed,players,Progression);Route=new ExpeditionRouteRuntime(Catalog.prototypeRegion,Seed,Mathf.RoundToInt(Progression.EffectPower(MetaEffectKind.RouteReveal)),players.Select(x=>x.Id));Telemetry.RouteBegin(Route.Graph.id);
             Draft=new UpgradeDraft(Catalog,Progression,Seed^8721);Draft.Selected+=(player,item)=>Telemetry.Item(player,item,true);Draft.Rerolled+=player=>Telemetry.ShopReroll(player);Draft.Finished+=OnRelicRewardFinished;
             EquipmentRewards=new EquipmentRewardDraft(Catalog,Progression,Seed^3187);EquipmentRewards.Equipped+=(player,option)=>Telemetry.Equipment(player,option,false);EquipmentRewards.Dismantled+=(player,option,value)=>Telemetry.Equipment(player,option,true);EquipmentRewards.Finished+=OnEquipmentRewardFinished;
@@ -86,7 +92,7 @@ namespace Ashbound
 
         private void BeginNodeCombat()
         {
-            if(!Flow.TryAdvance(RunState.Combat))return;Rooms.SpawnNextWave(players.Count);ApplyPendingCombatModifiers();Message=CurrentNode.Definition.nodeType==ExpeditionNodeType.Challenge?CurrentNode.Definition.challenge.description:"The route closes behind the party.";
+            if(!Flow.TryAdvance(RunState.Combat))return;int depth=Route?.Nodes.Count(x=>x.Completed)+1??1,total=Route?.Graph?.nodes?.Length??8;Rooms.SpawnNextWave(players.Count,depth,total);ApplyPendingCombatModifiers();Message=CurrentNode.Definition.nodeType==ExpeditionNodeType.Challenge?CurrentNode.Definition.challenge.description:"The route closes behind the party.";
         }
         private void ApplyPendingCombatModifiers()
         {
@@ -101,30 +107,35 @@ namespace Ashbound
             if(Treasure!=null&&Treasure.MimicActive){if(!Flow.TryAdvance(RunState.Reward))return;Treasure.MarkMimicDefeated();Telemetry.MimicResult(true);BeginEquipmentReward(RewardFlow.MimicEquipment,Promote(Treasure.Variant.rewardQuality),Treasure.Variant.offerKind);return;}
             if(eventCombat&&Event!=null){eventCombat=false;Event.CompleteCombat();if(!Flow.TryAdvance(RunState.Reward))return;CompleteCurrentNode();return;}
             var node=CurrentNode?.Definition;if(!node||!Flow.TryAdvance(RunState.Reward))return;Rooms.ClearTransientCombat();foreach(var player in players)player.Motor.Stop();Progression.Award(node.resourceReward);
-            if(node.nodeType==ExpeditionNodeType.Challenge){ChallengeActive=false;Progression.Award(node.challenge.successReward);Telemetry.ChallengeResult(node.challenge,true);CompleteCurrentNode();return;}
+            if(node.nodeType==ExpeditionNodeType.Challenge){ChallengeActive=false;Progression.Award(node.challenge.successReward);Telemetry.ChallengeResult(node.challenge,true);StartGuaranteedCombatRewards(node);return;}
             if(node.nodeType==ExpeditionNodeType.Boss){ApplyRegionalBossReward(node);return;}
-            StartAuthoredNodeReward(node);
+            StartGuaranteedCombatRewards(node);
         }
-        private void StartAuthoredNodeReward(ExpeditionNodeDefinition node)
+        private void StartGuaranteedCombatRewards(ExpeditionNodeDefinition node)
         {
-            if(node.grantRelic&&node.grantEquipment)BeginRelicReward(RewardFlow.NodeRelicThenEquipment);else if(node.grantRelic)BeginRelicReward(RewardFlow.NodeRelic);else if(node.grantEquipment)BeginEquipmentReward(RewardFlow.NodeEquipment,node.rewardQuality);else CompleteCurrentNode();
+            if(node.nodeType==ExpeditionNodeType.Elite)Progression.Award(new ResourceWallet{emberShards=2,ancientAlloy=1});BeginRelicReward(RewardFlow.NodeRelicThenEquipment,CombatRewardQuality(node));
         }
+        private static RewardQuality CombatRewardQuality(ExpeditionNodeDefinition node)=>node.nodeType==ExpeditionNodeType.Boss?RewardQuality.Epic:node.nodeType==ExpeditionNodeType.Elite?RewardQuality.Epic:node.nodeType==ExpeditionNodeType.HardCombat||node.nodeType==ExpeditionNodeType.Challenge?RewardQuality.Rare:RewardQuality.Common;
         private void ApplyRegionalBossReward(ExpeditionNodeDefinition node)
         {
-            var reward=node.bossReward;if(reward){Progression.Award(reward.resources);Telemetry.BossReward(reward);if(reward.grantRelic&&reward.grantEquipment){BeginRelicReward(RewardFlow.BossRelicThenEquipment);return;}if(reward.grantRelic){BeginRelicReward(RewardFlow.BossRelic);return;}if(reward.grantEquipment){BeginEquipmentReward(RewardFlow.BossEquipment,reward.equipmentQuality);return;}}CompleteCurrentNode();
+            var reward=node.bossReward;if(reward){Progression.Award(reward.resources);Telemetry.BossReward(reward);}else Progression.Award(new ResourceWallet{ash=28,emberShards=7,ancientAlloy=2,corruptionFragments=1});BeginRelicReward(RewardFlow.BossRelicThenEquipment,RewardQuality.Epic);
         }
 
-        private void BeginRelicReward(RewardFlow flow)
+        private void BeginRelicReward(RewardFlow flow,RewardQuality? quality=null)
         {
-            if(Flow.State==RunState.Exploration&&!Flow.TryAdvance(RunState.Reward))return;rewardFlow=flow;Message="A route-bound relic choice remains.";Draft.Begin(players);
+            if(Flow.State==RunState.Exploration&&!Flow.TryAdvance(RunState.Reward))return;rewardFlow=flow;Message="A route-bound relic choice remains.";Draft.Begin(players,RewardContext(quality??CurrentNode?.Definition?.rewardQuality??RewardQuality.Common));
         }
         private void BeginEquipmentReward(RewardFlow flow,RewardQuality quality,EquipmentOfferKind kind=EquipmentOfferKind.Mixed)
         {
-            if(Flow.State==RunState.Exploration&&!Flow.TryAdvance(RunState.Reward))return;rewardFlow=flow;Message="Equipment remains at this location.";EquipmentRewards.Begin(players,Route?.Nodes.Count(x=>x.Completed)+1??1,quality,kind);
+            if(Flow.State==RunState.Exploration&&!Flow.TryAdvance(RunState.Reward))return;rewardFlow=flow;Message="Equipment remains at this location.";EquipmentRewards.Begin(players,RewardContext(quality),kind);
+        }
+        private RewardRarityContext RewardContext(RewardQuality quality)
+        {
+            var node=CurrentNode?.Definition;int depth=Route?.Nodes.Count(x=>x.Completed)+1??1,total=Route?.Graph?.nodes?.Length??8,region=Route?.Region?.regionIndex??1;bool boss=node&&node.nodeType==ExpeditionNodeType.Boss,elite=node&&(node.nodeType==ExpeditionNodeType.Elite||node.nodeType==ExpeditionNodeType.Challenge);bool legendary=Progression.UnlockedWeapons().Any(x=>x.rarity==WeaponRarity.Legendary)||Catalog.items.Any(x=>x&&x.rarity==Rarity.Legendary&&Progression.Profile.unlockedRelics.Contains(x.id));return new RewardRarityContext(region,depth,total,node?node.risk:NodeRiskRating.Low,quality,elite,boss,legendary,Progression.PermanentEffectPower(MetaEffectKind.RareWeight),Progression.PreparationEffectPower(MetaEffectKind.RareWeight));
         }
         private void OnRelicRewardFinished()
         {
-            if(rewardFlow==RewardFlow.NodeRelicThenEquipment){BeginEquipmentReward(RewardFlow.NodeEquipment,CurrentNode.Definition.rewardQuality);return;}if(rewardFlow==RewardFlow.BossRelicThenEquipment){BeginEquipmentReward(RewardFlow.BossEquipment,CurrentNode.Definition.bossReward.equipmentQuality);return;}if(rewardFlow==RewardFlow.EventRelic){CompleteCurrentNode();return;}CompleteCurrentNode();
+            if(rewardFlow==RewardFlow.NodeRelicThenEquipment){BeginEquipmentReward(RewardFlow.NodeEquipment,CombatRewardQuality(CurrentNode.Definition));return;}if(rewardFlow==RewardFlow.BossRelicThenEquipment){BeginEquipmentReward(RewardFlow.BossEquipment,RewardQuality.Epic);return;}if(rewardFlow==RewardFlow.FinalBossRelicThenEquipment){BeginEquipmentReward(RewardFlow.FinalBossEquipment,RewardQuality.Epic);return;}if(rewardFlow==RewardFlow.EventRelic){CompleteCurrentNode();return;}CompleteCurrentNode();
         }
         private void OnEquipmentRewardFinished()
         {
@@ -132,7 +143,7 @@ namespace Ashbound
             {
                 Flow.TryAdvance(RunState.Exploration);if(Treasure.Completed)CompleteCurrentNode();else Message=Treasure.CanContinueGreed?"Take another reward at a greater cost, or leave.":"Nothing more can be taken safely. Leave the cache.";return;
             }
-            if(rewardFlow==RewardFlow.DebugEquipment){Flow.TryAdvance(RunState.Exploration);return;}CompleteCurrentNode();
+            if(rewardFlow==RewardFlow.FinalBossEquipment){rewardFlow=RewardFlow.None;StartCoroutine(AfterBossDeath());return;}if(rewardFlow==RewardFlow.DebugEquipment){Flow.TryAdvance(RunState.Exploration);return;}CompleteCurrentNode();
         }
 
         private void CompleteCurrentNode()
@@ -193,7 +204,7 @@ namespace Ashbound
         }
         private void OnTrueFinalBossDied()
         {
-            Telemetry.FinalBossKilled();Progression.Award(new ResourceWallet{ash=28,emberShards=7,ancientAlloy=2,corruptionFragments=1});Progression.RecordBoss(Catalog.boss.id);if(!Flow.TryAdvance(RunState.BossDefeated))return;Rooms.ClearTransientCombat();foreach(var player in players)player.Motor.Stop();Message="The keeper falls.\nFor a moment, the vault is silent.";StartCoroutine(AfterBossDeath());
+            Telemetry.FinalBossKilled();Progression.Award(new ResourceWallet{ash=28,emberShards=7,ancientAlloy=2,corruptionFragments=1});Progression.RecordBoss(Catalog.boss.id);if(!Flow.TryAdvance(RunState.BossDefeated))return;Rooms.ClearTransientCombat();foreach(var player in players)player.Motor.Stop();Message="The keeper falls. Claim the Regent's relic and armament.";BeginRelicReward(RewardFlow.FinalBossRelicThenEquipment,RewardQuality.Epic);
         }
         private IEnumerator AfterBossDeath(){yield return new WaitForSeconds(2);TryBeginCorruption();}
         public bool TryBeginCorruption(){if(!Flow.TryAdvance(RunState.CorruptionTransition))return false;Message="The fire looks for another vessel.";StartCoroutine(CorruptionTransition());return true;}

@@ -34,7 +34,7 @@ namespace Ashbound
                 foreach(var routeSlot in run.Lobby.Slots.Where(x=>x.InputKind==InputKind.Gamepad)){var pad=Gamepad.all.FirstOrDefault(x=>x.deviceId==routeSlot.DeviceId);if(pad==null)continue;int padChoice=pad.buttonSouth.wasPressedThisFrame?0:pad.buttonEast.wasPressedThisFrame?1:pad.buttonNorth.wasPressedThisFrame?2:-1;if(padChoice>=0&&padChoice<run.Route.Available.Count)run.CastRouteVote(routeSlot.PlayerId,run.Route.Available[padChoice].Definition.id);}
                 return;
             }
-            if (run.Flow.State != RunState.Reward || run.DebugOpen || run.ManualPaused) return;
+            bool rewardInput=run.Flow.State==RunState.Reward||(run.Flow.State==RunState.BossDefeated&&(run.Draft.Active||run.EquipmentRewards.Active));if(!rewardInput||run.DebugOpen||run.ManualPaused)return;
             if(!run.Draft.Active)
             {
                 if(!run.EquipmentRewards.Active)return;var reward=run.EquipmentRewards;var rewardSlot=run.Lobby.Slots.FirstOrDefault(s=>s.PlayerId==reward.CurrentPlayer.Id);if(rewardSlot!=null&&rewardSlot.InputKind==InputKind.Gamepad){var rewardPad=Gamepad.all.FirstOrDefault(p=>p.deviceId==rewardSlot.DeviceId);if(rewardPad!=null){if(rewardPad.buttonSouth.wasPressedThisFrame)reward.Equip(0);else if(rewardPad.buttonEast.wasPressedThisFrame&&reward.Options.Length>1)reward.Equip(1);else if(rewardPad.buttonNorth.wasPressedThisFrame)reward.Dismantle(0);else if(rewardPad.selectButton.wasPressedThisFrame)reward.Leave();}}return;
@@ -73,9 +73,9 @@ namespace Ashbound
                 else if(run.Merchant!=null&&!run.Merchant.Closed)Merchant();
                 else if(run.Rest!=null&&!run.Rest.Completed)Rest();
                 else if(run.Event!=null&&!run.Event.Completed)Event();
-                else if (run.Flow.State == RunState.Reward && run.Draft.Active) Reward();
-                else if(run.Flow.State==RunState.Reward&&run.EquipmentRewards.Active)EquipmentReward();
-                if (run.Flow.State == RunState.BossDefeated || run.Flow.State == RunState.CorruptionTransition)
+                else if ((run.Flow.State==RunState.Reward||run.Flow.State==RunState.BossDefeated)&&run.Draft.Active) Reward();
+                else if((run.Flow.State==RunState.Reward||run.Flow.State==RunState.BossDefeated)&&run.EquipmentRewards.Active)EquipmentReward();
+                if ((run.Flow.State==RunState.BossDefeated&&!run.Draft.Active&&!run.EquipmentRewards.Active)||run.Flow.State==RunState.CorruptionTransition)
                 {
                     U.Box(new Rect(0, 0, 1280, 720), new Color(.035f, .025f, .045f, .65f));
                     U.Label(260, 275, 760, 150, run.Message, U.Center);

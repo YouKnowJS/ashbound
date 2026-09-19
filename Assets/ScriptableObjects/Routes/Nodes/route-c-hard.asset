@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionNodeDefinition
   id: route-c-hard
   displayName: Broken Formation
-  description: A more demanding formation pays resources and one equipment draft.
+  description: A more demanding formation pays resources, relic, and equipment drafts.
   nodeType: 1
   risk: 2
   rewardCategory: 1
-  rewardQuality: 1
+  rewardQuality: 2
   outgoingConnections:
   - route-c-relic
   - route-c-merchant
@@ -33,7 +33,7 @@ MonoBehaviour:
   bossReward: {fileID: 0}
   isTrueFinalBoss: 0
   grantEquipment: 1
-  grantRelic: 0
+  grantRelic: 1
   resourceReward:
     ash: 15
     emberShards: 2

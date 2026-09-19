@@ -18,7 +18,7 @@ MonoBehaviour:
   nodeType: 3
   risk: 2
   rewardCategory: 6
-  rewardQuality: 1
+  rewardQuality: 2
   outgoingConnections:
   - route-c-boss
   encounter: {fileID: 11400000, guid: 7c2ad88375a986646b53d6660ce05a9d, type: 2}
@@ -31,8 +31,8 @@ MonoBehaviour:
   finalBoss: {fileID: 0}
   bossReward: {fileID: 0}
   isTrueFinalBoss: 0
-  grantEquipment: 0
-  grantRelic: 0
+  grantEquipment: 1
+  grantRelic: 1
   resourceReward:
     ash: 0
     emberShards: 0

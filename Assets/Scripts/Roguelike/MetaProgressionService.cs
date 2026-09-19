@@ -71,6 +71,11 @@ namespace Ashbound
             if(effect==MetaEffectKind.ElementBias)return Mathf.Min(total,catalog.progressionTuning.elementalBiasCap);
             return total;
         }
+        public float PermanentEffectPower(MetaEffectKind effect)
+        {
+            float total=0;foreach(var definition in catalog.facilities??Array.Empty<HubFacilityDefinition>()){if(!definition)continue;int level=Math.Min(Profile.Facility(definition.id).level,definition.MaxLevel);for(int i=0;i<level;i++)if(definition.tiers[i].effect==effect)total+=definition.tiers[i].power;}return effect==MetaEffectKind.RareWeight?Mathf.Min(total,catalog.progressionTuning.rarityWeightCap):total;
+        }
+        public float PreparationEffectPower(MetaEffectKind effect)=>ActivePreparation&&ActivePreparation.effect==effect?ActivePreparation.power:0;
         public bool PreparationAvailable(PreparationDefinition definition)=>definition&&Profile.Facility(definition.requiredFacilityId).level>=definition.requiredFacilityLevel;
         public bool SelectPreparation(PreparationDefinition definition)
         {

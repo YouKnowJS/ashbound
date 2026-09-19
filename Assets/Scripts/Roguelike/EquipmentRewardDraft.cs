@@ -23,20 +23,21 @@ namespace Ashbound
         private readonly MetaProgressionService progression;
         private readonly Queue<Combatant> queue=new Queue<Combatant>();
         private readonly System.Random random;
-        private int depth;
-        private RewardQuality quality;
         private EquipmentOfferKind offerKind;
         private ArmorSlot? forcedSlot;
+        private RewardRarityContext rarityContext;
         public Combatant CurrentPlayer { get; private set; }
         public EquipmentRewardOption[] Options { get; private set; }=Array.Empty<EquipmentRewardOption>();
         public bool Active=>CurrentPlayer;
         public WeaponRarity? ForcedRarity { get; set; }
+        public RewardRarityContext RarityContext=>rarityContext;
         public event Action Finished;
         public event Action<Combatant,EquipmentRewardOption> Equipped;
         public event Action<Combatant,EquipmentRewardOption,ResourceWallet> Dismantled;
         public EquipmentRewardDraft(PrototypeCatalog catalog,MetaProgressionService progression,int seed){this.catalog=catalog;this.progression=progression;random=new System.Random(seed);}
         public void Begin(IEnumerable<Combatant> players,int encounterDepth)=>Begin(players,encounterDepth,RewardQuality.Common,EquipmentOfferKind.Mixed);
-        public void Begin(IEnumerable<Combatant> players,int encounterDepth,RewardQuality rewardQuality,EquipmentOfferKind kind=EquipmentOfferKind.Mixed,ArmorSlot? slot=null){queue.Clear();foreach(var player in players)queue.Enqueue(player);depth=encounterDepth;quality=rewardQuality;offerKind=kind;forcedSlot=slot;NextPlayer();}
+        public void Begin(IEnumerable<Combatant> players,int encounterDepth,RewardQuality rewardQuality,EquipmentOfferKind kind=EquipmentOfferKind.Mixed,ArmorSlot? slot=null)=>Begin(players,new RewardRarityContext(1,encounterDepth,8,NodeRiskRating.Low,rewardQuality,false,false,false),kind,slot);
+        public void Begin(IEnumerable<Combatant> players,RewardRarityContext context,EquipmentOfferKind kind=EquipmentOfferKind.Mixed,ArmorSlot? slot=null){queue.Clear();foreach(var player in players)queue.Enqueue(player);rarityContext=context;offerKind=kind;forcedSlot=slot;NextPlayer();}
         public bool Equip(int index)
         {
             if(!Valid(index))return false;var option=Options[index];if(option.IsWeapon)CurrentPlayer.Attacks.SetWeapon(option.Weapon);else CurrentPlayer.Equipment.Equip(option.Armor);
@@ -51,7 +52,7 @@ namespace Ashbound
         private bool Valid(int index)=>Active&&index>=0&&index<Options.Length;
         private void NextPlayer()
         {
-            if(queue.Count==0){Cancel();Finished?.Invoke();return;}CurrentPlayer=queue.Dequeue();var choices=new List<EquipmentRewardOption>();int target=quality>=RewardQuality.Rare?3:2;
+            if(queue.Count==0){Cancel();Finished?.Invoke();return;}CurrentPlayer=queue.Dequeue();var choices=new List<EquipmentRewardOption>();int target=rarityContext.Quality>=RewardQuality.Rare?3:2;
             var weapons=progression.UnlockedWeapons().Where(x=>!ForcedRarity.HasValue||x.rarity==ForcedRarity.Value).ToList();
             var armor=progression.UnlockedArmor().Where(x=>(!ForcedRarity.HasValue||x.rarity==ForcedRarity.Value)&&(!forcedSlot.HasValue||x.slot==forcedSlot.Value)).ToList();
             while(choices.Count<target&&(weapons.Count>0||armor.Count>0))
@@ -70,12 +71,9 @@ namespace Ashbound
         }
         private T Weighted<T>(IList<T> values,Func<T,WeaponRarity> rarity,Func<T,ElementTag> element)
         {
-            var weights=new float[values.Count];float total=0;for(int i=0;i<values.Count;i++){float w=BaseWeight(rarity(values[i]));if(rarity(values[i])>=WeaponRarity.Rare)w*=1+progression.EffectPower(MetaEffectKind.RareWeight);if(element(values[i])==progression.PreferredElement)w*=1+progression.EffectPower(MetaEffectKind.ElementBias);weights[i]=w;total+=w;}
+            var weights=new float[values.Count];float total=0;for(int i=0;i<values.Count;i++){float w=RewardRarityPolicy.Weight(catalog.progressionTuning,rarity(values[i]),rarityContext);if(element(values[i])==progression.PreferredElement)w*=1+progression.EffectPower(MetaEffectKind.ElementBias);weights[i]=w;total+=w;}
+            if(total<=0)return values[random.Next(values.Count)];
             double roll=random.NextDouble()*total;for(int i=0;i<values.Count;i++){roll-=weights[i];if(roll<=0)return values[i];}return values[values.Count-1];
-        }
-        private float BaseWeight(WeaponRarity rarity)
-        {
-            float depthBonus=Mathf.Clamp01(depth/7f);float qualityBonus=(int)quality*.18f;return rarity==WeaponRarity.Common?Mathf.Max(.15f,1.2f-depthBonus*.45f-qualityBonus):rarity==WeaponRarity.Advanced?1.05f+qualityBonus*.35f:rarity==WeaponRarity.Rare?.55f+depthBonus*.25f+qualityBonus:rarity==WeaponRarity.Epic?.16f+depthBonus*.16f+qualityBonus*.65f:.025f+depthBonus*.04f+qualityBonus*.22f;
         }
     }
 }

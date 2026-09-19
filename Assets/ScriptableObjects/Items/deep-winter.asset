@@ -15,7 +15,7 @@ MonoBehaviour:
   id: deep-winter
   displayName: Deep Winter
   description: Chill slows more strongly and lasts longer.
-  rarity: 2
+  rarity: 3
   tags: 04000000
   statModifiers:
     damage: 0

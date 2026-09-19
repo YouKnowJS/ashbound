@@ -15,7 +15,7 @@ MonoBehaviour:
   id: toxicity
   displayName: Toxicity
   description: Apply an additional long Poison profile.
-  rarity: 2
+  rarity: 3
   tags: 0a0000000d000000
   statModifiers:
     damage: 0

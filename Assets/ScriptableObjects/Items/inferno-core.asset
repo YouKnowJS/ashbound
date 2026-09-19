@@ -15,7 +15,7 @@ MonoBehaviour:
   id: inferno-core
   displayName: Inferno Core
   description: Repeated Burn reaches an explosive capstone.
-  rarity: 2
+  rarity: 3
   tags: 030000000c000000
   statModifiers:
     damage: 0.12

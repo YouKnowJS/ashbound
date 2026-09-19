@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ashbound.Runtime::Ashbound.ExpeditionNodeDefinition
   id: route-a-elite
   displayName: Warden Escort
-  description: An elite composition offers a stronger equipment reward.
+  description: An elite composition offers stronger relic and equipment drafts plus
+    rare materials.
   nodeType: 2
   risk: 3
   rewardCategory: 1
-  rewardQuality: 2
+  rewardQuality: 3
   outgoingConnections:
   - route-a-rest
   - route-a-event
@@ -33,7 +34,7 @@ MonoBehaviour:
   bossReward: {fileID: 0}
   isTrueFinalBoss: 0
   grantEquipment: 1
-  grantRelic: 0
+  grantRelic: 1
   resourceReward:
     ash: 20
     emberShards: 5

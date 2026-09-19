@@ -60,7 +60,7 @@ stateDiagram-v2
     RunComplete --> Lobby: reset
 ```
 
-Each regular room has two waves, each with a reward. After the last reward, the gate unlocks. Only a nearby player interaction travels to the next room. The two-second boss-death pause precedes a 1.6-second corruption transition. Physics/combat pauses during reward, transitions, and menus. Movement alone is allowed in Exploration.
+Every completed combat node resolves a per-player Relic draft and then a per-player Equipment draft before its gate unlocks. Only a nearby player interaction travels to the next room. The final Boss resolves the same premium reward sequence in `BossDefeated`; the two-second pause and 1.6-second corruption transition begin only after those choices finish. Physics/combat pauses during reward, transitions, and menus. Movement alone is allowed in Exploration.
 
 `RunStateMachine` rejects corruption from every state except BossDefeated and requires the boss-death latch before FinalPvP. Debug boss skipping is a separately named operation; it does not mark the boss defeated. Normal friendly fire stays off. Damage requires the appropriate run state even if an attack or status retains a reference to its source.
 
@@ -81,7 +81,7 @@ Player Dash collision is resolved separately from ordinary movement. `RoomView` 
 
 ## Data and upgrades
 
-`ItemDefinition` includes ID, display name, description, rarity, tags, stat modifiers, triggered effects, optional on-hit statuses, and an optional prerequisite. Each relic is unique per actor. Drafts shuffle eligible relics without replacement and offer up to three; exhausted debug inventories are safely skipped.
+`ItemDefinition` includes ID, display name, description, rarity, tags, stat modifiers, triggered effects, optional on-hit statuses, and an optional prerequisite. Each relic is unique per actor. Drafts select eligible relics without replacement using `RewardRarityPolicy`; exhausted inventories are safely skipped. `ProgressionTuningDefinition` owns Early/Mid/Late/Boss weights and combines region, depth, risk, Elite/Boss status, permanent progression, and preparation. Legendary remains a small chance only after it is unlocked.
 
 `WeaponDefinition` keeps weapon family independent from elemental tags and adds Common through Legendary rarity, on-hit status data, descriptive identity, and an optional `WeaponSkillDefinition`. The generic skill executor supports dash melee, radial burst, projectile volley, persistent zone, and gravity-well delivery without weapon-specific controller classes.
 
@@ -102,7 +102,7 @@ Base crit is 8%, critical multiplier is 1.7. Bleed and secondary effect damage u
 
 ## Boss, corruption, and solo
 
-`CinderRegentController` cycles a telegraphed projectile fan, marked area blast, and a marked lunge. Below 40% health it accelerates attacks and adds area threats. Its identity and tuning live in `BossDefinition`, which references `BossCorruptionProfile`.
+`CinderRegentController` owns five attacks rather than reusing `EnemyBrain`: Wide Sweep, Ground Eruption, Charge Rush, Expanding Flame Ring, and Summon Hazards. Selection considers range and avoids immediate repeats. Below 40% health it shortens recovery, widens the sweep, branches eruptions, adds a ring step, and unlocks persistent arena-safe hazards. `BossDefinition` stores attack tuning plus per-attack and phase-transition VFX/audio hooks alongside `BossCorruptionProfile`.
 
 After boss death, all players are restored for the final encounter. Two/three players produce one corrupted player. Four players produce one or two, configurable in the catalog/debug menu. `CorruptionSelector` samples unique IDs; forced debug IDs still respect the allowed count and must belong to the locked roster. All surviving/dead roster members are eligible. Team allies remain protected; only opposing teams damage each other by default.
 
@@ -125,10 +125,10 @@ Solo never creates an AI ally. `BuildAnalyzer` counts relic, weapon, element, We
 | `Combat/CombatProjectile`, `AreaAttack` | Swept projectiles and telegraphed/lasting area damage |
 | `Enemies/EnemyDefinition`, `EnemyBrain`, `EnemyRoleBehaviour` | Data-driven enemy identity plus ten separated role strategies |
 | `Enemies/EnemyElementRuntime`, `RegionEnemyPoolDefinition` | Element mechanics layered over roles and future region ecology pools |
-| `Bosses/CinderRegentController` | Boss patterns and health phase |
-| `Roguelike/UpgradeDraft`, `UpgradeEffectController` | Choice lifecycle and proc interpretation |
+| `Bosses/CinderRegentController`, `BossDefinition` | Five-attack dedicated Boss state logic, phase mechanics, telegraphs, recovery, and presentation hooks |
+| `Roguelike/UpgradeDraft`, `EquipmentRewardDraft`, `RewardRarityPolicy` | Guaranteed choice lifecycle, data-driven rarity, and proc interpretation |
 | `Items/*Definition`, `PlayerInventory`, `PlayerEquipment`, `WeaponSkillExecutor` | Relic/weapon/skill/armor data, ownership, set evaluation, and skill delivery |
-| `Rooms/EncounterDefinition`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Composed encounters, irregular connected graybox spaces, collision categories, dash endpoint resolution, seals, and spawning |
+| `Rooms/EncounterDefinition`, `ThreatBudget`, `CombatSpaceDefinition`, `RoomDirector`, `RoomView` | Role-composed encounters, density/reinforcement scaling, irregular spaces, dash resolution, seals, and spawning |
 | `Routes/*Definition`, `ExpeditionRouteRuntime`, `RouteNodeSessions` | Seeded graph topology, visibility/voting, node services, and regional Boss rewards |
 | `Run/RunManager` | Run orchestration, checkpoints, final outcome, reset |
 | `Camp/CampHub` | Walkable camp world, NPC/station interaction, camp panels and fixed resource HUD |
@@ -164,4 +164,4 @@ The route graph is an abstract progression layer over the playable world. `Exped
 
 Node services are short-lived runtime sessions. Treasure, Merchant, Rest, and Event sessions own their own costs and completion rules. Combat nodes return through the same encounter, enemy-brain, and space pipeline as v0.5. The graph Boss is explicitly regional; only the separate final-area gate changes the state machine to `BossFight`, preserving the corruption security boundary.
 
-Reward cadence is authored per node. Normal Combat does not automatically open either draft. Hard and Elite can request equipment at distinct quality floors; Relic owns relic selection; Treasure owns targeted/costed equipment; Merchant spends the run wallet; Rest owns recovery/Temper; and the Boss uses `BossRewardDefinition`.
+All combat nodes guarantee Relic then Equipment drafts. Normal, Hard, Elite, Challenge, and Boss identities select increasingly strong rarity contexts; Elite adds rare materials and Boss adds major resources. Non-combat Relic, Treasure, Merchant, Rest, and Event nodes retain their specialized services. See [REWARD_PACE_COMBAT_BOSS_STARTERS.md](REWARD_PACE_COMBAT_BOSS_STARTERS.md).
